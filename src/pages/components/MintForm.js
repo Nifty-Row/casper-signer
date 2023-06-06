@@ -196,7 +196,7 @@ const MintForm = (key) => {
       tokenId: tokenId,
       deployerKey: publicKey,
       ownerKey: publicKey,
-      tokenHash: tokenHash,
+      tokenHash: "",
       name: nftName,
       description: nftDescription,
       socialMediaLink: socialMediaLink,

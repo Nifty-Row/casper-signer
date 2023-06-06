@@ -69,7 +69,10 @@ export default function NFTDetails() {
     if (tokenId) {
       fetch(`https://shark-app-9kl9z.ondigitalocean.app/api/nft/${tokenId}`)
         .then((response) => response.json())
-        .then((data) => setNFT(data))
+        .then((data) => {
+          setNFT(data);
+          console.log("NBD",data);
+        })
         .catch((error) => console.error(error));
     }
   }, [tokenId]);
