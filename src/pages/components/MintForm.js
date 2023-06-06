@@ -70,9 +70,29 @@ const MintForm = (key) => {
     token();
     generateTokenId();
   }, [newKey]);
-
   useEffect(() => {
     const grantMinterAsync = async () => {
+      const getUserDataByKey = async (publicKey) => {
+        try {
+          const url = `https://shark-app-9kl9z.ondigitalocean.app/api/user/userByKey/${publicKey}`;
+          const response = await axios.get(url, { publicKey });
+  
+          if (response.status === 200) {
+            const canMint = response.data.canMint;
+            if (canMint) {
+              setCanMint(true);
+            } else {
+              grantMinter(publicKey);
+            }
+          } else {
+            console.error("Error:", response.data);
+            swal("Error", response.data, "error");
+          }
+        } catch (error) {
+          console.error("Error:", error);
+        }
+      };
+  
       if (newKey && !canMint) {
         try {
           let result = await getUserDataByKey(newKey);
@@ -82,10 +102,10 @@ const MintForm = (key) => {
         }
       }
     };
-
+  
     grantMinterAsync();
-  }, [getUserDataByKey, newKey]);
-
+  }, [newKey, canMint]);
+  
   const handleSubmit = async (event) => {
     event.preventDefault();
 

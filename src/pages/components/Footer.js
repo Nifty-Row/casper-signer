@@ -1,7 +1,6 @@
 /* eslint-disable react/no-unescaped-entities */
 /* eslint-disable @next/next/no-html-link-for-pages */
 /* eslint-disable @next/next/no-img-element */
-import { useEffect, useState } from "react";
 
 const Footer = () => {
   return (
@@ -124,8 +123,8 @@ const Footer = () => {
           </div>
         </div>
       </footer>
-      <script src="../../assets/js/bundle.js"></script>
-      <script src="../../assets/js/scripts.js"></script>
+      <script src="../../assets/js/bundle.js" async></script>
+      <script src="../../assets/js/scripts.js" async></script>
     </>
   );
 };

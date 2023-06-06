@@ -18,7 +18,7 @@ export default function Home() {
       .then((data) => setNFTs(data))
       .catch((error) => console.error(error));
     console.log(nfts);
-  }, []);
+  }, [nfts]);
 
   return (
     <>

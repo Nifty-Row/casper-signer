@@ -37,7 +37,7 @@ export default function nftDetails() {
     <div>
       <h1>NFT Details</h1>
       <div>
-        <img src={nft.artworkUrl} alt="Artwork" />
+        <Image src={nft.artworkUrl} alt="Artwork" />
         <h2>{nft.mediaName}</h2>
         <p>{nft.description}</p>
         {/* Render additional details based on your NFT data */}

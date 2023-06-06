@@ -70,7 +70,7 @@ const Mint = () => {
   const testDeploy = async () => {
     swal("Notice", "Testinging Deployment", "Warning");
     const nftData = {
-      tokenId: "1esdaiasasa21e3bcd",
+      tokenId: "1esdaiasasa21e34abcd",
       deployerKey: publicKey,
       ownerKey: publicKey,
       tokenHash: "",
@@ -103,12 +103,15 @@ const Mint = () => {
     const myList = new CLList([a]);
     const token_ids = new CLOption(Some(myList));
 
-    const temp = new CLMap(
-      Object.entries(nftData)
-        .filter(([_, value]) => value !== '' && value !== undefined)
-        .map(([key, value]) => [new CLString(key), new CLString(value)])
-    );
-    
+    const temp = new CLMap([
+      [new CLString("name"), new CLString(nftData.name)],
+      [new CLString("description"), new CLString(nftData.description)],
+      [new CLString("socialMediaLink"), new CLString(nftData.socialMediaLink)],
+      [new CLString("assetSymbol"), new CLString(nftData.assetSymbol)],
+      [new CLString("assetType"), new CLString(nftData.assetType)],
+      [new CLString("mediaType"), new CLString(nftData.mediaType)],
+      [new CLString("artworkUrl"), new CLString(nftData.artworkUrl)],
+    ]);
 
     const token_metas = new CLList([temp]);
     const token_commissions = new CLList([temp]);
@@ -398,7 +401,7 @@ const Mint = () => {
       }
     };
     checkSignerConnection();
-  }, []);
+  }, [signerConnected]);
 
   const testBid = async () => {
     alert("testing bid");

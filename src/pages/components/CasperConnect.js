@@ -72,7 +72,7 @@ function CasperConnect() {
       }
     };
     checkSignerConnection();
-  }, []);
+  }, [signerConnected]);
 
   return (
     <button

@@ -76,7 +76,7 @@ export default function walletConnect() {
       }
     };
     checkSignerConnection();
-  }, []);
+  }, [signerConnected]);
 
   return (
     <>

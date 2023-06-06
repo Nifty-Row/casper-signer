@@ -38,7 +38,7 @@ const Header = () => {
       }
     };
     checkSignerConnection();
-  }, []);
+  }, [signerConnected]);
 
   return (
     <header className="header-section has-header-main">
