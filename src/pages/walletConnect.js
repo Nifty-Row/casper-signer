@@ -10,15 +10,20 @@ import Mint from "./components/mint";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import { Signer } from "casper-js-sdk";
+import { WalletService } from '../utils/WalletServices';
 import {
   checkConnection,
   getActiveKeyFromSigner,
   connectCasperSigner,
+  connectCasperWallet,
 } from "../utils/CasperUtils";
+import swal from "sweetalert";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export default function walletConnect() {
+
+  console.log("Service : ",WalletService);
   const [signerConnected, setSignerConnected] = useState(false);
   const [publicKey, setPublicKey] = useState(null);
   const [signerLocked, setSignerLocked] = useState(true);
@@ -49,24 +54,27 @@ export default function walletConnect() {
       }
     }
   };
+  const connectCasperWallet = async () => {
+    WalletService.connect();
+  }
 
   useEffect(() => {
     setTimeout(async () => {
       try {
-        // const connected = await checkConnection();
-        // setSignerConnected(connected);
+        const connected = await WalletService.isSiteConnected();
+        swal("Info","Is site connected ? :"+connected,"info");
+        setSignerConnected(connected);
       } catch (err) {
+        swal("Info","Is site connected ? :"+err.message,"info");
         console.log(err);
       }
     }, 100);
 
     const checkSignerConnection = async () => {
       try {
-        if (signerConnected) setActiveKey(await getActiveKeyFromSigner());
-        const signer = await Signer.isConnected();
-        console.log("Signer Connected", signer);
-        const publicKeyHex = await getActiveKeyFromSigner();
-        console.log(publicKeyHex);
+        if (signerConnected) setActiveKey(await WalletService.getActivePublicKey());
+        const publicKeyHex = await WalletService.getActivePublicKey();
+        console.log("Wallet Public Key :",publicKeyHex);
         // // const publicKey = publicKeyHex.slice(0, 8); // take the first 8 characters
         setPublicKey(publicKeyHex);
       } catch (error) {
@@ -103,7 +111,7 @@ export default function walletConnect() {
       <section class="wallet-section section-space-b">
         <div class="container">
           <div class="row g-gs">
-            <div class="col-sm-12 col-md-12 col-xl-6">
+            {/* <div class="col-sm-12 col-md-12 col-xl-6">
               <a
                 href="#"
                 onClick={connectCasperSigner}
@@ -117,11 +125,11 @@ export default function walletConnect() {
                 <h6 class="mb-3">Casper Signer</h6>
                 <span class="btn btn-sm btn-outline-secondary">Connect</span>
               </a>
-            </div>
-            <div class="col-sm-12 col-md-12 col-xl-6">
+            </div> */}
+            <div class="col-sm-12 col-md-12 col-xl-12">
               <a
                 href="#"
-                onClick={connectCasperSigner}
+                onClick={connectCasperWallet}
                 class="card-media card-full card-media-s1 flex-column justify-content-center flex-wrap p-4"
               >
                 <img
@@ -130,7 +138,7 @@ export default function walletConnect() {
                   class="card-media-img flex-shrink-0 me-0 mb-3"
                 />
                 <h6 class="mb-3">Casper Wallet</h6>
-                <span class="btn btn-sm btn-outline-secondary">Connect</span>
+                <span class="btn btn-sm btn-outline-secondary">{buttonLabel}</span>
               </a>
             </div>
           </div>

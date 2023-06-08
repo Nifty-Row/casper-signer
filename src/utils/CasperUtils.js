@@ -1,10 +1,14 @@
-// signerUtils.js
+// casperUtils.js
 import { Signer } from "casper-js-sdk";
-import { useState, useEffect } from "react";
+
+// const CasperWalletProvider = window.CasperWalletProvider;
+// const CasperWalletEventTypes = window.CasperWalletEventTypes;
+
+// const provider = new CasperWalletProvider();
 
 export const checkConnection = async () => {
   try {
-    let isConnected = await Signer.isConnected();
+    const isConnected = await Signer.isConnected();
     return isConnected;
   } catch (error) {
     if (
@@ -28,20 +32,17 @@ export const checkConnection = async () => {
 };
 
 export async function getActiveKeyFromSigner() {
-  // Implementation of getActiveKeyFromSigner function
   try {
-    checkConnection();
-    if (Signer.isConnected()) {
-      // alert("Is connected" + Signer.isConnected());
-      console.log("is connected ?", await Signer.isConnected());
+    await checkConnection();
+    if (await Signer.isConnected()) {
+      console.log("is connected?", await Signer.isConnected());
       const key = await Signer.getActivePublicKey();
-      console.log("Wallet Public Key :" + key);
+      console.log("Wallet Public Key:", key);
       return key;
     } else {
-      // alert("Is not conneced");
+      // Handle case when not connected
     }
   } catch (error) {
-    // alert("error ooo " + error);
     return false;
   }
 }
@@ -49,22 +50,37 @@ export async function getActiveKeyFromSigner() {
 // ...other functions
 
 export const connectCasperSigner = async () => {
-  if (!getActiveKeyFromSigner()) {
-    alert("signer not connected");
+  if (!(await getActiveKeyFromSigner())) {
+    alert("Signer not connected");
   }
   try {
-    // confirm("Are you sure ?");
     try {
-      let connectSigner = await Signer.sendConnectionRequest();
+      await Signer.sendConnectionRequest();
     } catch (e) {
       alert(e.message);
     }
-
-    console.log("connectSigner", connectSigner);
-    // swal("Notice", connectSigner, "success");
-    getActiveKeyFromSigner();
+    console.log("Connected to signer");
+    await getActiveKeyFromSigner();
   } catch (error) {
-    getActiveKeyFromSigner();
-    // alert("Failed to connect to the signer:", error.message);
+    await getActiveKeyFromSigner();
+    console.log("Failed to connect to the signer:", error.message);
   }
 };
+
+// export const connectCasperWallet = async () => {
+//   if (!(await getActiveKeyFromSigner())) {
+//     alert("Signer not connected");
+//   }
+//   try {
+//     try {
+//       await Signer.sendConnectionRequest();
+//     } catch (e) {
+//       alert(e.message);
+//     }
+//     console.log("Connected to signer");
+//     await getActiveKeyFromSigner();
+//   } catch (error) {
+//     await getActiveKeyFromSigner();
+//     console.log("Failed to connect to the signer:", error.message);
+//   }
+// };

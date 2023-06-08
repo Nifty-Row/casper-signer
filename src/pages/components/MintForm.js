@@ -19,10 +19,10 @@ import {
 } from "casper-js-sdk";
 
 import { checkConnection, getActiveKeyFromSigner } from "@/utils/CasperUtils";
+import { WalletService } from "@/utils/WalletServices";
 
 const MintForm = (key) => {
   let newKey = key.publicKeyProp;
-  console.log("New Key ", newKey);
   const [publicKey, setPublicKey] = useState(null);
 
   const [category, setCategory] = useState("");
@@ -70,29 +70,12 @@ const MintForm = (key) => {
     token();
     generateTokenId();
   }, [newKey]);
+
   useEffect(() => {
     const grantMinterAsync = async () => {
-      const getUserDataByKey = async (publicKey) => {
-        try {
-          const url = `https://shark-app-9kl9z.ondigitalocean.app/api/user/userByKey/${publicKey}`;
-          const response = await axios.get(url, { publicKey });
-  
-          if (response.status === 200) {
-            const canMint = response.data.canMint;
-            if (canMint) {
-              setCanMint(true);
-            } else {
-              grantMinter(publicKey);
-            }
-          } else {
-            console.error("Error:", response.data);
-            swal("Error", response.data, "error");
-          }
-        } catch (error) {
-          console.error("Error:", error);
-        }
-      };
-  
+     
+      await getUserDataByKey(newKey);
+
       if (newKey && !canMint) {
         try {
           let result = await getUserDataByKey(newKey);
@@ -162,14 +145,14 @@ const MintForm = (key) => {
 
     formData.append("mediaType", category.toLowerCase());
     formData.append("files", files);
-    // swal({
-    //   title: "Submitting...",
-    //   text: "Please wait while we process your request.",
-    //   icon: "info",
-    //   buttons: false,
-    //   closeOnClickOutside: false,
-    //   closeOnEsc: false,
-    // });
+    swal({
+      title: "Submitting...",
+      text: "Please wait while we process your request.",
+      icon: "info",
+      buttons: false,
+      closeOnClickOutside: false,
+      closeOnEsc: false,
+    });
     console.log(files);
     try {
       const { data } = await axios.post(
@@ -233,7 +216,6 @@ const MintForm = (key) => {
       movieThumbnailUrl: movieThumbnailUrl,
       movieFileUrl: movieFileUrl,
     };
-    console.log("nftData", nftData);
 
     const contract = new Contracts.Contract();
     contract.setContractHash(
@@ -353,59 +335,18 @@ const MintForm = (key) => {
 
     // Prepare the deploy
     const jsonDeploy = DeployUtil.deployToJson(deploy);
-    try {
-      // Sign the deploy
-      const signedDeploy = await Signer.sign(jsonDeploy, publicKey);
 
-      const backendData = {
-        signedDeployJSON: signedDeploy,
-      };
-
-      // Send to the backend server for deployment
-      const response = await axios.post(
-        "https://shark-app-9kl9z.ondigitalocean.app/api/nft/deploySigned",
-        backendData,
-        { headers: { "Content-Type": "application/json" } }
-      );
-      const data = JSON.stringify(response);
-      swal("Response", data, "success");
-      console.log(response);
-      // alert(response.data);
-      const hash = signedDeployJSON.deploy.hash;
-      nftData.tokenHash = hash;
-    } catch (error) {
-      swal("Error!", error.message, "error");
-      alert(error.message);
-    }
-    const tokenMetas = nftData;
-    console.log(nftData);
-    try {
-      const createResponse = await fetch(
-        "https://shark-app-9kl9z.ondigitalocean.app/api/nft/addNft",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(nftData),
-        }
-      );
-      swal(JSON.stringify(createResponse));
-      if (createResponse.nft) {
-        swal(
-          "Mint Successful!",
-          `NFT ${createResponse.nft.assetSymbol} Minted successfully.`,
-          "success"
-        );
-      } else {
-        alert("Failed to create NFT.");
-      }
-    } catch (error) {
-      console.log(error);
-      swal("Error!", "An error occurred while creating NFT.", "Error");
-    }
-
-    return false;
+    deployNFT(deploy,jsonDeploy)
+      .then(data => {
+        swal("Deployment ", data, "success");
+        console.log(data);
+        saveNFT(nftData);
+      })
+      .catch(error => {
+        swal("Deployment Error", error.message, "error");
+        console.error(error);
+      });
+    alert("redirect  here");
   };
 
   async function grantMinter(publicKey) {
@@ -448,9 +389,7 @@ const MintForm = (key) => {
 
       const response = await axios.get(url, { publicKey });
 
-      if (response.status === 200) {
-        console.log(response);
-        // return;
+      if (response.status === 200) { 
         const canMint = response.data.canMint;
         if (canMint) {
           setCanMint(true);
@@ -467,6 +406,81 @@ const MintForm = (key) => {
     } catch (error) {
       console.error("Error:", error);
     }
+  }
+
+  async function saveNFT(nftData){
+    swal({
+      title: "Saving NFT",
+      text: "Please wait while we process your request.",
+      icon: "info",
+      buttons: false,
+      closeOnClickOutside: false,
+      closeOnEsc: false,
+    });
+    try {
+      const createResponse = await fetch(
+        "https://shark-app-9kl9z.ondigitalocean.app/api/nft/addNft",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(nftData),
+        }
+      );
+      swal(JSON.stringify(createResponse));
+      if (createResponse.nft) {
+        swal(
+          "Mint Successful!",
+          `NFT ${createResponse.nft.assetSymbol} Saved successfully.`,
+          "success"
+        );
+      } else {
+        alert("Failed to create NFT.");
+      }
+    } catch (error) {
+      console.log(error);
+      swal("Error!", "An error occurred while creating NFT.", "Error");
+    }
+
+  }
+  async function deployNFT(deploy,jsonDeploy){
+
+    console.log("JSON DEPLOY ",jsonDeploy);
+    // Sign the deploy
+    const signedDeploy = WalletService.sign(JSON.stringify(jsonDeploy), publicKey)
+    .then(async res => {
+      if (res.cancelled) {
+        swal("Warning",'Sign cancelled',"info");
+      } else {
+        const signedDeploy = DeployUtil.setSignature(
+          deploy,
+          res.signature,
+          CLPublicKey.fromHex(publicKey)
+        );
+        const backendData = {
+          signedDeployJSON: signedDeploy,
+        };
+        console.log(backendData);
+        try {
+          if(signedDeploy){
+            // Send to the backend server for deployment
+            const response = await axios.post(
+              "https://shark-app-9kl9z.ondigitalocean.app/api/nft/deploySigned",
+              backendData,
+              { headers: { "Content-Type": "application/json" } }
+            );
+            const data = JSON.stringify(response);
+            console.log("Sever Response",response);
+            return response;
+          }
+        }catch (error) {
+          swal("Error!", error.message, "error");
+          return false;
+        }
+      }
+    });
+
   }
 
   return (

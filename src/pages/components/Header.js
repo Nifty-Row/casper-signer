@@ -1,11 +1,8 @@
 /* eslint-disable @next/next/no-html-link-for-pages */
 /* eslint-disable @next/next/no-img-element */
 import { useEffect, useState } from "react";
-import {
-  checkConnection,
-  getActiveKeyFromSigner,
-  connectCasperSigner,
-} from "../../utils/CasperUtils";
+import {WalletService} from "../../utils/WalletServices";
+import {truncateKey} from "../../utils/generalUtils";
 import swal from "sweetalert";
 import { Signer } from "casper-js-sdk";
 
@@ -17,23 +14,23 @@ const Header = () => {
   useEffect(() => {
     setTimeout(async () => {
       try {
-        const key = await getActiveKeyFromSigner();
-        if (key) {
-          console.log("Key : " + key);
-          setPublicKey(key);
-        }
+        const connected = await WalletService.isSiteConnected();
+        // swal("Info","Is site connected ? :"+connected,"info");
+        setSignerConnected(connected);
       } catch (err) {
+        swal("Info","Is Wallet connected ? :"+err.message,"info");
         console.log(err);
-        // console.log(Signer);
       }
     }, 100);
 
     const checkSignerConnection = async () => {
       try {
-        if (signerConnected) setPublicKey(await getActiveKeyFromSigner());
+        if (signerConnected) setActiveKey(await WalletService.getActivePublicKey());
+        const publicKeyHex = await WalletService.getActivePublicKey();
+        setPublicKey(publicKeyHex);
       } catch (error) {
         setError(
-          "There was an error connecting to the Casper Signer. Please make sure you have the Signer installed and refresh the page before trying again."
+          "There was an error connecting to the Casper Wallet. Please make sure you have the Casper Wallet installed and refresh the page before trying again."
         );
       }
     };
@@ -95,7 +92,14 @@ const Header = () => {
                 )}
                 {publicKey !== "" && (
                   <li>
-                    <a href="../../create" className="btn btn-info">
+                    <a href="../../profile" className="btn btn-primary">
+                     Profile {truncateKey(publicKey)}
+                    </a>
+                  </li>
+                )}
+                {publicKey !== "" && (
+                  <li>
+                    <a href="../../create" className="btn btn-success">
                       Mint NFT
                     </a>
                   </li>
