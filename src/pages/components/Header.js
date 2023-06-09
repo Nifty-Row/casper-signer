@@ -18,7 +18,7 @@ const Header = () => {
         // swal("Info","Is site connected ? :"+connected,"info");
         setSignerConnected(connected);
       } catch (err) {
-        swal("Info","Is Wallet connected ? :"+err.message,"info");
+        swal("Attention",err.message,"warning");
         console.log(err);
       }
     }, 100);
@@ -37,6 +37,14 @@ const Header = () => {
     checkSignerConnection();
   }, [signerConnected]);
 
+  const handleDisconnect = async () => {
+    WalletService.disconnect().then(() => {
+      const router = require("next/router").default;
+      router.push("/");
+    });
+  };
+
+
   return (
     <header className="header-section has-header-main">
       <div className="header-main is-sticky bg-dark ">
@@ -50,12 +58,51 @@ const Header = () => {
                   alt="logo"
                 />
                 <img
+                  src="../../casperSigner-icon.svg"
+                  alt="logo"
+                  class="card-media-img flex-shrink-0 me-0 mb-3"
+                />
+                <img
                   className="logo-light logo-img"
                   src="../../NiftyRow-logo-dark.png"
                   alt="logo"
                 />
               </a>
             </div>
+            <div class="header-mobile-action">
+    <div class="header-search-mobile dropdown me-2">
+        <a class="icon-btn" href="#" data-bs-toggle="dropdown"><em class="ni ni-search"></em></a>
+        <div class="dropdown-menu dropdown-menu-end card-generic">
+            <div class="input-group">
+                <input type="search" class="form-control form-control-s1" placeholder="Search item here..." /><a href="#" class="btn btn-sm btn-outline-secondary"><em class="ni ni-search"></em></a>
+            </div>
+        </div>
+    </div>
+    <div class="header-mobile-user-menu dropdown me-2">
+        <button type="button" class="icon-btn" data-bs-toggle="dropdown" aria-expanded="false"><em class="ni ni-user"></em></button>
+        <ul class="dropdown-menu card-generic card-generic-s3 dropdown-menu-end mt-2">
+            <li><h6 class="dropdown-header">Hello !</h6></li>
+            <li>
+                <a class="dropdown-item card-generic-item" href="user/profile"><em class="ni ni-user me-2"></em> Profile</a>
+            </li>
+            <li>
+                <a class="dropdown-item card-generic-item" href="user/dashboard"><em class="ni ni-dashboard me-2"></em> Dashboard</a>
+            </li>
+            
+            <li>
+                <a href="#" class="dropdown-item card-generic-item theme-toggler" title="Toggle Dark/Light mode"><em class="ni ni-moon me-2"></em> Dark Mode</a>
+            </li>
+            <li><hr class="dropdown-divider" /></li>
+            <li>
+                <a class="dropdown-item card-generic-item" href="index.html"><em class="ni ni-power me-2"></em> Logout</a>
+            </li>
+        </ul>
+    </div>
+    <div class="header-toggle">
+        <button class="menu-toggler"><em class="menu-on menu-icon ni ni-menu"></em><em class="menu-off menu-icon ni ni-cross"></em></button>
+    </div>
+</div>
+
 
             <div className="header-search-form">
               <input
@@ -122,6 +169,30 @@ const Header = () => {
                     <span className="theme-toggler-text">Dark Mode</span>
                   </a>
                 </li>
+              </ul>
+              <ul class="menu-btns menu-btns-2">
+                
+                <li class="d-none d-lg-inline-block dropdown">
+                    <button type="button" class="icon-btn icon-btn-s1" data-bs-toggle="dropdown"><em class="ni ni-user"></em></button>
+                    <ul class="dropdown-menu card-generic card-generic-s3 dropdown-menu-end mt-2">
+                        <li><h6 class="dropdown-header">Hello !</h6></li>
+                        <li>
+                            <a class="dropdown-item card-generic-item" href="../user/profile"><em class="ni ni-user me-2"></em> Profile</a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item card-generic-item" href="../../user/dashboard"><em class="ni ni-dashboard me-2"></em> Dashboard</a>
+                        </li>
+                       
+                        <li>
+                            <a href="#" class="dropdown-item card-generic-item theme-toggler" title="Toggle Dark/Light mode"><em class="ni ni-moon me-2"></em> Dark Mode</a>
+                        </li>
+                        <li><hr class="dropdown-divider" /></li>
+                        <li>
+                            <a class="dropdown-item card-generic-item" onclick={handleDisconnect}><em class="ni ni-power me-2"></em> Disconnect</a>
+                        </li>
+                    </ul>
+                </li>
+                <li class="d-lg-none"><a href="../../WalletConnect" class="btn btn-lg btn-dark">Connect Wallet</a></li>
               </ul>
             </nav>
             <div className="header-overlay"></div>

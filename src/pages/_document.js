@@ -35,7 +35,7 @@ export default function Document() {
         </div>
 
         <script src="../../assets/js/bundle.js"></script>
-        <script src="../../assets/js/scripts.js"></script>
+        {/* <script src="../../assets/js/scripts.js"></script> */}
       </body>
     </Html>
   );

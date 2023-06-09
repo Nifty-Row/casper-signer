@@ -38,24 +38,28 @@ export default function walletConnect() {
     ? ` ${publicKey.slice(0, 6)}...${publicKey.slice(-6)}`
     : "Connect Wallet";
 
-  const checkConnection = async () => {
-    try {
-      return await Signer.isConnected();
-    } catch (error) {
-      if (
-        error.message ===
-        "Content script not found - make sure you have the Signer installed and refresh the page before trying again."
-      ) {
-        const installUrl = "https://www.casperwallet.io/";
-        window.open(installUrl, "_blank");
-        // You can also display a message to the user indicating that they need to install the wallet
-      } else {
-        console.error("Failed to connect to the signer:", error.message);
-      }
-    }
-  };
+  // const checkConnection = async () => {
+  //   try {
+  //     return await Signer.isConnected();
+  //   } catch (error) {
+  //     if (
+  //       error.message ===
+  //       "Content script not found - make sure you have the Signer installed and refresh the page before trying again."
+  //     ) {
+  //       const installUrl = "https://www.casperwallet.io/";
+  //       window.open(installUrl, "_blank");
+  //       // You can also display a message to the user indicating that they need to install the wallet
+  //     } else {
+  //       console.error("Failed to connect to the signer:", error.message);
+  //     }
+  //   }
+  // };
+
   const connectCasperWallet = async () => {
-    WalletService.connect();
+    WalletService.connect().then(()=>{
+      const router = require("next/router").default;
+      router.push("/");
+    });
   }
 
   useEffect(() => {
@@ -72,11 +76,7 @@ export default function walletConnect() {
 
     const checkSignerConnection = async () => {
       try {
-        if (signerConnected) setActiveKey(await WalletService.getActivePublicKey());
-        const publicKeyHex = await WalletService.getActivePublicKey();
-        console.log("Wallet Public Key :",publicKeyHex);
-        // // const publicKey = publicKeyHex.slice(0, 8); // take the first 8 characters
-        setPublicKey(publicKeyHex);
+        if (signerConnected) setPublicKey(await WalletService.getActivePublicKey());
       } catch (error) {
         setError(
           "There was an error connecting to the Casper Signer. Please make sure you have the Signer installed and refresh the page before trying again."

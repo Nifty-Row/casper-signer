@@ -19,6 +19,7 @@ import {
 } from "casper-js-sdk";
 
 import { checkConnection, getActiveKeyFromSigner } from "@/utils/CasperUtils";
+import { deploySigned } from "@/utils/generalUtils";
 import { WalletService } from "@/utils/WalletServices";
 
 const MintForm = (key) => {
@@ -73,9 +74,6 @@ const MintForm = (key) => {
 
   useEffect(() => {
     const grantMinterAsync = async () => {
-     
-      await getUserDataByKey(newKey);
-
       if (newKey && !canMint) {
         try {
           let result = await getUserDataByKey(newKey);
@@ -154,198 +152,45 @@ const MintForm = (key) => {
       closeOnEsc: false,
     });
     console.log(files);
-    try {
-      const { data } = await axios.post(
-        "https://shark-app-9kl9z.ondigitalocean.app/api/nft/generateMediaUrls",
-        formData
-      );
-
-      console.log("Media Url", data);
-      if (category === "Artwork") {
-        setArtworkFile(null);
-        setMovieThumbnailUrl("");
-        setMovieFileUrl("");
-        setMusicThumbnailUrl("");
-        setMusicFileUrl("");
-        setMusicSample(null);
-        setMovieThumbnail(null);
-        setMovieSample(null);
-        setMusicThumbnail(null);
-        setArtworkUrl(data.artworkUrl);
-      } else if (category === "Music") {
-        setArtworkFile(null);
-        setMovieThumbnailUrl("");
-        setMovieFileUrl("");
-        setMusicThumbnailUrl(data.thumbnailUrl);
-        setMusicFileUrl(data.fileUrl);
-      } else if (category === "Movie") {
-        setArtworkFile(null);
-        setMusicThumbnailUrl("");
-        setMusicFileUrl("");
-        setMovieThumbnailUrl(data.thumbnailUrl);
-        setMovieFileUrl(data.fileUrl);
-      }
-      swal({
-        title: "Success",
-        text: "Upload Successfully",
-        icon: data.artworkUrl,
-      });
-      // return;
-    } catch (err) {
-      console.log(err);
-    }
-    // return;
-    const nftData = {
-      tokenId: tokenId,
-      deployerKey: publicKey,
-      ownerKey: publicKey,
-      tokenHash: "",
-      name: nftName,
-      description: nftDescription,
-      socialMediaLink: socialMediaLink,
-      assetSymbol: assetSymbol,
-      assetType: assetType,
-      mediaType: category,
-      artistName: artistName,
-      medium: medium,
-      year: year,
-      size: size,
-      artworkUrl: artworkUrl,
-      musicThumbnailUrl: musicThumbnailUrl,
-      musicFileUrl: musicFileUrl,
-      movieThumbnailUrl: movieThumbnailUrl,
-      movieFileUrl: movieFileUrl,
-    };
-
-    const contract = new Contracts.Contract();
-    contract.setContractHash(
-      "hash-976860ede039b6dfea08bb5565b5403b3df014b54dbce838c9ec40c065b04258"
-    );
-
-    const hash = CLPublicKey.fromHex(publicKey).toAccountHash();
-
-    const accounthash = new CLAccountHash(hash);
-
-    const recipient = new CLKey(accounthash);
-
-    const a = new CLString(nftData.tokenId);
-
-    const myList = new CLList([a]);
-    const token_ids = new CLOption(Some(myList));
-
-    let tempOptions;
-    // Artwork Category
-    if (category === "Artwork" && assetType === "Digital") {
-      tempOptions = new CLMap([
-        [new CLString("name"), new CLString(nftData.name)],
-        [new CLString("description"), new CLString(nftData.description)],
-        [new CLString("socialMediaLink"), new CLString(nftData.socialMediaLink)],
-        [new CLString("assetSymbol"), new CLString(nftData.assetSymbol)],
-        [new CLString("assetType"), new CLString(nftData.assetType)],
-        [new CLString("mediaType"), new CLString(nftData.mediaType)],
-        [new CLString("artworkUrl"), new CLString(nftData.artworkUrl)],
-      ]);
-    }else if (category === "Artwork" && assetType === "Physical") {
-      tempOptions = new CLMap([
-        [new CLString("name"), new CLString(nftData.name)],
-        [new CLString("description"), new CLString(nftData.description)],
-        [new CLString("socialMediaLink"), new CLString(nftData.socialMediaLink)],
-        [new CLString("assetSymbol"), new CLString(nftData.assetSymbol)],
-        [new CLString("assetType"), new CLString(nftData.assetType)],
-        [new CLString("mediaType"), new CLString(nftData.mediaType)],
-        [new CLString("artworkUrl"), new CLString(nftData.artworkUrl)],
-        [new CLString("artistName"), new CLString(nftData.artistName)],
-        [new CLString("medium"), new CLString(nftData.medium)],
-        [new CLString("year"), new CLString(nftData.year)],
-        [new CLString("size"), new CLString(nftData.size)],
-      ]);
-    }
-
-    if (category === "Music" && assetType === "Digital") {
-      tempOptions = new CLMap([
-        [new CLString("name"), new CLString(nftData.name)],
-        [new CLString("description"), new CLString(nftData.description)],
-        [new CLString("socialMediaLink"), new CLString(nftData.socialMediaLink)],
-        [new CLString("assetSymbol"), new CLString(nftData.assetSymbol)],
-        [new CLString("assetType"), new CLString(nftData.assetType)],
-        [new CLString("mediaType"), new CLString(nftData.mediaType)],
-        [new CLString("musicThumbnailUrl"), new CLString(nftData.musicThumbnailUrl)],
-        [new CLString("musicFileUrl"), new CLString(nftData.musicFileUrl)],
-      ]);
-    } else if (category === "Music" && assetType === "Physical") {
-      tempOptions = new CLMap([
-        [new CLString("name"), new CLString(nftData.name)],
-        [new CLString("description"), new CLString(nftData.description)],
-        [new CLString("socialMediaLink"), new CLString(nftData.socialMediaLink)],
-        [new CLString("assetSymbol"), new CLString(nftData.assetSymbol)],
-        [new CLString("assetType"), new CLString(nftData.assetType)],
-        [new CLString("mediaType"), new CLString(nftData.mediaType)],
-        [new CLString("musicThumbnailUrl"), new CLString(nftData.musicThumbnailUrl)],
-        [new CLString("musicFileUrl"), new CLString(nftData.musicFileUrl)],
-        [new CLString("artistName"), new CLString(nftData.artistName)],
-        [new CLString("medium"), new CLString(nftData.medium)],
-        [new CLString("year"), new CLString(nftData.year)],
-        [new CLString("size"), new CLString(nftData.size)],
-      ]);
-    }
     
-    if (category === "Movie & Animation" && assetType === "Digital") {
-      tempOptions = new CLMap([
-        [new CLString("name"), new CLString(nftData.name)],
-        [new CLString("description"), new CLString(nftData.description)],
-        [new CLString("socialMediaLink"), new CLString(nftData.socialMediaLink)],
-        [new CLString("assetSymbol"), new CLString(nftData.assetSymbol)],
-        [new CLString("assetType"), new CLString(nftData.assetType)],
-        [new CLString("mediaType"), new CLString(nftData.mediaType)],
-        [new CLString("movieThumbnailUrl"), new CLString(nftData.movieThumbnailUrl)],
-        [new CLString("movieFileUrl"), new CLString(nftData.movieFileUrl)],
-      ]);
-    } else if (category === "Movie & Animation" && assetType === "Physical") {
-      tempOptions = new CLMap([
-        [new CLString("name"), new CLString(nftData.name)],
-        [new CLString("description"), new CLString(nftData.description)],
-        [new CLString("socialMediaLink"), new CLString(nftData.socialMediaLink)],
-        [new CLString("assetSymbol"), new CLString(nftData.assetSymbol)],
-        [new CLString("assetType"), new CLString(nftData.assetType)],
-        [new CLString("mediaType"), new CLString(nftData.mediaType)],
-        [new CLString("movieThumbnailUrl"), new CLString(nftData.movieThumbnailUrl)],
-        [new CLString("movieFileUrl"), new CLString(nftData.movieFileUrl)],
-        [new CLString("artistName"), new CLString(nftData.artistName)],
-        [new CLString("medium"), new CLString(nftData.medium)],
-        [new CLString("year"), new CLString(nftData.year)],
-        [new CLString("size"), new CLString(nftData.size)],
-      ]);
-    }
+    generateMediaUrls(formData)
+    .then(async (data)=>{
+      const nftData = {
+        tokenId: tokenId,
+        deployerKey: publicKey,
+        ownerKey: publicKey,
+        tokenHash: "",
+        name: nftName,
+        description: nftDescription,
+        socialMediaLink: socialMediaLink,
+        assetSymbol: assetSymbol,
+        assetType: assetType,
+        mediaType: category,
+        artistName: artistName,
+        medium: medium,
+        year: year,
+        size: size,
+        artworkUrl: artworkUrl,
+        musicThumbnailUrl: musicThumbnailUrl,
+        musicFileUrl: musicFileUrl,
+        movieThumbnailUrl: movieThumbnailUrl,
+        movieFileUrl: movieFileUrl,
+      };
 
-    const token_metas = new CLList([tempOptions]);
-    const token_commissions = new CLList([tempOptions]);
-
-    const deploy = contract.callEntrypoint(
-      "mint",
-      RuntimeArgs.fromMap({
-        recipient: recipient,
-        token_ids: token_ids,
-        token_metas: token_metas,
-        token_commissions: token_commissions,
-      }),
-      CLPublicKey.fromHex(publicKey),
-      "casper-test",
-      "30000000000"
-    );
-
-    // Prepare the deploy
-    const jsonDeploy = DeployUtil.deployToJson(deploy);
-
-    deployNFT(deploy,jsonDeploy)
-      .then(data => {
-        swal("Deployment ", data, "success");
-        console.log(data);
-        saveNFT(nftData);
-      })
-      .catch(error => {
-        swal("Deployment Error", error.message, "error");
-        console.error(error);
-      });
+      let deploy = await prepareDeploy(nftData);
+      deployNFT(deploy)
+        .then(data => {
+          swal("Deployment ", data, "success");
+          console.log(data);
+          saveNFT(nftData);
+        })
+        .catch(error => {
+          swal("Deployment Error", error.message, "error");
+          console.error(error);
+        });
+    });
+    
+    
     alert("redirect  here");
   };
 
@@ -444,24 +289,34 @@ const MintForm = (key) => {
     }
 
   }
-  async function deployNFT(deploy,jsonDeploy){
+  async function deployNFT(deploy){
 
-    console.log("JSON DEPLOY ",jsonDeploy);
+    // Prepare the deploy
+    const jsonDeploy = DeployUtil.deployToJson(deploy);
+    // let result = WalletService.sign(JSON.stringify(jsonDeploy), publicKey);
+    // console.log("JSON DEPLOY ",result);
+    // return;
+
     // Sign the deploy
-    const signedDeploy = WalletService.sign(JSON.stringify(jsonDeploy), publicKey)
+    WalletService.sign(JSON.stringify(jsonDeploy), publicKey)
     .then(async res => {
       if (res.cancelled) {
         swal("Warning",'Sign cancelled',"info");
       } else {
+        console.log("SignedDeployJSON",res);
+        // return;
         const signedDeploy = DeployUtil.setSignature(
           deploy,
-          res.signature,
+          res.signatureHex,
           CLPublicKey.fromHex(publicKey)
         );
         const backendData = {
-          signedDeployJSON: signedDeploy,
+          signedDeployJSON: {
+            deploy : signedDeploy,
+          }
         };
-        console.log(backendData);
+        console.log("BackendData ",backendData);
+        // return;
         try {
           if(signedDeploy){
             // Send to the backend server for deployment
@@ -480,6 +335,180 @@ const MintForm = (key) => {
         }
       }
     });
+
+  }
+
+  async function generateMediaUrls(formData){
+    try {
+      const { data } = await axios.post(
+        "https://shark-app-9kl9z.ondigitalocean.app/api/nft/generateMediaUrls",
+        formData
+      );
+
+      console.log("Media Url", data);
+      if (category === "Artwork") {
+        setMovieThumbnailUrl("");
+        setMovieFileUrl("");
+        setMusicThumbnailUrl("");
+        setMusicFileUrl("");
+        setMusicSample(null);
+        setMovieThumbnail(null);
+        setMovieSample(null);
+        setMusicThumbnail(null);
+        setArtworkUrl(data.artworkUrl);
+        swal({
+          title: "Success",
+          text: "Upload Successful",
+          icon: data.artworkUrl,
+        });
+        return true;
+      } else if (category === "Music") {
+        setArtworkUrl(null);
+        setMovieThumbnailUrl("");
+        setMovieFileUrl("");
+        setMusicThumbnailUrl(data.thumbnailUrl);
+        setMusicFileUrl(data.fileUrl);
+        swal({
+          title: "Success",
+          text: "Upload Successful",
+          icon: data.thumbnailUrl,
+        });
+        return true;
+      } else if (category === "Movie") {
+        setArtworkFile(null);
+        setMusicThumbnailUrl("");
+        setMusicFileUrl("");
+        setMovieThumbnailUrl(data.thumbnailUrl);
+        setMovieFileUrl(data.fileUrl);
+        swal({
+          title: "Success",
+          text: "Upload Successful",
+          icon: data.thumbnailUrl,
+        });
+        return true;
+      }
+      return false;
+    } catch (err) {
+      swal("Error",JSON.stringify(err),"error");
+      console.log(err);
+    }
+  }
+
+  async function prepareDeploy(nftData){
+    const contract = new Contracts.Contract();
+    contract.setContractHash(
+      "hash-976860ede039b6dfea08bb5565b5403b3df014b54dbce838c9ec40c065b04258"
+    );
+
+    const hash = CLPublicKey.fromHex(publicKey).toAccountHash();
+
+    const accounthash = new CLAccountHash(hash);
+
+    const recipient = new CLKey(accounthash);
+    const a = new CLString(nftData.tokenId);
+    const myList = new CLList([a]);
+    const token_ids = new CLOption(Some(myList));
+    let tempOptions;
+    // Artwork Category
+    if (category === "Artwork" && assetType === "Digital") {
+      tempOptions = new CLMap([
+        [new CLString("name"), new CLString(nftData.name)],
+        [new CLString("description"), new CLString(nftData.description)],
+        [new CLString("socialMediaLink"), new CLString(nftData.socialMediaLink)],
+        [new CLString("assetSymbol"), new CLString(nftData.assetSymbol)],
+        [new CLString("assetType"), new CLString(nftData.assetType)],
+        [new CLString("mediaType"), new CLString(nftData.mediaType)],
+        [new CLString("artworkUrl"), new CLString(nftData.artworkUrl)],
+      ]);
+    }else if (category === "Artwork" && assetType === "Physical") {
+      tempOptions = new CLMap([
+        [new CLString("name"), new CLString(nftData.name)],
+        [new CLString("description"), new CLString(nftData.description)],
+        [new CLString("socialMediaLink"), new CLString(nftData.socialMediaLink)],
+        [new CLString("assetSymbol"), new CLString(nftData.assetSymbol)],
+        [new CLString("assetType"), new CLString(nftData.assetType)],
+        [new CLString("mediaType"), new CLString(nftData.mediaType)],
+        [new CLString("artworkUrl"), new CLString(nftData.artworkUrl)],
+        [new CLString("artistName"), new CLString(nftData.artistName)],
+        [new CLString("medium"), new CLString(nftData.medium)],
+        [new CLString("year"), new CLString(nftData.year)],
+        [new CLString("size"), new CLString(nftData.size)],
+      ]);
+    }
+
+    if (category === "Music" && assetType === "Digital") {
+      tempOptions = new CLMap([
+        [new CLString("name"), new CLString(nftData.name)],
+        [new CLString("description"), new CLString(nftData.description)],
+        [new CLString("socialMediaLink"), new CLString(nftData.socialMediaLink)],
+        [new CLString("assetSymbol"), new CLString(nftData.assetSymbol)],
+        [new CLString("assetType"), new CLString(nftData.assetType)],
+        [new CLString("mediaType"), new CLString(nftData.mediaType)],
+        [new CLString("musicThumbnailUrl"), new CLString(nftData.musicThumbnailUrl)],
+        [new CLString("musicFileUrl"), new CLString(nftData.musicFileUrl)],
+      ]);
+    } else if (category === "Music" && assetType === "Physical") {
+      tempOptions = new CLMap([
+        [new CLString("name"), new CLString(nftData.name)],
+        [new CLString("description"), new CLString(nftData.description)],
+        [new CLString("socialMediaLink"), new CLString(nftData.socialMediaLink)],
+        [new CLString("assetSymbol"), new CLString(nftData.assetSymbol)],
+        [new CLString("assetType"), new CLString(nftData.assetType)],
+        [new CLString("mediaType"), new CLString(nftData.mediaType)],
+        [new CLString("musicThumbnailUrl"), new CLString(nftData.musicThumbnailUrl)],
+        [new CLString("musicFileUrl"), new CLString(nftData.musicFileUrl)],
+        [new CLString("artistName"), new CLString(nftData.artistName)],
+        [new CLString("medium"), new CLString(nftData.medium)],
+        [new CLString("year"), new CLString(nftData.year)],
+        [new CLString("size"), new CLString(nftData.size)],
+      ]);
+    }
+    
+    if (category === "Movie & Animation" && assetType === "Digital") {
+      tempOptions = new CLMap([
+        [new CLString("name"), new CLString(nftData.name)],
+        [new CLString("description"), new CLString(nftData.description)],
+        [new CLString("socialMediaLink"), new CLString(nftData.socialMediaLink)],
+        [new CLString("assetSymbol"), new CLString(nftData.assetSymbol)],
+        [new CLString("assetType"), new CLString(nftData.assetType)],
+        [new CLString("mediaType"), new CLString(nftData.mediaType)],
+        [new CLString("movieThumbnailUrl"), new CLString(nftData.movieThumbnailUrl)],
+        [new CLString("movieFileUrl"), new CLString(nftData.movieFileUrl)],
+      ]);
+    } else if (category === "Movie & Animation" && assetType === "Physical") {
+      tempOptions = new CLMap([
+        [new CLString("name"), new CLString(nftData.name)],
+        [new CLString("description"), new CLString(nftData.description)],
+        [new CLString("socialMediaLink"), new CLString(nftData.socialMediaLink)],
+        [new CLString("assetSymbol"), new CLString(nftData.assetSymbol)],
+        [new CLString("assetType"), new CLString(nftData.assetType)],
+        [new CLString("mediaType"), new CLString(nftData.mediaType)],
+        [new CLString("movieThumbnailUrl"), new CLString(nftData.movieThumbnailUrl)],
+        [new CLString("movieFileUrl"), new CLString(nftData.movieFileUrl)],
+        [new CLString("artistName"), new CLString(nftData.artistName)],
+        [new CLString("medium"), new CLString(nftData.medium)],
+        [new CLString("year"), new CLString(nftData.year)],
+        [new CLString("size"), new CLString(nftData.size)],
+      ]);
+    }
+
+    const token_metas = new CLList([tempOptions]);
+    // const token_commissions = new CLList([tempOptions]);
+
+    const deploy = contract.callEntrypoint(
+      "mint",
+      RuntimeArgs.fromMap({
+        recipient: recipient,
+        token_ids: token_ids,
+        token_metas: token_metas,
+        // token_commissions: token_commissions,
+      }),
+      CLPublicKey.fromHex(publicKey),
+      "casper-test",
+      "30000000000"
+    );
+
+    return deploy;
 
   }
 
