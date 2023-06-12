@@ -46,7 +46,7 @@ const Header = () => {
 
 
   return (
-    <header className="header-section has-header-main">
+    <header className="header-section has-header-main mb-0">
       <div className="header-main is-sticky bg-dark ">
         <div className="container">
           <div className="header-wrap">

@@ -10,6 +10,8 @@ import {
   Contracts,
   CLPublicKey,
   RuntimeArgs,
+  CasperClient,
+  decodeBase16,
   CLString,
   CLMap,
   CLList,
@@ -19,7 +21,7 @@ import {
 } from "casper-js-sdk";
 
 import { checkConnection, getActiveKeyFromSigner } from "@/utils/CasperUtils";
-import { deploySigned } from "@/utils/generalUtils";
+import { deploySigned, toHex } from "@/utils/generalUtils";
 import { WalletService } from "@/utils/WalletServices";
 
 const MintForm = (key) => {
@@ -178,6 +180,7 @@ const MintForm = (key) => {
       };
 
       let deploy = await prepareDeploy(nftData);
+
       deployNFT(deploy)
         .then(data => {
           swal("Deployment ", data, "success");
@@ -191,7 +194,7 @@ const MintForm = (key) => {
     });
     
     
-    alert("redirect  here");
+    // alert("redirect  here");
   };
 
   async function grantMinter(publicKey) {
@@ -294,7 +297,7 @@ const MintForm = (key) => {
     // Prepare the deploy
     const jsonDeploy = DeployUtil.deployToJson(deploy);
     // let result = WalletService.sign(JSON.stringify(jsonDeploy), publicKey);
-    // console.log("JSON DEPLOY ",result);
+    console.log("JSON DEPLOY ",deploy);
     // return;
 
     // Sign the deploy
@@ -303,19 +306,36 @@ const MintForm = (key) => {
       if (res.cancelled) {
         swal("Warning",'Sign cancelled',"info");
       } else {
-        console.log("SignedDeployJSON",res);
+        // console.log(publicKey, " SignedDeployJSON ",toHex(res.signature) );
         // return;
         const signedDeploy = DeployUtil.setSignature(
           deploy,
-          res.signatureHex,
+          toHex(res.signature),
           CLPublicKey.fromHex(publicKey)
         );
+        console.log("signedDeploy", signedDeploy);
+        let aarggs = signedDeploy.session.storedContractByHash.args
+        alert(typeof(Object.entries(aarggs)[0]));
+        console.log("Arguments",Object.entries(Object.entries(aarggs)[0]));
+        swal("Submited",JSON.stringify(Object.entries(aarggs)[0][0]),"success");
+        // return
+        // Convert the hash object to a hes string
+        signedDeploy.hash = toHex(signedDeploy.hash);
+        signedDeploy.session.storedContractByHash.args = toHex(signedDeploy.session.storedContractByHash.args);
+        signedDeploy.header.bodyHash = toHex(signedDeploy.header.bodyHash);
+        signedDeploy.session.storedContractByHash.hash = toHex(signedDeploy.session.storedContractByHash.hash);
+        signedDeploy.header.account = publicKey;
+        console.log(JSON.stringify(signedDeploy));
+        // return;
         const backendData = {
           signedDeployJSON: {
             deploy : signedDeploy,
           }
         };
-        console.log("BackendData ",backendData);
+        
+        // let ress = await deploySigned(backendData.signedDeployJSON);
+        // if(ress) swal("Submited","","success");
+        // console.log("BackendData ",ress);
         // return;
         try {
           if(signedDeploy){
@@ -345,7 +365,6 @@ const MintForm = (key) => {
         formData
       );
 
-      console.log("Media Url", data);
       if (category === "Artwork") {
         setMovieThumbnailUrl("");
         setMovieFileUrl("");
@@ -356,11 +375,11 @@ const MintForm = (key) => {
         setMovieSample(null);
         setMusicThumbnail(null);
         setArtworkUrl(data.artworkUrl);
-        swal({
-          title: "Success",
-          text: "Upload Successful",
-          icon: data.artworkUrl,
-        });
+        // swal({
+        //   title: "Success",
+        //   text: "Upload Successful",
+        //   icon: data.artworkUrl,
+        // });
         return true;
       } else if (category === "Music") {
         setArtworkUrl(null);
@@ -368,11 +387,11 @@ const MintForm = (key) => {
         setMovieFileUrl("");
         setMusicThumbnailUrl(data.thumbnailUrl);
         setMusicFileUrl(data.fileUrl);
-        swal({
-          title: "Success",
-          text: "Upload Successful",
-          icon: data.thumbnailUrl,
-        });
+        // swal({
+        //   title: "Success",
+        //   text: "Upload Successful",
+        //   icon: data.thumbnailUrl,
+        // });
         return true;
       } else if (category === "Movie") {
         setArtworkFile(null);
@@ -380,16 +399,16 @@ const MintForm = (key) => {
         setMusicFileUrl("");
         setMovieThumbnailUrl(data.thumbnailUrl);
         setMovieFileUrl(data.fileUrl);
-        swal({
-          title: "Success",
-          text: "Upload Successful",
-          icon: data.thumbnailUrl,
-        });
+        // swal({
+        //   title: "Success",
+        //   text: "Upload Successful",
+        //   icon: data.thumbnailUrl,
+        // });
         return true;
       }
       return false;
     } catch (err) {
-      swal("Error",JSON.stringify(err),"error");
+      swal("Error",JSON.stringify(err.message),"error");
       console.log(err);
     }
   }
@@ -493,35 +512,37 @@ const MintForm = (key) => {
     }
 
     const token_metas = new CLList([tempOptions]);
-    // const token_commissions = new CLList([tempOptions]);
+    const token_commissions = new CLList([tempOptions]);
 
     const deploy = contract.callEntrypoint(
       "mint",
       RuntimeArgs.fromMap({
         recipient: recipient,
         token_ids: token_ids,
-        token_metas: token_metas,
+        token_metas: tempOptions,
         // token_commissions: token_commissions,
       }),
       CLPublicKey.fromHex(publicKey),
       "casper-test",
-      "30000000000"
+      "30000000000",
     );
 
     return deploy;
+    
 
   }
 
   return (
     <>
+      <div class="row"></div>
       <section>
         <div class="container mt-4">
-          <div class="row">
-            <div class="col-lg-10 mx-auto">
+          <div class="row mt-4">
+            <div class="col-lg-8">
               <form class="vstack gap-4" onSubmit={handleSubmit}>
                 <div class="card shadow">
                   <div class="card-header border-bottom">
-                    <h5 class="mb-0">NFT Details</h5>
+                    <h5 class="mb-4">NFT Details</h5>
                   </div>
                 </div>
                 <div class="card-body shadow mb-4">
@@ -825,6 +846,9 @@ const MintForm = (key) => {
                   <button class="btn btn-primary mb-4">Preview Asset</button>
                 </div>
               </form>
+            </div>
+            <div class="col-lg-4">
+
             </div>
           </div>
         </div>

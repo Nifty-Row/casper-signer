@@ -1,0 +1,5 @@
+.bg-image{
+    background : url("../../slider3.png");
+    height: 400px;
+    object-fit:contain;
+  }

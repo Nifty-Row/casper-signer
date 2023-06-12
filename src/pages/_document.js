@@ -28,6 +28,7 @@ export default function Document() {
         />
         <link rel="stylesheet" href="../../assets/css/styled751.css" />
         <link rel="stylesheet" href="../../assets/css/introd751.css" />
+        <link rel="stylesheet" href="../../assets/css/main.css" />
       </Head>
       <body>
         <div className="page-wrap">

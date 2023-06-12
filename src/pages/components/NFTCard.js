@@ -20,7 +20,7 @@ const NFTCard = ({ nftData }) => {
   const placeBidLink = `nftDetails/${tokenId}`;
 
   return (
-    <div className="col-xl-3 col-lg-4 col-sm-6">
+    <div className="col-xl-4 col-lg-4 col-sm-6">
       <div className="card card-full card-s3">
         <div className="card-author d-flex align-items-center justify-content-between pb-3">
           <div className="d-flex align-items-center">

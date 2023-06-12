@@ -24,16 +24,32 @@ export function truncateKey(key) {
 }
 
 export async function deploySigned(signedDeployJSON) {
-    try {
-      const signedDeployJSON = signedDeployJSON;
-  
-      const deploy = DeployUtil.deployFromJson(signedDeployJSON).unwrap();
-      const deployHash = await client.putDeploy(deploy); //
-      const result = await confirmDeploy(deployHash);
-      return deployHash;
-    } catch (error) {
-      console.error(error);
-  
-      return "Error deploying on-chain";
-    }
+  // return await DeployUtil.deployToJson(signedDeployJSON);
+  try {
+    // const signedDeployJSON = signedDeployJSON;
+
+    const deploy = DeployUtil.deployFromJson(signedDeployJSON).unwrap();
+    return deploy;
+    const deployHash = await client.putDeploy(deploy); //
+    return deployHash;
+    // const result = await confirmDeploy(deployHash);
+    return deployHash;
+  } catch (error) {
+    console.error(error);
+
+    return "Error deploying on-chain";
   }
+}
+
+export function toHex(object){
+  const bytes = new Uint8Array(Object.values(object));
+  // Create an ArrayBuffer from the Uint8Array
+  const arrayBuffer = bytes.buffer;
+  // Convert the ArrayBuffer to a Buffer
+  const buffer = Buffer.from(arrayBuffer);
+
+  // Convert the Buffer to a hex string
+  const hexString = buffer.toString('hex');
+  return hexString;
+
+}
