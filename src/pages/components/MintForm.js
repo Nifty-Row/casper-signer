@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import swal from "sweetalert";
 import crypto from "crypto";
@@ -20,8 +20,7 @@ import {
   CLAccountHash,
 } from "casper-js-sdk";
 
-import { checkConnection, getActiveKeyFromSigner } from "@/utils/CasperUtils";
-import { deploySigned, toHex } from "@/utils/generalUtils";
+import { encodeSpecialCharacters } from "@/utils/generalUtils";
 import { WalletService } from "@/utils/WalletServices";
 
 const MintForm = (key) => {
@@ -153,7 +152,6 @@ const MintForm = (key) => {
       closeOnClickOutside: false,
       closeOnEsc: false,
     });
-    console.log(files);
     
     generateMediaUrls(formData)
     .then(async (data)=>{
@@ -162,8 +160,8 @@ const MintForm = (key) => {
         deployerKey: publicKey,
         ownerKey: publicKey,
         tokenHash: "",
-        name: nftName,
-        description: nftDescription,
+        mediaName: nftName,
+        description: encodeSpecialCharacters(nftDescription),
         socialMediaLink: socialMediaLink,
         assetSymbol: assetSymbol,
         assetType: assetType,
@@ -178,14 +176,71 @@ const MintForm = (key) => {
         movieThumbnailUrl: movieThumbnailUrl,
         movieFileUrl: movieFileUrl,
       };
-
+     
       let deploy = await prepareDeploy(nftData);
-
+      swal({
+        title: "Sign the Transaction",
+        text: "Please Sign the transaction with your Casper Wallet",
+        icon: "info",
+        buttons: false,
+        closeOnClickOutside: false,
+        closeOnEsc: false,
+      });
       deployNFT(deploy)
         .then(data => {
-          swal("Deployment ", data, "success");
+
+          swal("Deployed Successfully", data, "success");
           console.log(data);
-          saveNFT(nftData);
+          nftData.tokenHash = data;
+          setTokenHash(data);
+          saveNFT(nftData).then(data =>{
+            if(data){
+              
+              swal({
+                title: 'Minting Complete',
+                text: `NFT Asset ${nftData.assetSymbol} Minted and Saved successfully. What would you like to do next?`,
+                icon: 'success',
+                dangerMode: true,
+                buttons: {
+                  mint: {
+                    text: "Mint",
+                    value: "mint",
+                  },
+                  check: {
+                    text: "View on Casper",
+                    className:"text-warning",
+                    value: "confirm",
+                  },
+                  view: {
+                    text: "View NFTs!",
+                    value: "catch",
+                  }
+                  
+                },
+               
+              }).then((result) => {
+                switch (result) {
+         
+                  case "confirm":
+                    // swal("View Deployment on the Blockchain Network");
+                    window.open(`https://testnet.cspr.live/deploy/${tokenHash}`, '_blank');
+                    break;
+               
+                  case "catch":
+                    // swal("Gotcha!", "View Your NFTs!", "success");
+                    window.open(`/profile`,);
+                    break;
+        
+                  case "mint":
+                    resetForm();
+                    swal("Gotcha!", "Mint New NFTs!", "success");
+                    break;
+
+                }
+                
+              });
+            }
+          });
         })
         .catch(error => {
           swal("Deployment Error", error.message, "error");
@@ -258,7 +313,7 @@ const MintForm = (key) => {
 
   async function saveNFT(nftData){
     swal({
-      title: "Saving NFT",
+      title: "Saving NFT...",
       text: "Please wait while we process your request.",
       icon: "info",
       buttons: false,
@@ -276,69 +331,50 @@ const MintForm = (key) => {
           body: JSON.stringify(nftData),
         }
       );
-      swal(JSON.stringify(createResponse));
-      if (createResponse.nft) {
-        swal(
-          "Mint Successful!",
-          `NFT ${createResponse.nft.assetSymbol} Saved successfully.`,
-          "success"
-        );
+      if (createResponse.ok) {
+        return true;
+        
       } else {
-        alert("Failed to create NFT.");
+        swal("Notice!","Failed to Save NFT.","error");
+        return false;
       }
     } catch (error) {
       console.log(error);
-      swal("Error!", "An error occurred while creating NFT.", "Error");
+      swal("Error!", "An error occurred while creating NFT.", "error");
+      return false;
     }
 
   }
   async function deployNFT(deploy){
 
-    // Prepare the deploy
+    
     const jsonDeploy = DeployUtil.deployToJson(deploy);
-    // let result = WalletService.sign(JSON.stringify(jsonDeploy), publicKey);
-    console.log("JSON DEPLOY ",deploy);
-    // return;
 
-    // Sign the deploy
-    WalletService.sign(JSON.stringify(jsonDeploy), publicKey)
-    .then(async res => {
+    try {
+      const res = await WalletService.sign(JSON.stringify(jsonDeploy), publicKey);
       if (res.cancelled) {
-        swal("Warning",'Sign cancelled',"info");
+        swal("Notice","Casper Wallet Signing cancelled","warning");
       } else {
-        // console.log(publicKey, " SignedDeployJSON ",toHex(res.signature) );
-        // return;
-        const signedDeploy = DeployUtil.setSignature(
+        let signedDeploy = DeployUtil.setSignature(
           deploy,
-          toHex(res.signature),
+          res.signature,
           CLPublicKey.fromHex(publicKey)
         );
-        console.log("signedDeploy", signedDeploy);
-        let aarggs = signedDeploy.session.storedContractByHash.args
-        alert(typeof(Object.entries(aarggs)[0]));
-        console.log("Arguments",Object.entries(Object.entries(aarggs)[0]));
-        swal("Submited",JSON.stringify(Object.entries(aarggs)[0][0]),"success");
-        // return
-        // Convert the hash object to a hes string
-        signedDeploy.hash = toHex(signedDeploy.hash);
-        signedDeploy.session.storedContractByHash.args = toHex(signedDeploy.session.storedContractByHash.args);
-        signedDeploy.header.bodyHash = toHex(signedDeploy.header.bodyHash);
-        signedDeploy.session.storedContractByHash.hash = toHex(signedDeploy.session.storedContractByHash.hash);
-        signedDeploy.header.account = publicKey;
-        console.log(JSON.stringify(signedDeploy));
-        // return;
+        const signedDeployJSON = DeployUtil.deployToJson(signedDeploy);
+
         const backendData = {
-          signedDeployJSON: {
-            deploy : signedDeploy,
-          }
+          signedDeployJSON: signedDeployJSON,
         };
-        
-        // let ress = await deploySigned(backendData.signedDeployJSON);
-        // if(ress) swal("Submited","","success");
-        // console.log("BackendData ",ress);
-        // return;
         try {
-          if(signedDeploy){
+          if(signedDeployJSON){
+            swal({
+              title: "Signing Successful",
+              text: "Please wait while we deploy the NFT.",
+              icon: "../../../loading.gif",
+              buttons: false,
+              closeOnClickOutside: false,
+              closeOnEsc: false,
+            });
             // Send to the backend server for deployment
             const response = await axios.post(
               "https://shark-app-9kl9z.ondigitalocean.app/api/nft/deploySigned",
@@ -347,14 +383,20 @@ const MintForm = (key) => {
             );
             const data = JSON.stringify(response);
             console.log("Sever Response",response);
-            return response;
+            return response.data;
           }
         }catch (error) {
           swal("Error!", error.message, "error");
           return false;
         }
+       
       }
-    });
+    } catch (err) {
+      alert("Error: " + err);
+    }
+
+
+    
 
   }
 
@@ -424,9 +466,12 @@ const MintForm = (key) => {
     const accounthash = new CLAccountHash(hash);
 
     const recipient = new CLKey(accounthash);
+
     const a = new CLString(nftData.tokenId);
+
     const myList = new CLList([a]);
     const token_ids = new CLOption(Some(myList));
+
     let tempOptions;
     // Artwork Category
     if (category === "Artwork" && assetType === "Digital") {
@@ -519,18 +564,24 @@ const MintForm = (key) => {
       RuntimeArgs.fromMap({
         recipient: recipient,
         token_ids: token_ids,
-        token_metas: tempOptions,
-        // token_commissions: token_commissions,
+        token_metas: token_metas,
+        token_commissions: token_commissions,
       }),
       CLPublicKey.fromHex(publicKey),
       "casper-test",
-      "30000000000",
+      "30000000000"
     );
-
     return deploy;
     
 
   }
+
+  const resetForm = () => {
+    const form = formRef.current;
+    if (form) {
+      form.reset();
+    }
+  };
 
   return (
     <>
@@ -539,7 +590,7 @@ const MintForm = (key) => {
         <div class="container mt-4">
           <div class="row mt-4">
             <div class="col-lg-8">
-              <form class="vstack gap-4" onSubmit={handleSubmit}>
+              <form ref={formRef} class="vstack gap-4" onSubmit={handleSubmit}>
                 <div class="card shadow">
                   <div class="card-header border-bottom">
                     <h5 class="mb-4">NFT Details</h5>
@@ -843,7 +894,7 @@ const MintForm = (key) => {
                   </div>
                 </div>
                 <div class="text-end mb-4">
-                  <button class="btn btn-primary mb-4">Preview Asset</button>
+                  <button class="btn btn-success mb-4 text-white" >Proceed</button>
                 </div>
               </form>
             </div>

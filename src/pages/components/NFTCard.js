@@ -24,7 +24,7 @@ const NFTCard = ({ nftData }) => {
       <div className="card card-full card-s3">
         <div className="card-author d-flex align-items-center justify-content-between pb-3">
           <div className="d-flex align-items-center">
-            <a href="author.html" className="avatar me-1">
+            <a href="../../author/" className="avatar me-1">
               <img
                 src="https://cdn.onlinewebfonts.com/svg/img_405324.png"
                 alt="avatar"
