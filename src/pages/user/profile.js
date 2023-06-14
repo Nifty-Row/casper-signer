@@ -54,7 +54,7 @@ export default function Home() {
       <div class="hero-wrap sub-header bg-image" >
         <div class="container">
             <div class="hero-content py-0 d-flex align-items-center">
-                <div class="avatar avatar-3 flex-shrink-0"><img src="https://cdn.onlinewebfonts.com/svg/img_405324.png" alt="avatar" /></div>
+                <div class="avatar avatar-3 flex-shrink-0"><Image src="https://cdn.onlinewebfonts.com/svg/img_405324.png" alt="avatar" /></div>
                 <div class="author-hero-content-wrap d-flex flex-wrap justify-content-between ms-3 flex-grow-1">
                     <div class="author-hero-content me-3">
                         <h4 class="hero-author-title mb-1 text-white">{userData.fullName}</h4>

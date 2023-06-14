@@ -23,8 +23,8 @@ export default function Home() {
       if (activeKey) {
         try {
           const url = `https://shark-app-9kl9z.ondigitalocean.app/api/user/userByKey/${activeKey}`;
-          const response = await axios.get(url); // Remove { activeKey } from axios.get()
-          console.log(response.data); // Access response.data to get the actual data
+          const response = await axios.get(url);
+          console.log(response.data);
         } catch (error) {
           console.error("Error:", error);
         }
@@ -38,29 +38,34 @@ export default function Home() {
             ).then((response) => response.json());
             setUserData(data);
             getUserNFTs(key);
-            console.log("2", data); // Access the 'data' variable instead of 'userData'
+            console.log("2", data);
           } catch (error) {
             console.error(error);
           }
         }
       }
     };
-
-    getUserDataByKey(); // Call the function to fetch data
-  }, [activeKey,getUserNFTs]);
-
-  async function getUserNFTs(key){
-    if(key){
-        const data = await fetch(
-            `https://shark-app-9kl9z.ondigitalocean.app/api/nft/nftsByOwner/${key}`
-          ).then((response) => response.json());
+  
+    getUserDataByKey();
+  }, [activeKey]);
+  
+  async function getUserNFTs(key) {
+    if (key) {
+      try {
+        const response = await fetch(
+          `https://shark-app-9kl9z.ondigitalocean.app/api/nft/nftsByOwner/${key}`
+        );
+        const data = await response.json();
         setUserNfts(data);
-        setUserOwnedNfts(data.filter(nft => nft.ownerKey === key && nft.deployerKey !== nft.ownerKey));
-        setUserOwnedNfts(data.filter(nft => !nft.inAuction));
-
+        setUserOwnedNfts(data.filter((nft) => nft.ownerKey === key && nft.deployerKey !== nft.ownerKey));
+        setUserOwnedNfts(data.filter((nft) => !nft.inAuction));
+        console.log("userOwnedNfts", userOwnedNfts);
+      } catch (error) {
+        console.error(error);
+      }
     }
-    console.log("userOwnedNfts",userOwnedNfts);
   }
+  
   return (
     <><><>
           <Header />

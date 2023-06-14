@@ -73,13 +73,17 @@ const MintForm = (key) => {
     token();
     generateTokenId();
   }, [newKey]);
-
   useEffect(() => {
     const grantMinterAsync = async () => {
       if (newKey && !canMint) {
         try {
-          let result = await getUserDataByKey(newKey);
-          // Handle the result if needed
+          const userData = await getUserDataByKey(newKey);
+  
+          if (userData.canMint) {
+            setCanMint(true);
+          } else {
+            await grantMinter(newKey);
+          }
         } catch (error) {
           console.error("Error:", error);
         }
@@ -87,7 +91,57 @@ const MintForm = (key) => {
     };
   
     grantMinterAsync();
-  }, [newKey, canMint,getUserDataByKey]);
+  }, [newKey, canMint]);
+  
+  async function getUserDataByKey(publicKey) {
+    try {
+      const url = `https://shark-app-9kl9z.ondigitalocean.app/api/user/userByKey/${publicKey}`;
+  
+      const response = await axios.get(url, { publicKey });
+  
+      if (response.status === 200) {
+        return response.data;
+      } else {
+        console.error("Error:", response.data);
+        swal("Error", response.data, "error");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  }
+  
+  async function grantMinter(publicKey) {
+    swal({
+      title: "Submitting...",
+      text: "Please wait while we grant you access to mint NFTs.",
+      icon: "info",
+      buttons: false,
+      closeOnClickOutside: false,
+      closeOnEsc: false,
+    });
+  
+    try {
+      const url = "https://shark-app-9kl9z.ondigitalocean.app/api/nft/grantMinter";
+  
+      const response = await axios.post(url, { publicKey });
+  
+      if (response.status === 200) {
+        const deployHash = response.data;
+        console.log("Deploy hash:", deployHash);
+        setCanMint(true);
+        swal(
+          "Success",
+          "Access has been granted, you can now mint.",
+          "success"
+        );
+      } else {
+        console.error("Error:", response.data);
+        swal("Error", response.data, "error");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  }
   
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -252,65 +306,6 @@ const MintForm = (key) => {
     
     // alert("redirect  here");
   };
-
-  async function grantMinter(publicKey) {
-    swal({
-      title: "Submitting...",
-      text: "Please wait while we grant you access to mint NFTs.",
-      icon: "info",
-      buttons: false,
-      closeOnClickOutside: false,
-      closeOnEsc: false,
-    });
-    try {
-      const url = "https://shark-app-9kl9z.ondigitalocean.app/api/nft/grantMinter"; // Replace with your API endpoint
-
-      const response = await axios.post(url, { publicKey });
-
-      if (response.status === 200) {
-        const deployHash = response.data;
-        console.log("Deploy hash:", deployHash);
-        setCanMint(true);
-        swal(
-          "Success",
-          "Access has been granted, you can now mint.",
-          "success"
-        );
-        // Handle successful response
-      } else {
-        // Handle error response
-        console.error("Error:", response.data);
-        swal("Error", response.data, "error");
-      }
-    } catch (error) {
-      console.error("Error:", error);
-    }
-  }
-
-  async function getUserDataByKey(publicKey) {
-    try {
-      const url = `https://shark-app-9kl9z.ondigitalocean.app/api/user/userByKey/${publicKey}`; // Replace with your API endpoint
-
-      const response = await axios.get(url, { publicKey });
-
-      if (response.status === 200) { 
-        const canMint = response.data.canMint;
-        if (canMint) {
-          setCanMint(true);
-        } else {
-          grantMinter(publicKey);
-        }
-
-        // Handle successful response
-      } else {
-        // Handle error response
-        console.error("Error:", response.data);
-        swal("Error", response.data, "error");
-      }
-    } catch (error) {
-      console.error("Error:", error);
-    }
-  }
 
   async function saveNFT(nftData){
     swal({

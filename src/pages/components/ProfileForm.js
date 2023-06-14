@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import Image from "next/image";
+
 
 export default function ProfileForm({activekey, userData }) {
     // alert(activeKey);
