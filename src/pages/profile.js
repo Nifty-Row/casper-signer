@@ -4,6 +4,8 @@ import { Inter } from "next/font/google";
 import React, { useEffect, useState } from "react";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
+import NFTCard from "./components/NFTCard";
+
 import { WalletService } from "@/utils/WalletServices";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -11,6 +13,9 @@ const inter = Inter({ subsets: ["latin"] });
 export default function Home() {
   const [activeKey, setActiveKey] = useState();
   const [user, setUserData] = useState([]);
+  const [userNfts, setUserNfts] = useState([]);
+  const [userOwnedNfts, setUserOwnedNfts] = useState([]);
+  const [userNftsInAuction, setUserNftsInAuction] = useState([]);
   let background = "../../public/assets/images/banner.png";
 
   useEffect(() => {
@@ -32,6 +37,7 @@ export default function Home() {
               `https://shark-app-9kl9z.ondigitalocean.app/api/user/userByKey/${key}`
             ).then((response) => response.json());
             setUserData(data);
+            getUserNFTs(key);
             console.log("2", data); // Access the 'data' variable instead of 'userData'
           } catch (error) {
             console.error(error);
@@ -43,6 +49,18 @@ export default function Home() {
     getUserDataByKey(); // Call the function to fetch data
   }, [activeKey]);
 
+  async function getUserNFTs(key){
+    if(key){
+        const data = await fetch(
+            `https://shark-app-9kl9z.ondigitalocean.app/api/nft/nftsByOwner/${key}`
+          ).then((response) => response.json());
+        setUserNfts(data);
+        setUserOwnedNfts(data.filter(nft => nft.ownerKey === key && nft.deployerKey !== nft.ownerKey));
+        setUserOwnedNfts(data.filter(nft => !nft.inAuction));
+
+    }
+    console.log("userOwnedNfts",userOwnedNfts);
+  }
   return (
     <><><>
           <Header />
@@ -93,8 +111,8 @@ export default function Home() {
                                   <h3 class="mb-3">Links</h3>
                                   <ul class="social-links">
                                       {/* <li>
-<a href="#"><span class="ni ni-globe icon"></span>frenchmontana.com</a>
-</li> */}
+                                        <a href="#"><span class="ni ni-globe icon"></span>frenchmontana.com</a>
+                                        </li> */}
                                       <li>
                                           <a href="#"><span class="ni ni-facebook-f icon"></span>Facebook</a>
                                       </li>
@@ -116,16 +134,39 @@ export default function Home() {
                           <div class="author-items-wrap">
                               <ul class="nav nav-tabs nav-tabs-s1" id="myTab" role="tablist">
                                   <li class="nav-item" role="presentation">
-                                      <button class="nav-link active" id="on-sale-tab" data-bs-toggle="tab" data-bs-target="#on-sale" type="button" role="tab" aria-controls="on-sale" aria-selected="true">On Sale</button>
+                                      <button class="nav-link active" id="on-sale-tab" data-bs-toggle="tab" data-bs-target="#on-sale" type="button" role="tab" aria-controls="on-sale" aria-selected="true">Assets in Auction</button>
                                   </li>
                                   <li class="nav-item" role="presentation">
-                                      <button class="nav-link" id="owned-tab" data-bs-toggle="tab" data-bs-target="#owned" type="button" role="tab" aria-controls="owned" aria-selected="false">Owned</button>
+                                      <button class="nav-link" id="owned-tab" data-bs-toggle="tab" data-bs-target="#owned" type="button" role="tab" aria-controls="owned" aria-selected="false">Assets Won in Auction</button>
                                   </li>
                                   <li class="nav-item" role="presentation">
-                                      <button class="nav-link" id="created-tab" data-bs-toggle="tab" data-bs-target="#created" type="button" role="tab" aria-controls="created" aria-selected="false">Created</button>
+                                      <button class="nav-link" id="created-tab" data-bs-toggle="tab" data-bs-target="#created" type="button" role="tab" aria-controls="created" aria-selected="false">All Assets</button>
                                   </li>
                               </ul>
                               <div class="gap-2x"></div>
+                              <div class="tab-content" id="myTabContent">
+                                <div class="tab-pane fade show active" id="on-sale" role="tabpanel" aria-labelledby="on-sale-tab">
+                                    <div class="row g-gs">
+                                    {userNftsInAuction.map((nft) => (
+                                        <NFTCard key={nft.id} nftData={nft} />
+                                        ))}
+                                    </div>
+                                </div>
+                                <div class="tab-pane fade" id="owned" role="tabpanel" aria-labelledby="owned-tab">
+                                    <div class="row g-gs">
+                                    {userOwnedNfts.map((nft) => (
+                                        <NFTCard key={nft.id} nftData={nft} />
+                                        ))}
+                                    </div>
+                                </div>
+                                <div class="tab-pane fade" id="created" role="tabpanel" aria-labelledby="created-tab">
+                                    <div class="row g-gs">
+                                    {userNfts.map((nft) => (
+                                        <NFTCard key={nft.id} nftData={nft} />
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
 
                           </div>
                       </div>

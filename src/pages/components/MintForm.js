@@ -25,6 +25,7 @@ import { WalletService } from "@/utils/WalletServices";
 
 const MintForm = (key) => {
   let newKey = key.publicKeyProp;
+  const formRef = useRef(null);
   const [publicKey, setPublicKey] = useState(null);
 
   const [category, setCategory] = useState("");

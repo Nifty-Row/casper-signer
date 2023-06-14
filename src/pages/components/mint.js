@@ -171,7 +171,7 @@ const Mint = () => {
     //********** recipient***********/
     //public key of
     const hexString2 =
-      "01b8335627c462a074b389e4574dba3430fa30d86ee9cf615bc13471b746de03f3"; //jdk2 //public_key_of_account1
+      "019a8461e87efe0f7444fa0bde36d2153797c4bbdd94edd9a43a61abf0e20191c3"; //jdk2 //public_key_of_account1
 
     const myHash2 = new CLAccountHash(
       CLPublicKey.fromHex(hexString2).toAccountHash()
@@ -181,7 +181,7 @@ const Mint = () => {
     //********** recipient***********/
 
     //********** token_ids***********/
-    const mintedTokenId = "1esdaia21e34abcd"; //minted token ID
+    const mintedTokenId = "de6332157169"; //minted token ID
     const a = new CLString(mintedTokenId);
     const token_ids = new CLList([a]);
     // const token_ids = new CLOption(Some(myList));
@@ -190,7 +190,7 @@ const Mint = () => {
     //*********beneficiary_account <Key>********/
     //public key of _____ signer wallet
     const hexString3 =
-      "01b8335627c462a074b389e4574dba3430fa30d86ee9cf615bc13471b746de03f3"; //jdk2 //public_key_of_main_account
+      "019a8461e87efe0f7444fa0bde36d2153797c4bbdd94edd9a43a61abf0e20191c3"; //jdk2 //public_key_of_main_account
 
     const myHash3 = new CLAccountHash(
       CLPublicKey.fromHex(hexString3).toAccountHash()
@@ -201,7 +201,7 @@ const Mint = () => {
 
     //*********starting_price <Option<U512>>********/
 
-    const starting_price = new CLOption(None, new CLU512Type()); //Start bid price set by nft owner.
+    const starting_price = new CLU512(10); //Start bid price set by nft owner.
 
     const reserve_price = new CLU512(10);
 
@@ -303,8 +303,16 @@ const Mint = () => {
       console.log(err);
       swal("Warning!", err.message, "error");
     }
+    const now = new Date();
+    const mintedTokenId = "de6332157169"; //minted token ID
+    
     let auctionJSON = {
       signedDeployJSON: signedDeployJSON,
+      nftId:mintedTokenId,
+      startDate: now.setHours(now.getHours() + 2),
+      endDate: now.setDate(now.getDate() + 3),
+      minimumPrice: 10,
+      deployerKey: "019a8461e87efe0f7444fa0bde36d2153797c4bbdd94edd9a43a61abf0e20191c3",
     };
     // Send to the backend server for deployment
     const response = await axios.post(

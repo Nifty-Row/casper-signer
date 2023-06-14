@@ -89,7 +89,7 @@ export default function NFTDetails() {
             .catch((error) => console.error(error));
         }
   
-        if (query && query.tokenId && activePublicKey) {
+        if (query && query.tokenId && key) {
           const ownerData = await getOwner(query.tokenId);
           if (ownerData.ownerKey === activePublicKey) {
             setIsOwner(true);
@@ -122,66 +122,62 @@ export default function NFTDetails() {
     setMinPrice(e.target.value);
   };
 
-  const prepareBidPurseDeploy = async () => {
-    const Key = CLPublicKey.fromHex(key);
-    const deployParams = new DeployUtil.DeployParams(
-      Key,
-      "casper-test",
-      1,
-      20000000
-    );
+  
 
-    let args = [];
-    const amount = new CLU512(3000000000);
-    // const auction_contract =
-    const auction_contract_string =
-      "3323eb2707533952c7ef758924622f95f8358ee88c4987f14ded307cef1f87cd";
-
-    const auction_contract_hex = Uint8Array.from(
-      Buffer.from(auction_contract_string, "hex")
-    );
-
-    // const auction_contract_hash = new CLKey(
-    //   new CLByteArray(auction_contract_hex)
-    // );
-    const auction_contract_hash = new CLByteArray(auction_contract_hex); //
-
-    const purseName = "BidderPurse1";
-    const purse_name = new CLString(purseName);
-
-    args = RuntimeArgs.fromMap({
-      amount: amount,
-      auction_contract: auction_contract_hash,
-      purse_name: purse_name,
-    });
-
-    let lock_cspr_moduleBytes;
-    await fetch("bid-purse.wasm")
-      .then((response) => response.arrayBuffer())
-      .then((bytes) => (lock_cspr_moduleBytes = new Uint8Array(bytes)));
-
-    const session = DeployUtil.ExecutableDeployItem.newModuleBytes(
-      lock_cspr_moduleBytes,
-      args
-    );
-
-    return DeployUtil.makeDeploy(
-      deployParams,
-      session,
-      DeployUtil.standardPayment(15000000000)
-    );
-  };
-
-  const handlePlaceBid = (e) => {
+  const handlePlaceBid = async (e) => {
     e.preventDefault();
     // Here you can use the bidAmount and fundAmount values to proceed with placing the bid
     console.log("Bid Amount:", bidAmount);
     console.log("Fund Amount:", fundAmount);
 
     // Call the prepareBidPurseDeploy function with the appropriate values
-    prepareBidPurseDeploy(); // Pass the publicKeyHex as an argument
+    swal("Notice", "Testing Auction Deployment", "Warning");
 
-    // ... Rest of the code for placing the bid
+    let deploy, deployJSON;
+
+    deploy = await prepareBidPurseDeploy(publicKey);
+    deployJSON = DeployUtil.deployToJson(deploy);
+    let signedDeployJSON;
+    const res = await WalletService.sign(JSON.stringify(jsonDeploy), publicKey);
+    if (res.cancelled) {
+      swal("Notice","Casper Wallet Signing cancelled","warning");
+    } else {
+      let signedDeploy = DeployUtil.setSignature(
+        deploy,
+        res.signature,
+        CLPublicKey.fromHex(publicKey)
+      );
+      const signedDeployJSON = DeployUtil.deployToJson(signedDeploy);
+
+      const backendData = {
+        signedDeployJSON: signedDeployJSON,
+      };
+      try {
+        if(signedDeployJSON){
+          swal({
+            title: "Signing Successful",
+            text: "Please wait while we deploy the NFT.",
+            icon: "../../../loading.gif",
+            buttons: false,
+            closeOnClickOutside: false,
+            closeOnEsc: false,
+          });
+          // Send to the backend server for deployment
+          const response = await axios.post(
+            "https://shark-app-9kl9z.ondigitalocean.app/api/auction/deployBidPurse",
+            backendData,
+            { headers: { "Content-Type": "application/json" } }
+          );
+          const data = JSON.stringify(response);
+          console.log("Sever Response",response);
+          return response.data;
+        }
+      }catch (error) {
+        swal("Error!", error.message, "error");
+        return false;
+      }
+     
+    }
   };
 
   const handleStartAuction = async (e) => {
@@ -195,19 +191,21 @@ export default function NFTDetails() {
       closeOnEsc: false,
     });
     const deploy = await prepareAuctionDeploy(key);
+    console.log("deploy",JSON.stringify(deploy));
     const deployJSON = DeployUtil.deployToJson(deploy);
+    console.log(deployJSON)
     try {
-      const res = await WalletService.sign(JSON.stringify(jsonDeploy), publicKey);
+      const res = await WalletService.sign(JSON.stringify(deployJSON), key);
       if (res.cancelled) {
         swal("Notice","Casper Wallet Signing cancelled","warning");
       } else {
         let signedDeploy = DeployUtil.setSignature(
           deploy,
           res.signature,
-          CLPublicKey.fromHex(publicKey)
+          CLPublicKey.fromHex(key)
         );
         const signedDeployJSON = DeployUtil.deployToJson(signedDeploy);
-
+        
         const backendData = {
           signedDeployJSON: signedDeployJSON,
           nftId:nft.tokenId,
@@ -244,6 +242,7 @@ export default function NFTDetails() {
       }
     } catch (err) {
       alert("Error: " + err);
+      console.log(err);
     }
   };
 
@@ -252,63 +251,61 @@ export default function NFTDetails() {
     return <div>Loading...</div>;
   }
 
-  const prepareAuctionDeploy = async () => {
+  const prepareAuctionDeploy = async (key) => {
     const Key = CLPublicKey.fromHex(key);
-    const hexString1 =
+    const caskNFTPackageHash =
       "6cde257852d7fcb0dd6b86dd3af612f5d3bf0f333ee16e69e2cde2954fb3bad2"; // nft token hash //cvcv_contract_package_hash
 
-    const hex1 = Uint8Array.from(Buffer.from(hexString1, "hex"));
+    const bufferedHash = Uint8Array.from(Buffer.from(caskNFTPackageHash, "hex"));
 
-    const token_contract_hash = new CLKey(new CLByteArray(hex1));
-    //public key of
+    const token_contract_hash = new CLKey(new CLByteArray(bufferedHash));
+    //public key of recipient
     const ownerKey = nft.ownerKey; //jdk2 //public_key_of_account1
 
     const hashedOwnerKey = new CLAccountHash(
       CLPublicKey.fromHex(ownerKey).toAccountHash()
     );
 
-    const a = new CLString(tokenId);
-    const token_ids = new CLList([a]);
-    // const token_ids = new CLOption(Some(myList));
+    const recipient = new CLKey(hashedOwnerKey);
+
+    const mintedTokenId = new CLString(tokenId);
+    const token_ids = new CLList([mintedTokenId]);
 
     //public key of _____ signer wallet
-    const deployKey = key; //jdk2 //public_key_of_main_account
+    const deployKey = key; //public_key_of_main_account
 
     const hashedDeployKey = new CLAccountHash(
       CLPublicKey.fromHex(deployKey).toAccountHash()
     );
     const beneficiary_account = new CLKey(hashedDeployKey);
 
-    const currentTimestamp = Date.now(); // Get the current timestamp in milliseconds
+    const starting_price = new CLU512(minPrice); //Start bid price set by nft owner.
 
-    // Set the durations in milliseconds
-    const startDuration = moment(startTime).valueOf();
-    const cancellationDuration = 12 * 60 * 60 * 1000;
-    const endDuration = moment(endTime).valueOf();
-
-    // Calculate the target timestamps by adding the durations to the current timestamp
-    const startTimestamp = startDuration.toString();
-    const cancellationTimestamp = currentTimestamp + cancellationDuration;
-    const endTimestamp = endDuration.toString();
-
-
-    const starting_price = new CLOption(None, new CLU512Type()); //Start bid price set by nft owner.
-
-    const reserve_price = new CLU512(minPrice);
+    const reserve_price = new CLU512(minPrice*10);
 
     const token_id = new CLString(tokenId);
 
-    const start_time = new CLU64(startTimestamp); //unix timestamp
+    const currentTimestamp = Date.now(); // Get the current timestamp in milliseconds
 
-    const cancellation_time = new CLU64(cancellationTimestamp); //unix timestamp
 
-    const end_time = new CLU64(endTimestamp); //unix timestamp
+    // Convert user-provided start and end times to timestamps
+    const startTimestamp = moment(startTime).valueOf().toString();
+    const endTimestamp = moment(endTime).valueOf().toString();
+
+    // Calculate the cancellation timestamp by adding a duration to the current timestamp
+    const cancellationDuration = 24 * 60 * 60 * 1000; // Example duration of 12 hours
+    const cancellationTimestamp = currentTimestamp + cancellationDuration;
+
+    // Create CLU64 objects using the calculated timestamps
+    const start_time = new CLU64(startTimestamp); // Unix timestamp based on user-provided start time
+    const cancellation_time = new CLU64(cancellationTimestamp.toString()); // Unix timestamp based on calculated cancellation time
+    const end_time = new CLU64(endTimestamp); // Unix timestamp based on user-provided end time
 
     const format = new CLString("ENGLISH");
-    const hexString4 =
+    const kyc_package_has =
       "a2d24badef6020572260d05a180663e631d1147390bd61d981df8ab2496fa91b";
 
-    const hex4 = Uint8Array.from(Buffer.from(hexString4, "hex"));
+    const hex4 = Uint8Array.from(Buffer.from(kyc_package_has, "hex"));
 
     const kyc_package_hash = new CLKey(new CLByteArray(hex4));
 
@@ -316,11 +313,11 @@ export default function NFTDetails() {
 
     const bidder_count_cap = new CLOption(Some(new CLU64("5")));
     const auction_timer_extension = new CLOption(
-      Some(new CLU64("1680045495000"))
+      Some(new CLU64(currentTimestamp.toString()))
     );
     const minimum_bid_step = new CLOption(Some(new CLU512("5")));
     const hexString5 =
-      "9f67de32a9b87dfa7c416c34828a27dddf7c38810dbd29d601c7fd7078e1a88a";
+      "3d276dd4b06a751f9e4407a5639b72c4cbe98183c1f1a961ecf3b34686a44b46";
 
     const marketplace_account = new CLByteArray(
       Uint8Array.from(Buffer.from(hexString5, "hex"))
@@ -334,32 +331,94 @@ export default function NFTDetails() {
       1,
       1800000
     );
+
+    let args = RuntimeArgs.fromMap({
+      recipient: recipient,
+      token_contract_hash: token_contract_hash,
+      token_ids: token_ids,
+      beneficiary_account: beneficiary_account,
+      starting_price: starting_price,
+      reserve_price: reserve_price,
+      token_id: token_id,
+      start_time: start_time,
+      cancellation_time: cancellation_time,
+      end_time: end_time,
+      format: format,
+      kyc_package_hash: kyc_package_hash,
+      name: name,
+      bidder_count_cap: bidder_count_cap,
+      auction_timer_extension: auction_timer_extension,
+      minimum_bid_step: minimum_bid_step,
+      marketplace_account: marketplace_account,
+      marketplace_commission: marketplace_commission,
+      has_enhanced_nft: has_enhanced_nft,
+    });
+    
+    console.log("args",args);
+    // alert(JSON.stringify(Object.entries(args)));
+    let lock_cspr_moduleBytes;
+    await fetch("casper-private-auction-installer.wasm")
+      .then((response) => response.arrayBuffer())
+      .then((bytes) => (lock_cspr_moduleBytes = new Uint8Array(bytes)));
+
+    console.log("lock_cspr_moduleBytes",lock_cspr_moduleBytes);  
+    const session = DeployUtil.ExecutableDeployItem.newModuleBytes(
+      lock_cspr_moduleBytes,
+      args
+    );
+
+    console.log("session",session);
+    // return;
+    try{
+     let ddeploy = DeployUtil.makeDeploy(
+        deployParams,
+        session,
+        DeployUtil.standardPayment(300000000000)
+      );
+      console.log("deploy",ddeploy);
+      return;
+      return ddeploy;
+    }catch(e){
+      console.log(e);
+    }
+    
+  };
+  
+  const prepareBidPurseDeploy = async (key) => {
+    const Key = CLPublicKey.fromHex(key);
+    const deployParams = new DeployUtil.DeployParams(
+      Key,
+      "casper-test",
+      1,
+      20000000
+    );
+
     let args = [];
+    const amount = new CLU512(3000000000);
+    // const auction_contract =
+    const auction_contract_string =
+      "3323eb2707533952c7ef758924622f95f8358ee88c4987f14ded307cef1f87cd";
+
+    const auction_contract_hex = Uint8Array.from(
+      Buffer.from(auction_contract_string, "hex")
+    );
+
+    // const auction_contract_hash = new CLKey(
+    //   new CLByteArray(auction_contract_hex)
+    // );
+    const auction_contract_hash = new CLByteArray(auction_contract_hex); //
+
+    const purseName = "BidderPurse1";
+    const purse_name = new CLString(purseName);
 
     args = RuntimeArgs.fromMap({
-      // eslint-disable-next-line no-undef
-      token_contract_hash: token_contract_hash, //
-      token_ids: token_ids, //
-      beneficiary_account: beneficiary_account,
-      starting_price: starting_price, //
-      reserve_price: reserve_price, //
-      token_id: token_id, //
-      start_time: start_time, //
-      cancellation_time: cancellation_time, //
-      end_time: end_time, //
-      format: format, //
-      kyc_package_hash: kyc_package_hash, //--
-      name: name, //
-      bidder_count_cap: bidder_count_cap, //
-      auction_timer_extension: auction_timer_extension,
-      minimum_bid_step: minimum_bid_step, //--
-      marketplace_account: marketplace_account, //--
-      marketplace_commission: marketplace_commission, //--
-      has_enhanced_nft: has_enhanced_nft, //--
+      amount: amount,
+      auction_contract: auction_contract_hash,
+      purse_name: purse_name,
     });
 
     let lock_cspr_moduleBytes;
-    await fetch("casper-private-auction-installer.wasm")
+    await fetch("/bid-purse.wasm")
       .then((response) => response.arrayBuffer())
       .then((bytes) => (lock_cspr_moduleBytes = new Uint8Array(bytes)));
 
@@ -368,12 +427,10 @@ export default function NFTDetails() {
       args
     );
 
-    console.log("session",session);
-
     return DeployUtil.makeDeploy(
       deployParams,
       session,
-      DeployUtil.standardPayment(300000000000)
+      DeployUtil.standardPayment(15000000000)
     );
   };
 
