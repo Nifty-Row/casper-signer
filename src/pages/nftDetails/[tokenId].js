@@ -101,7 +101,7 @@ export default function NFTDetails() {
     };
   
     fetchData();
-  }, [query]);
+  }, [query,key]);
   
   const handleBidAmountChange = (e) => {
     setBidAmount(e.target.value);

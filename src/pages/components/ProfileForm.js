@@ -61,7 +61,7 @@ export default function ProfileForm({activekey, userData }) {
       <h5 className="mb-4">Edit Profile</h5>
       <div className="d-flex align-items-center">
         <div className="image-result-area avatar avatar-3">
-          <img id="image-result" src={linkedin} alt="Profile Image" />
+          <Image id="image-result" src={linkedin} alt="Profile Image" />
         </div>
         <input className="upload-image" data-target="image-result" id="upload-image-file" type="file" hidden />
         <label htmlFor="upload-image-file" className="upload-image-label btn btn-dark">Update Photo</label>

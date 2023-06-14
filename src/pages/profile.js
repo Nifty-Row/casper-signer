@@ -47,7 +47,7 @@ export default function Home() {
     };
 
     getUserDataByKey(); // Call the function to fetch data
-  }, [activeKey]);
+  }, [activeKey,getUserNFTs]);
 
   async function getUserNFTs(key){
     if(key){

@@ -87,7 +87,7 @@ const MintForm = (key) => {
     };
   
     grantMinterAsync();
-  }, [newKey, canMint]);
+  }, [newKey, canMint,getUserDataByKey]);
   
   const handleSubmit = async (event) => {
     event.preventDefault();
