@@ -2,7 +2,8 @@ import { useState } from 'react';
 import Image from "next/image";
 
 
-export default function ProfileForm({activekey, userData }) {
+export default function ProfileForm({activekey, user }) {
+  let userData = user || {};
   const [displayName, setDisplayName] = useState(userData.fullName || '');
   const [username, setUsername] = useState(userData.username || '');
   const [bio, setBio] = useState(userData.about || '');
