@@ -472,7 +472,7 @@ const MintForm = (key) => {
     // Artwork Category
     if (category === "Artwork" && assetType === "Digital") {
       tempOptions = new CLMap([
-        [new CLString("name"), new CLString(nftData.name)],
+        [new CLString("name"), new CLString(nftData.mediaName)],
         [new CLString("description"), new CLString(nftData.description)],
         [new CLString("socialMediaLink"), new CLString(nftData.socialMediaLink)],
         [new CLString("assetSymbol"), new CLString(nftData.assetSymbol)],
@@ -482,7 +482,7 @@ const MintForm = (key) => {
       ]);
     }else if (category === "Artwork" && assetType === "Physical") {
       tempOptions = new CLMap([
-        [new CLString("name"), new CLString(nftData.name)],
+        [new CLString("name"), new CLString(nftData.mediaName)],
         [new CLString("description"), new CLString(nftData.description)],
         [new CLString("socialMediaLink"), new CLString(nftData.socialMediaLink)],
         [new CLString("assetSymbol"), new CLString(nftData.assetSymbol)],
@@ -498,7 +498,7 @@ const MintForm = (key) => {
 
     if (category === "Music" && assetType === "Digital") {
       tempOptions = new CLMap([
-        [new CLString("name"), new CLString(nftData.name)],
+        [new CLString("name"), new CLString(nftData.mediaName)],
         [new CLString("description"), new CLString(nftData.description)],
         [new CLString("socialMediaLink"), new CLString(nftData.socialMediaLink)],
         [new CLString("assetSymbol"), new CLString(nftData.assetSymbol)],
@@ -509,7 +509,7 @@ const MintForm = (key) => {
       ]);
     } else if (category === "Music" && assetType === "Physical") {
       tempOptions = new CLMap([
-        [new CLString("name"), new CLString(nftData.name)],
+        [new CLString("name"), new CLString(nftData.mediaName)],
         [new CLString("description"), new CLString(nftData.description)],
         [new CLString("socialMediaLink"), new CLString(nftData.socialMediaLink)],
         [new CLString("assetSymbol"), new CLString(nftData.assetSymbol)],
@@ -526,7 +526,7 @@ const MintForm = (key) => {
     
     if (category === "Movie & Animation" && assetType === "Digital") {
       tempOptions = new CLMap([
-        [new CLString("name"), new CLString(nftData.name)],
+        [new CLString("name"), new CLString(nftData.mediaName)],
         [new CLString("description"), new CLString(nftData.description)],
         [new CLString("socialMediaLink"), new CLString(nftData.socialMediaLink)],
         [new CLString("assetSymbol"), new CLString(nftData.assetSymbol)],
@@ -537,7 +537,7 @@ const MintForm = (key) => {
       ]);
     } else if (category === "Movie & Animation" && assetType === "Physical") {
       tempOptions = new CLMap([
-        [new CLString("name"), new CLString(nftData.name)],
+        [new CLString("name"), new CLString(nftData.mediaName)],
         [new CLString("description"), new CLString(nftData.description)],
         [new CLString("socialMediaLink"), new CLString(nftData.socialMediaLink)],
         [new CLString("assetSymbol"), new CLString(nftData.assetSymbol)],
