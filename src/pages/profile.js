@@ -46,7 +46,7 @@ export default function Home() {
       }
     };
   
-    const getUserNFTs = useCallback(async (key) => {
+    const getUserNFTs = async (key) => {
       if (key) {
         try {
           const response = await fetch(
@@ -55,15 +55,15 @@ export default function Home() {
           const data = await response.json();
           setUserNfts(data);
           setUserOwnedNfts(data.filter((nft) => nft.ownerKey === key && nft.deployerKey !== nft.ownerKey && !nft.inAuction));
-          console.log("userOwnedNfts", userOwnedNfts);
         } catch (error) {
           console.error(error);
         }
       }
-    }, []);
+    };
   
     getUserDataByKey();
-  }, [activeKey, getUserNFTs]);
+    getUserNFTs(activeKey);
+  }, [activeKey]);
   
   
   return (

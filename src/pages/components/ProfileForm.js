@@ -3,7 +3,6 @@ import Image from "next/image";
 
 
 export default function ProfileForm({activekey, userData }) {
-    // alert(activeKey);
   const [displayName, setDisplayName] = useState(userData.fullName || '');
   const [username, setUsername] = useState(userData.username || '');
   const [bio, setBio] = useState(userData.about || '');
