@@ -216,7 +216,7 @@ const MintForm = (key) => {
         ownerKey: publicKey,
         tokenHash: "",
         mediaName: nftName,
-        description: encodeSpecialCharacters(nftDescription),
+        description: nftDescription,
         socialMediaLink: socialMediaLink,
         assetSymbol: assetSymbol,
         assetType: assetType,
