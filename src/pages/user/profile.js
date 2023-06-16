@@ -78,6 +78,45 @@ export default function Home() {
     );
   }
 
+  if(!key){
+    return (
+      <>
+      <Header />
+      <div class="hero-wrap sub-header">
+        <div class="container">
+          <div class="hero-content text-center py-0">
+            <h1 class="hero-title">Nifty Marketplace</h1>
+            <nav aria-label="breadcrumb">
+              <ol class="breadcrumb breadcrumb-s1 justify-content-center mt-3 mb-0">
+                <li class="breadcrumb-item">
+                  <a href="../../">Home</a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">
+                  Create
+                </li>
+              </ol>
+            </nav>
+          </div>
+        </div>
+      </div>
+      <section className="explore-section pt-lg-4">
+        <div className="container">
+          <div className="filter-box"></div>
+          {/* <div className="gap-2x"></div> */}
+          <div className="filter-container row g-gs">
+            <div className="col-md-12" >
+              <h4 className="text-danger text-center">Please ensure your wallet is connected to view profile</h4>
+              <center><a  href="../../walletConnect" class="btn btn-primary btn-lg float-center mt-4">Connect Wallet</a></center>
+
+            </div>
+          </div>
+        </div>
+      </section>
+        
+      {/* <Footer /> */}
+    </>
+    );
+  }
     
   return (
     <>
@@ -85,7 +124,7 @@ export default function Home() {
       <div class="hero-wrap sub-header bg-image" >
         <div class="container">
             <div class="hero-content py-0 d-flex align-items-center">
-                <div class="avatar avatar-3 flex-shrink-0"><Image src="https://cdn.onlinewebfonts.com/svg/img_405324.png" alt="avatar" /></div>
+                <div class="avatar avatar-3 flex-shrink-0"><Image src="https://cdn.onlinewebfonts.com/svg/img_405324.png" width={100} height={100} alt="avatar" /></div>
                 <div class="author-hero-content-wrap d-flex flex-wrap justify-content-between ms-3 flex-grow-1">
                     <div class="author-hero-content me-3">
                         <h4 class="hero-author-title mb-1 text-white">{userData.fullName}</h4>

@@ -2,7 +2,8 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 import Head from "next/head";
 import Image from "next/image";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useLayoutEffect } from "react";
+import axios from "axios";
 import { useRouter } from "next/router";
 import { Inter } from "next/font/google";
 import styles from "@/styles/Home.module.css";
@@ -14,7 +15,7 @@ import moment from "moment";
 import {
   WalletService
 } from "@/utils/WalletServices";
-import { formatDate, decodeSpecialCharacters } from "@/utils/generalUtils";
+import { formatDate, decodeSpecialCharacters, deploySigned} from "@/utils/generalUtils";
 import {
   Signer,
   DeployUtil,
@@ -59,7 +60,7 @@ export default function NFTDetails() {
     });
   }, []);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     WalletService.getActivePublicKey()
     .then((data) => {
       setKey(data);
@@ -78,22 +79,21 @@ export default function NFTDetails() {
         if (query && query.tokenId) {
           setTokenId(query.tokenId);
         }
-  
+        let ownerData;
         if (query && query.tokenId) {
           fetch(`https://shark-app-9kl9z.ondigitalocean.app/api/nft/${query.tokenId}`)
             .then((response) => response.json())
-            .then((data) => {
+            .then(async (data) => {
               setNFT(data);
               console.log("NBD", data);
+              ownerData = await getOwner(data.ownerKey);
+              console.log("OWNER DATA", ownerData);
             })
             .catch((error) => console.error(error));
-        }
-  
-        if (query && query.tokenId && key) {
-          const ownerData = await getOwner(query.tokenId);
-          if (ownerData.ownerKey === activePublicKey) {
-            setIsOwner(true);
-          }
+            console.table(ownerData);
+            if (ownerData.ownerKey === activePublicKey) {
+                setIsOwner(true);
+              }
         }
       } catch (error) {
         console.error(error);
@@ -131,7 +131,7 @@ export default function NFTDetails() {
     console.log("Fund Amount:", fundAmount);
 
     // Call the prepareBidPurseDeploy function with the appropriate values
-    swal("Notice", "Testing Auction Deployment", "Warning");
+    swal("Notice", "Preparing Bid ...", "Warning");
 
     let deploy, deployJSON;
 
@@ -162,6 +162,7 @@ export default function NFTDetails() {
             closeOnClickOutside: false,
             closeOnEsc: false,
           });
+          
           // Send to the backend server for deployment
           const response = await axios.post(
             "https://shark-app-9kl9z.ondigitalocean.app/api/auction/deployBidPurse",
@@ -191,9 +192,10 @@ export default function NFTDetails() {
       closeOnEsc: false,
     });
     const deploy = await prepareAuctionDeploy(key);
-    console.log("deploy",JSON.stringify(deploy));
+
+    // console.log("deploy",JSON.stringify(deploy));
     const deployJSON = DeployUtil.deployToJson(deploy);
-    console.log(deployJSON)
+    // console.log(deployJSON)
     try {
       const res = await WalletService.sign(JSON.stringify(deployJSON), key);
       if (res.cancelled) {
@@ -214,6 +216,16 @@ export default function NFTDetails() {
           minimumPrice: minPrice,
           deployerKey: key,
         };
+        try{
+          console.log("before deploy",signedDeployJSON);
+          let returnedHash = await deploySigned(signedDeployJSON);
+          swal("Deployed!", JSON.stringify(returnedHash), "info");
+          console.log("after deploy",returnedHash);
+        }catch(e){
+          console.error(e);
+          swal("Error!", "Error here, check console", "error");
+        }
+        return;
         try {
           if(signedDeployJSON){
             swal({
@@ -224,6 +236,7 @@ export default function NFTDetails() {
               closeOnClickOutside: false,
               closeOnEsc: false,
             });
+            if(!axios) alert("Axios is not present");
             // Send to the backend server for deployment
             const response = await axios.post(
               "https://shark-app-9kl9z.ondigitalocean.app/api/auction/deployAuction",
@@ -235,7 +248,8 @@ export default function NFTDetails() {
             return response.data;
           }
         }catch (error) {
-          swal("Error!", error.message, "error");
+          swal("Error!", "Error here"+error.message, "error");
+          console.log(error);
           return false;
         }
        
@@ -295,7 +309,7 @@ export default function NFTDetails() {
     // Calculate the cancellation timestamp by adding a duration to the current timestamp
     const cancellationDuration = 24 * 60 * 60 * 1000; // Example duration of 12 hours
     const cancellationTimestamp = currentTimestamp + cancellationDuration;
-
+    
     // Create CLU64 objects using the calculated timestamps
     const start_time = new CLU64(startTimestamp); // Unix timestamp based on user-provided start time
     const cancellation_time = new CLU64(cancellationTimestamp.toString()); // Unix timestamp based on calculated cancellation time
@@ -326,14 +340,13 @@ export default function NFTDetails() {
     const marketplace_commission = new CLU32("200000");
     const has_enhanced_nft = new CLBool(false);
     const deployParams = new DeployUtil.DeployParams(
-      key,
+      CLPublicKey.fromHex(key),
       "casper-test",
       1,
       1800000
     );
 
     let args = RuntimeArgs.fromMap({
-      recipient: recipient,
       token_contract_hash: token_contract_hash,
       token_ids: token_ids,
       beneficiary_account: beneficiary_account,
@@ -354,20 +367,20 @@ export default function NFTDetails() {
       has_enhanced_nft: has_enhanced_nft,
     });
     
-    console.log("args",args);
+    // console.log("args",args);
     // alert(JSON.stringify(Object.entries(args)));
     let lock_cspr_moduleBytes;
-    await fetch("casper-private-auction-installer.wasm")
+    await fetch("/casper-private-auction-installer.wasm")
       .then((response) => response.arrayBuffer())
       .then((bytes) => (lock_cspr_moduleBytes = new Uint8Array(bytes)));
 
-    console.log("lock_cspr_moduleBytes",lock_cspr_moduleBytes);  
+    // console.log("lock_cspr_moduleBytes",lock_cspr_moduleBytes);  
     const session = DeployUtil.ExecutableDeployItem.newModuleBytes(
       lock_cspr_moduleBytes,
       args
     );
 
-    console.log("session",session);
+    // console.log("session",session);
     // return;
     try{
      let ddeploy = DeployUtil.makeDeploy(
@@ -375,8 +388,8 @@ export default function NFTDetails() {
         session,
         DeployUtil.standardPayment(300000000000)
       );
-      console.log("deploy",ddeploy);
-      return;
+      // console.log("deploy",ddeploy);
+      // return;
       return ddeploy;
     }catch(e){
       console.log(e);
@@ -435,15 +448,17 @@ export default function NFTDetails() {
   };
 
   async function getOwner(ownerKey) {
-    
-    fetch(`https://shark-app-9kl9z.ondigitalocean.app/api/user/userByKey/${ownerKey}`)
-        .then((response) => response.json())
-        .then((data) => {
-          setOwner(data);
-          console.log("Owner",data);
-        })
-        .catch((error) => console.error(error));
+    try {
+      const response = await fetch(`https://shark-app-9kl9z.ondigitalocean.app/api/user/userByKey/${ownerKey}`);
+      const data = await response.json();
+      console.log("Owner", data);
+      return data;
+    } catch (error) {
+      console.error(error);
+      return null;
+    }
   }
+  
 
   return (
     <>

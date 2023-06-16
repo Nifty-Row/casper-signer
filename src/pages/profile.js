@@ -1,12 +1,13 @@
 import Head from "next/head";
 import Image from "next/image";
 import { Inter } from "next/font/google";
-import React, { useEffect, useState } from "react";
+import React, { useLayoutEffect, useState } from "react";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import NFTCard from "./components/NFTCard";
 
 import { WalletService } from "@/utils/WalletServices";
+import { truncateKey } from "@/utils/generalUtils";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -18,7 +19,7 @@ export default function Home() {
   const [userNftsInAuction, setUserNftsInAuction] = useState([]);
   let background = "../../public/assets/images/banner.png";
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const getUserDataByKey = async () => {
       if (activeKey) {
         try {
@@ -72,26 +73,26 @@ export default function Home() {
           <div class="hero-wrap sub-header bg-image">
               <div class="container">
                   <div class="hero-content py-0 d-flex align-items-center">
-                  <div class="avatar avatar-3 flex-shrink-0"><Image src="https://cdn.onlinewebfonts.com/svg/img_405324.png" alt="avatar" /></div>
+                  <div class="avatar avatar-3 flex-shrink-0"><Image src="/img_405324.png" width={100} height={100} alt="avatar" /></div>
                   <div class="author-hero-content-wrap d-flex flex-wrap justify-content-between ms-3 flex-grow-1">
                       <div class="author-hero-content me-3">
                           <h4 class="hero-author-title mb-1 text-white">{user.fullName}</h4>
                           <p class="hero-author-username mb-1 text-white">@{user.username}</p>
                           <div class="d-flex align-items-center">
-                              <input type="text" class="copy-input text-white" value="0x76669f...a0e9ca" id="copy-input" readonly />
+                              <input type="text" class="copy-input text-white" value={truncateKey(activeKey)} id="copy-input" readonly />
                               <div class="tooltip-s1">
                                   <button data-clipboard-target="#copy-input" class="copy-text text-white ms-2" type="button"><span class="tooltip-s1-text tooltip-text">Copy</span><em class="ni ni-copy"></em></button>
                               </div>
                           </div>
                       </div>
                       <div class="hero-action-wrap d-flex align-items-center my-2">
-                          <button type="button" class="btn btn-light">Follow</button>
+                          {/* <button type="button" class="btn btn-light">Follow</button>
                           <div class="dropdown ms-3">
                               <a class="icon-btn icon-btn-s1" href="#" data-bs-toggle="dropdown" id="reportDropdown"><em class="ni ni-more-h"></em></a>
                               <ul class="dropdown-menu card-generic p-2 dropdown-menu-end mt-2 card-generic-sm" aria-labelledby="reportDropdown">
                                   <li><a class="dropdown-item card-generic-item" href="#" data-bs-toggle="modal" data-bs-target="#reportModal">Report Page</a></li>
                               </ul>
-                          </div>
+                          </div> */}
                       </div>
                   </div>
               </div>

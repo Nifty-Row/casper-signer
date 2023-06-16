@@ -13,15 +13,13 @@ const {
   } = require("casper-js-sdk");
 
   // Initialize Casper client
-const NODE_URL = "http://76.91.193.251:7777/rpc";
+const NODE_URL = "http://3.136.227.9:7777/rpc";
 const client = new CasperClient(NODE_URL);
 
 export function truncateKey(key) {
-    const beginOfKey = key.slice(0, 5);
-    const endOfKey = key.slice(key.length - 5);
-
-    return `${beginOfKey}...${endOfKey}`;
+  return key ? `${key.slice(0, 5)}...${key.slice(key.length - 5)}` : "";
 }
+
 
 export async function deploySigned(signedDeployJSON) {
   // return await DeployUtil.deployToJson(signedDeployJSON);
@@ -29,7 +27,6 @@ export async function deploySigned(signedDeployJSON) {
     // const signedDeployJSON = signedDeployJSON;
 
     const deploy = DeployUtil.deployFromJson(signedDeployJSON).unwrap();
-    return deploy;
     const deployHash = await client.putDeploy(deploy); //
     return deployHash;
     // const result = await confirmDeploy(deployHash);

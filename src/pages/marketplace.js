@@ -15,7 +15,7 @@ export default function Home() {
   }, []);
 
   const fetchNFTs = () => {
-    fetch("https://shark-app-9kl9z.ondigitalocean.app/api/nft/allNfts")
+    fetch("https://shark-app-9kl9z.ondigitalocean.app/api/nft/nftsInAuction")
       .then((response) => response.json())
       .then((data) => setNFTs(data))
       .catch((error) => console.error(error));
@@ -40,7 +40,7 @@ export default function Home() {
           </div>
         </div>
       </div>
-      <section className="explore-section pt-lg-4">
+      <section className="explore-section pt-lg-4 mb-4">
         <div className="container">
           <div className="filter-box"></div>
           {/* <div className="gap-2x"></div> */}
@@ -51,9 +51,23 @@ export default function Home() {
           </div>
         </div>
       </section>
+      {nfts.length == 0 && (
+         <section className="explore-section pt-lg-4 mb-4">
+         <div className="container mb-4">
+           <div className="filter-box"></div>
+           {/* <div className="gap-2x"></div> */}
+           <div className="filter-container row g-gs mb-4">
+             <div className="col-md-12" >
+               <h4 className="text-danger text-center">No Assets available for Auction</h4>
+               {/* <center><a  href="../../walletConnect" class="btn btn-primary btn-lg float-center mt-4">Connect Wallet</a></center> */}
+ 
+             </div>
+           </div>
+         </div>
+       </section>
+      )}
 
-      {/* <Mint /> */}
-      {/* <Footer /> */}
+      <Footer />
     </>
   );
 }
