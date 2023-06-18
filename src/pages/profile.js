@@ -120,13 +120,13 @@ export default function Home() {
                                         <a href="#"><span class="ni ni-globe icon"></span>frenchmontana.com</a>
                                         </li> */}
                                       <li>
-                                          <a href="#"><span class="ni ni-facebook-f icon"></span>Facebook</a>
+                                          <a href={user.facebook} target="_blank"><span class="ni ni-facebook-f icon"></span>Facebook</a>
                                       </li>
                                       <li>
-                                          <a href="#"><span class="ni ni-twitter icon"></span>Twitter</a>
+                                          <a href={user.twitter} target="_blank"><span class="ni ni-twitter icon"></span>Twitter</a>
                                       </li>
                                       <li>
-                                          <a href="#"><span class="ni ni-instagram icon"></span>Instagram</a>
+                                          <a href={user.instagram} target="_blank"><span class="ni ni-instagram icon"></span>Instagram</a>
                                       </li>
                                   </ul>
                               </div>

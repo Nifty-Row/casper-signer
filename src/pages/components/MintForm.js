@@ -458,9 +458,7 @@ const MintForm = (key) => {
     );
 
     const hash = CLPublicKey.fromHex(publicKey).toAccountHash();
-
     const accounthash = new CLAccountHash(hash);
-
     const recipient = new CLKey(accounthash);
 
     const a = new CLString(nftData.tokenId);

@@ -2,8 +2,9 @@ import { useState } from 'react';
 import Image from "next/image";
 
 
-export default function ProfileForm({activekey, user }) {
-  let userData = user || {};
+export default function ProfileForm({activekey, userData }) {
+  // let userData = userData || {};
+  // alert(JSON.stringify(userData));
   const [displayName, setDisplayName] = useState(userData.fullName || '');
   const [username, setUsername] = useState(userData.username || '');
   const [bio, setBio] = useState(userData.about || '');
@@ -11,7 +12,7 @@ export default function ProfileForm({activekey, user }) {
   const [facebook, setFacebook] = useState(userData.facebook || '');
   const [twitter, setTwitter] = useState(userData.twitter || '');
   const [instagram, setInstagram] = useState(userData.instagram || '');
-  const [linkedin, setLinkedin] = useState(userData.linkedin || 'https://cdn.onlinewebfonts.com/svg/img_405324.png');
+  const [linkedin, setLinkedin] = useState(userData.linkedin || '/img_405324.png');
   const [category, setCategory] = useState(userData.category || '');
   const [website, setWebsite] = useState(userData.website || '');
   const [activeKey, setActiveKey] = useState(userData.publicKey || '');
@@ -19,7 +20,7 @@ export default function ProfileForm({activekey, user }) {
     const displayName = document.getElementById("displayName").value;
     const username = document.getElementById("displayUserName").value;
     const bio = document.getElementById("bio").value;
-    const email = document.getElementById("emailAddress").value;
+    // const email = document.getElementById("emailAddress").value;
     const facebookLink = document.getElementById("facebookLink").value;
     const twitterLink = document.getElementById("twitterLink").value;
     const instagramLink = document.getElementById("instagramLink").value;
@@ -29,7 +30,7 @@ export default function ProfileForm({activekey, user }) {
     updateProfileField("fullName", displayName);
     updateProfileField("username", username);
     updateProfileField("about", bio);
-    updateProfileField("email", email);
+    // updateProfileField("email", email);
     updateProfileField("facebook", facebookLink);
     updateProfileField("twitter", twitterLink);
     updateProfileField("instagram", instagramLink);
@@ -39,6 +40,14 @@ export default function ProfileForm({activekey, user }) {
   async function updateProfileField(column, value) {
     if(!value) return;
     try {
+      swal({
+        title: "Submitting...",
+        text: `Updating ${column}`,
+        icon: "info",
+        buttons: false,
+        closeOnClickOutside: false,
+        closeOnEsc: false,
+      });
       const publicKey = userData.publicKey; // Replace with the actual user's public key
       const response = await fetch(`https://shark-app-9kl9z.ondigitalocean.app/api/user/${publicKey}`, {
         method: "PUT",
@@ -49,6 +58,11 @@ export default function ProfileForm({activekey, user }) {
       });
   
       if (response.ok) {
+        swal(
+          "Success",
+          `Successfully updated ${column}`,
+          "success"
+        );
         console.log(`Successfully updated ${column}`);
       } else {
         console.error(`Failed to update ${column}`);
@@ -63,9 +77,9 @@ export default function ProfileForm({activekey, user }) {
       <h5 className="mb-4">Edit Profile</h5>
       <div className="d-flex align-items-center">
         <div className="image-result-area avatar avatar-3">
-          <Image id="image-result" src={linkedin} alt="Profile Image" />
+          <Image id="image-result" width={100} height={100} src={linkedin} alt="Profile Image" />
         </div>
-        <input className="upload-image" data-target="image-result" id="upload-image-file" type="file" hidden />
+        {/* <input className="upload-image" disabled data-target="image-result" id="upload-image-file" type="file" hidden /> */}
         <label htmlFor="upload-image-file" className="upload-image-label btn btn-dark">Update Photo</label>
       </div>
       <div className="row mt-4">

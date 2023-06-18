@@ -4,13 +4,52 @@ import Head from "next/head";
 import Image from "next/image";
 import { Inter } from "next/font/google";
 import styles from "@/styles/Home.module.css";
-// import Mint from "./components/mint";
+import axios from "axios";
+import TestForm from "./components/test";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
+import { getDeploy, getDeployedHashes } from "@/utils/generalUtils";
+import { WalletService } from "@/utils/WalletServices";
+import { useEffect, useState } from "react";
+import swal from "sweetalert";
+const {
+  DeployUtil,
+  CasperClient,
+  RuntimeArgs,
+  CLValueBuilder,
+  CLMap,
+  Uint8Array,
+  CLKey,
+  CLPublicKey,
+  CLAccountHash,
+  CLString,
+  CLOption,
+  CLByteArray,
+  Contracts,
+} = require("casper-js-sdk");
+
 
 const inter = Inter({ subsets: ["latin"] });
 
 export default function Home() {
+  const [deployHash, setDeployHash] = useState(null);
+  const [deployHashes, setDeployHashes] = useState(null);
+  
+  useEffect(() => {
+    setDeployHash("eef00903b00a54d1156dca6ef4c6e616fe8c7b040801fbdb67e204ca0e7a61ae");
+  }, []);
+  
+  useEffect(() => {
+    const getHashes = async () => {
+      const url = `https://shark-app-9kl9z.ondigitalocean.app/api/auction/getHashes/${deployHash}`;
+      const response = await axios.get(url); 
+      console.log("deployed Hashes", response.data);
+      setDeployHashes(response.data); // Assuming response.data contains the actual hashes
+    }
+  
+    getHashes();
+  }, [deployHash]);
+  
   return (
     <>
       <Header />
@@ -129,6 +168,7 @@ export default function Home() {
                       Create
                     </a>
                   </li>
+                  {/* <TestForm /> */}
                 </ul>
               </div>
             </div>

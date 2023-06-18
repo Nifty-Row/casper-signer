@@ -7,6 +7,7 @@ import axios from "axios";
 import { useRouter } from "next/router";
 import { Inter } from "next/font/google";
 import styles from "@/styles/Home.module.css";
+import TestForm from "../components/test";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import { Some, None } from "ts-results";
@@ -87,6 +88,7 @@ export default function NFTDetails() {
               setNFT(data);
               console.log("NBD", data);
               ownerData = await getOwner(data.ownerKey);
+              setOwner(ownerData);
               console.log("OWNER DATA", ownerData);
             })
             .catch((error) => console.error(error));
@@ -131,21 +133,21 @@ export default function NFTDetails() {
     console.log("Fund Amount:", fundAmount);
 
     // Call the prepareBidPurseDeploy function with the appropriate values
-    swal("Notice", "Preparing Bid ...", "Warning");
+    swal("Notice", "Preparing Bid ...", "warning");
 
     let deploy, deployJSON;
 
-    deploy = await prepareBidPurseDeploy(publicKey);
+    deploy = await prepareBidPurseDeploy(key);
     deployJSON = DeployUtil.deployToJson(deploy);
     let signedDeployJSON;
-    const res = await WalletService.sign(JSON.stringify(jsonDeploy), publicKey);
+    const res = await WalletService.sign(JSON.stringify(deployJSON), key);
     if (res.cancelled) {
       swal("Notice","Casper Wallet Signing cancelled","warning");
     } else {
       let signedDeploy = DeployUtil.setSignature(
         deploy,
         res.signature,
-        CLPublicKey.fromHex(publicKey)
+        CLPublicKey.fromHex(key)
       );
       const signedDeployJSON = DeployUtil.deployToJson(signedDeploy);
 
@@ -216,16 +218,18 @@ export default function NFTDetails() {
           minimumPrice: minPrice,
           deployerKey: key,
         };
-        try{
-          console.log("before deploy",signedDeployJSON);
-          let returnedHash = await deploySigned(signedDeployJSON);
-          swal("Deployed!", JSON.stringify(returnedHash), "info");
-          console.log("after deploy",returnedHash);
-        }catch(e){
-          console.error(e);
-          swal("Error!", "Error here, check console", "error");
-        }
-        return;
+        
+        console.log("before deploy",signedDeployJSON);
+        // try{
+        //   
+        //   let returnedHash = await deploySigned(signedDeployJSON);
+        //   swal("Deployed!", JSON.stringify(returnedHash), "info");
+        //   console.log("after deploy",returnedHash);
+        // }catch(e){
+        //   console.error(e);
+        //   swal("Error!", "Error here, check console", "error");
+        // }
+        // return;
         try {
           if(signedDeployJSON){
             swal({
@@ -293,9 +297,10 @@ export default function NFTDetails() {
     );
     const beneficiary_account = new CLKey(hashedDeployKey);
 
-    const starting_price = new CLU512(minPrice); //Start bid price set by nft owner.
+    const starting_price = new CLOption(None, new
+      CLU512Type()); 
 
-    const reserve_price = new CLU512(minPrice*10);
+    const reserve_price = new CLU512(minPrice);
 
     const token_id = new CLString(tokenId);
 
@@ -309,7 +314,9 @@ export default function NFTDetails() {
     // Calculate the cancellation timestamp by adding a duration to the current timestamp
     const cancellationDuration = 24 * 60 * 60 * 1000; // Example duration of 12 hours
     const cancellationTimestamp = currentTimestamp + cancellationDuration;
-    
+    console.log("Time Stamp",startTimestamp.toString());
+    console.log("Cancellation Time",cancellationTimestamp.toString());
+    console.log("End Time",endTimestamp.toString());
     // Create CLU64 objects using the calculated timestamps
     const start_time = new CLU64(startTimestamp); // Unix timestamp based on user-provided start time
     const cancellation_time = new CLU64(cancellationTimestamp.toString()); // Unix timestamp based on calculated cancellation time
@@ -323,15 +330,15 @@ export default function NFTDetails() {
 
     const kyc_package_hash = new CLKey(new CLByteArray(hex4));
 
-    const name = new CLString("Auction for " + nft.tokenId);
+    const name = new CLString("Auction");
 
     const bidder_count_cap = new CLOption(Some(new CLU64("5")));
     const auction_timer_extension = new CLOption(
-      Some(new CLU64(currentTimestamp.toString()))
+      Some(new CLU64("123"))
     );
     const minimum_bid_step = new CLOption(Some(new CLU512("5")));
     const hexString5 =
-      "3d276dd4b06a751f9e4407a5639b72c4cbe98183c1f1a961ecf3b34686a44b46";
+      "268e98a4faf44865080eaba8bc88b07f8ae870575d100eb611d64c4f518d7f85";
 
     const marketplace_account = new CLByteArray(
       Uint8Array.from(Buffer.from(hexString5, "hex"))
@@ -407,7 +414,7 @@ export default function NFTDetails() {
     );
 
     let args = [];
-    const amount = new CLU512(3000000000);
+    const amount = new CLU512(bidAmount * 1e9);
     // const auction_contract =
     const auction_contract_string =
       "3323eb2707533952c7ef758924622f95f8358ee88c4987f14ded307cef1f87cd";
@@ -446,6 +453,12 @@ export default function NFTDetails() {
       DeployUtil.standardPayment(15000000000)
     );
   };
+
+  const placeBid = async(e)=>{
+    e.preventDefault();
+
+    
+  }
 
   async function getOwner(ownerKey) {
     try {
@@ -514,7 +527,11 @@ export default function NFTDetails() {
                                 {owner.category}
                               </p><p class="fw-medium small text-dark">
                                 {owner.about}
-                              </p><div class="dropdown-menu card-generic p-2 keep-open w-100 mt-1">
+                              </p>
+                              <p class="fw-medium small text-dark">
+                                Joined : {formatDate(owner.createdAt)}
+                              </p>
+                              <div class="dropdown-menu card-generic p-2 keep-open w-100 mt-1">
                                 <a href="#" class="dropdown-item card-generic-item">
                                   <em class="ni ni-facebook-f me-2"></em> Facebook
                                 </a>
@@ -537,12 +554,12 @@ export default function NFTDetails() {
                         <div class="item-detail-btns mt-4">
                   <ul class="btns-group d-flex">
                     <li class="flex-grow-1">
-                      {nft.inAuction && (
+                      {!nft.inAuction && nft.ownerKey !== key && (
                         <a
                           href="#"
                           data-bs-toggle="modal"
                           data-bs-target="#placeBidModal"
-                          class="btn btn-dark d-block"
+                          class="btn btn-dark d-block mb-4"
                         >
                           Place a Bid
                         </a>
@@ -554,10 +571,11 @@ export default function NFTDetails() {
                           data-bs-target="#startAuctionModal"
                           class="btn btn-dark d-block"
                         >
-                          Start Auction
+                          Create Private Auction
                         </a>
                       )}
                     </li>
+                    <TestForm />
                     {/* <li class="flex-grow-1">
                       <div class="dropdown">
                         <a

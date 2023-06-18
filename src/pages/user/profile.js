@@ -6,6 +6,7 @@ import React, { useEffect, useState } from "react";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import { WalletService } from "@/utils/WalletServices";
+import { truncateKey } from "@/utils/generalUtils";
 import ProfileForm from "../components/ProfileForm";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -78,7 +79,7 @@ export default function Home() {
     );
   }
 
-  if(!key){
+  if(!activeKey){
     return (
       <>
       <Header />
@@ -124,13 +125,13 @@ export default function Home() {
       <div class="hero-wrap sub-header bg-image" >
         <div class="container">
             <div class="hero-content py-0 d-flex align-items-center">
-                <div class="avatar avatar-3 flex-shrink-0"><Image src="https://cdn.onlinewebfonts.com/svg/img_405324.png" width={100} height={100} alt="avatar" /></div>
+                <div class="avatar avatar-3 flex-shrink-0"><Image src="/img_405324.png" width={100} height={100} alt="avatar" /></div>
                 <div class="author-hero-content-wrap d-flex flex-wrap justify-content-between ms-3 flex-grow-1">
                     <div class="author-hero-content me-3">
                         <h4 class="hero-author-title mb-1 text-white">{userData.fullName}</h4>
                         <p class="hero-author-username mb-1 text-white">@{userData.username}</p>
                         <div class="d-flex align-items-center">
-                            <input type="text" class="copy-input text-white" value="0x76669f...a0e9ca" id="copy-input" readonly />
+                            <input type="text" class="copy-input text-white" value={truncateKey(userData.publicKey)} id="copy-input" readonly />
                             <div class="tooltip-s1">
                                 <button data-clipboard-target="#copy-input" class="copy-text text-white ms-2" type="button"><span class="tooltip-s1-text tooltip-text">Copy</span><em class="ni ni-copy"></em></button>
                             </div>
@@ -166,10 +167,10 @@ export default function Home() {
                                 <div class="sidebar-widget">
                                     <ul class="user-nav">
                                         <li class="active">
-                                            <a href="account.html"><em class="ni ni-edit me-2"></em>Edit Profile</a>
+                                            <a href="#"><em class="ni ni-edit me-2"></em>Edit Profile</a>
                                         </li>
                                         <li>
-                                            <a href="payment-methods.html"><em class="ni ni-money me-2"></em>My Assets</a>
+                                            <a href="#"><em class="ni ni-money me-2"></em>My Assets</a>
                                         </li>
                                         
                                     </ul>

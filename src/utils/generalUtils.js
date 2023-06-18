@@ -13,7 +13,9 @@ const {
   } = require("casper-js-sdk");
 
   // Initialize Casper client
-const NODE_URL = "http://3.136.227.9:7777/rpc";
+// const NODE_URL = "http://3.136.227.9:7777/rpc";
+// const NODE_URL = "http://65.21.134.245:35000/rpc";
+const NODE_URL = "http://178.63.75.44:7777/rpc";
 const client = new CasperClient(NODE_URL);
 
 export function truncateKey(key) {
@@ -75,4 +77,54 @@ export function formatDate(dateString) {
   };
   
   return date.toLocaleString('en-US', options);
+}
+
+export async function getDeploy(deployHash){
+  if(!deployHash) return;
+  let result = await client.getDeploy(deployHash);
+  return result;
+}
+
+function isObject(value) {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+export async function getDeployedHashes(deployHash) {
+  try {
+    let contractHash;
+    let packageHash;
+    const client = new CasperClient(NODE_URL);
+    const [deploy, raw] = await client.getDeploy(deployHash);
+    return raw;
+    if (raw.execution_results.length !== 0) {
+      if (raw.execution_results[0].result.Success) {
+        const execResultArray =
+          raw.execution_results[0].result.Success.effect.transforms;
+        execResultArray.forEach(function (item) {
+          if (isObject(item)) {
+            if (item.transform == "WriteContract") {
+              contractHash = item.key;
+            }
+            if (item.transform == "WriteContractPackage") {
+              packageHash = item.key;
+            }
+          }
+        });
+        if (contractHash == undefined || packageHash == undefined) {
+          return "";
+        }
+
+        return { contractHash, packageHash };
+      } else {
+        throw Error(
+          "Contract execution: " +
+            raw.execution_results[0].result.Failure.error_message
+        );
+      }
+    } else {
+      return "";
+    }
+  } catch (error) {
+    console.error("getDeployedHashes: ", error);
+    return "";
+  }
 }

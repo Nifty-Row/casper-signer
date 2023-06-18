@@ -58,16 +58,16 @@ const Footer = () => {
                       <h5 className="mb-4">Company</h5>
                       <ul className="list-item list-item-s1">
                         <li>
-                          <a href="about-us.html">About</a>
+                          <a href="https://niftyrow.io">About</a>
                         </li>
                         <li>
-                          <a href="news.html">Blog</a>
+                          <a href="#">Blog</a>
                         </li>
                         <li>
-                          <a href="contact.html">Contact</a>
+                          <a href="#">Contact</a>
                         </li>
                         <li>
-                          <a href="about-us.html">Careers</a>
+                          <a href="#">Careers</a>
                         </li>
                       </ul>
                     </div>
