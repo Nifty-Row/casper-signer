@@ -15,7 +15,7 @@ export default function Home() {
   }, []);
 
   const fetchNFTs = () => {
-    fetch("https://shark-app-9kl9z.ondigitalocean.app/api/nft/allNfts")
+    fetch("https://shark-app-9kl9z.ondigitalocean.app/api/nft/nftsInAuction")
       .then((response) => response.json())
       .then((data) => setNFTs(data))
       .catch((error) => console.error(error));

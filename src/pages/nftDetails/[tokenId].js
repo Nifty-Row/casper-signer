@@ -54,7 +54,7 @@ export default function NFTDetails() {
   const [endTime, setEndTime] = useState(null);
   const [minPrice, setMinPrice] = useState(10);
   const [fundAmount, setFundAmount] = useState("1");
-
+  const [user, setUser] = useState(null);
   useEffect(() => {
     WalletService.getActivePublicKey().then((data) => {
       setKey(data);
@@ -63,39 +63,32 @@ export default function NFTDetails() {
 
   useLayoutEffect(() => {
     WalletService.getActivePublicKey()
-    .then((data) => {
+    .then(async (data) => {
+      if(!data) window.location = "/WalletConnect";
       setKey(data);
+      let userData = await getUser(data);
+      setUser(userData);
     })
     .catch((error) => {
       console.error(error);
       // Handle the error if necessary
     });
     const fetchData = async () => {
-      try {
-        // const activePublicKey = await WalletService.getActivePublicKey();
-        // alert(activePublicKey);
-        // if(!activePublicKey) window.location = "/WalletConnect";
-        // setKey(activePublicKey);
-  
-        if (query && query.tokenId) {
-          setTokenId(query.tokenId);
-        }
+      try {  
         let ownerData;
         if (query && query.tokenId) {
+          setTokenId(query.tokenId);
           fetch(`https://shark-app-9kl9z.ondigitalocean.app/api/nft/${query.tokenId}`)
             .then((response) => response.json())
             .then(async (data) => {
               setNFT(data);
-              console.log("NBD", data);
-              ownerData = await getOwner(data.ownerKey);
+              ownerData = await getUser(data.ownerKey);
               setOwner(ownerData);
-              console.log("OWNER DATA", ownerData);
+              console.table(ownerData.nfts);
+              if (ownerData.publicKey === key) setIsOwner(true);
             })
             .catch((error) => console.error(error));
-            console.table(ownerData);
-            if (ownerData.ownerKey === activePublicKey) {
-                setIsOwner(true);
-              }
+            console.log("is Owner",isOwner);
         }
       } catch (error) {
         console.error(error);
@@ -264,6 +257,72 @@ export default function NFTDetails() {
     }
   };
 
+  async function handleFinalize(){
+    const contract = new Contracts.Contract();
+    contract.setContractHash(
+      "hash-3323eb2707533952c7ef758924622f95f8358ee88c4987f14ded307cef1f87cd"
+    );
+
+    const deploy = contract.callEntrypoint(
+      "finalize",
+      RuntimeArgs.fromMap({
+        
+      }),
+      CLPublicKey.fromHex(activeKey),
+      "casper-test",
+      "30000000000"
+    );
+
+    const deployJSON = DeployUtil.deployToJson(deploy);
+    try {
+      const res = await WalletService.sign(JSON.stringify(deployJSON), key);
+      if (res.cancelled) {
+        swal("Notice","Casper Wallet Signing cancelled","warning");
+      } else {
+        let signedDeploy = DeployUtil.setSignature(
+          deploy,
+          res.signature,
+          CLPublicKey.fromHex(key)
+        );
+        const signedDeployJSON = DeployUtil.deployToJson(signedDeploy);
+        
+        const backendData = {
+          signedDeployJSON: signedDeployJSON,
+        };
+        
+        console.log("before deploy",signedDeployJSON);
+        try {
+          if(signedDeployJSON){
+            swal({
+              title: "Signing Successful",
+              text: "Please wait while we finalize the auction.",
+              icon: "../../../loading.gif",
+              buttons: false,
+              closeOnClickOutside: false,
+              closeOnEsc: false,
+            });
+            const response = await axios.post(
+              "https://shark-app-9kl9z.ondigitalocean.app/api/nft/deploySigned",
+              backendData,
+              { headers: { "Content-Type": "application/json" } }
+            );
+            const data = JSON.stringify(response.data);
+            swal("Success",data,"success");
+            console.log("Sever Response",response);
+            return response.data;
+          }
+        }catch (error) {
+          swal("Error!", "Error here"+error.message, "error");
+          console.log(error);
+          return false;
+        }
+       
+      }
+    } catch (err) {
+      alert("Error: " + err);
+      console.log(err);
+    }
+}
 
   if (!nft) {
     return <div>Loading...</div>;
@@ -460,17 +519,61 @@ export default function NFTDetails() {
     
   }
 
-  async function getOwner(ownerKey) {
+  async function getUser(publicKey) {
     try {
-      const response = await fetch(`https://shark-app-9kl9z.ondigitalocean.app/api/user/userByKey/${ownerKey}`);
+      const response = await fetch(`https://shark-app-9kl9z.ondigitalocean.app/api/user/userByKey/${publicKey}`);
       const data = await response.json();
-      console.log("Owner", data);
       return data;
     } catch (error) {
       console.error(error);
       return null;
     }
   }
+
+  async function updateOwner(newOwnerKey){
+    let backendData = {
+      newOwnerKey: newOwnerKey,
+    };
+
+    try {
+      if(signedDeployJSON){
+        swal({
+          title: "Transfering NFT",
+          text: "Please wait while we transfer the NFT to it's new owner.",
+          icon: "info",
+          buttons: false,
+          closeOnClickOutside: false,
+          closeOnEsc: false,
+        });
+        if(!axios) alert("Axios is not present");
+        // Send to the backend server for deployment
+        const response = await axios.put(
+          `https://shark-app-9kl9z.ondigitalocean.app/api/nft/updateOwner/${tokenId}`,
+          backendData,
+          { headers: { "Content-Type": "application/json" } }
+        );
+        const data = JSON.stringify(response);
+        console.log("Sever Response",response);
+        return response.data;
+      }
+    }catch (error) {
+      swal("Error!", "Error here"+error.message, "error");
+      console.log(error);
+      return false;
+    }
+
+
+  }
+
+  async function addBid(){
+    let backendData = {
+      bid:bidAmount,
+      bidder:key,
+      userId:user.id
+    }
+  }
+
+
   
 
   return (
@@ -553,8 +656,9 @@ export default function NFTDetails() {
                         <div class="card-media-body">
                         <div class="item-detail-btns mt-4">
                   <ul class="btns-group d-flex">
+                    is owner {isOwner}
                     <li class="flex-grow-1">
-                      {!nft.inAuction && nft.ownerKey !== key && (
+                      {nft.inAuction && !isOwner && (
                         <a
                           href="#"
                           data-bs-toggle="modal"
@@ -564,7 +668,7 @@ export default function NFTDetails() {
                           Place a Bid
                         </a>
                       )}
-                      {!nft.inAuction && nft.ownerKey == key && (
+                      {!nft.inAuction && isOwner && (
                         <a
                           href="#"
                           data-bs-toggle="modal"
@@ -575,8 +679,8 @@ export default function NFTDetails() {
                         </a>
                       )}
                     </li>
-                    <TestForm />
-                    {/* <li class="flex-grow-1">
+                    {/* <TestForm /> */}
+                    <li class="flex-grow-1">
                       <div class="dropdown">
                         <a
                           href="#"
@@ -587,7 +691,7 @@ export default function NFTDetails() {
                         </a>
                         
                       </div>
-                    </li> */}
+                    </li>
                   </ul>
                 </div>
                         </div>

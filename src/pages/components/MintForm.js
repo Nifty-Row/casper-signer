@@ -51,6 +51,7 @@ const MintForm = (key) => {
   const [tokenHash, setTokenHash] = useState("");
   const [tokenId, setTokenId] = useState("");
   const [canMint, setCanMint] = useState(false);
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
     const token = () => {
@@ -78,7 +79,7 @@ const MintForm = (key) => {
       if (newKey && !canMint) {
         try {
           const userData = await getUserDataByKey(newKey);
-  
+          setUser(userData);
           if (userData.canMint) {
             setCanMint(true);
           } else {
@@ -215,6 +216,7 @@ const MintForm = (key) => {
         deployerKey: publicKey,
         ownerKey: publicKey,
         tokenHash: "",
+        userId: user.id,
         mediaName: nftName,
         description: nftDescription,
         socialMediaLink: socialMediaLink,
