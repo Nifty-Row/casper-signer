@@ -40,6 +40,7 @@ import {
   CLBool,
   CLAccountHash,
 } from "casper-js-sdk";
+import swal from "sweetalert";
 
 export default function NFTDetails() {
   const router = useRouter();
@@ -55,47 +56,64 @@ export default function NFTDetails() {
   const [minPrice, setMinPrice] = useState(10);
   const [fundAmount, setFundAmount] = useState("1");
   const [user, setUser] = useState(null);
-  useEffect(() => {
-    WalletService.getActivePublicKey().then((data) => {
-      setKey(data);
-    });
-  }, []);
+  const [deployHash, setDeployHash] = useState(null);
+  const [auctionData, setAuctionData] = useState(null);
+  const [bids, setBids] = useState(null);
+  
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     WalletService.getActivePublicKey()
     .then(async (data) => {
-      if(!data) window.location = "/WalletConnect";
+      if(!data) window.location = "/walletConnect";
       setKey(data);
-      let userData = await getUser(data);
-      setUser(userData);
-    })
-    .catch((error) => {
-      console.error(error);
-      // Handle the error if necessary
-    });
-    const fetchData = async () => {
       try {  
-        let ownerData;
-        if (query && query.tokenId) {
+        if (query.tokenId) {
           setTokenId(query.tokenId);
           fetch(`https://shark-app-9kl9z.ondigitalocean.app/api/nft/${query.tokenId}`)
             .then((response) => response.json())
             .then(async (data) => {
               setNFT(data);
-              ownerData = await getUser(data.ownerKey);
-              setOwner(ownerData);
-              console.table(ownerData.nfts);
-              if (ownerData.publicKey === key) setIsOwner(true);
-            })
-            .catch((error) => console.error(error));
-            console.log("is Owner",isOwner);
+              setOwner(data.user);
+              setAuctionData(data.auction);
+              setBids(data.bids);
+              setIsOwner(data.ownerKey === key);
+              if(data.auction.deployHash); setDeployHash(data.auction.deployHash);
+              if(data.bids); setBids(data.auction.deployHash);
+            }).catch((error) => console.error(error));
         }
       } catch (error) {
+        swal("Notice",error.message,"warning");
         console.error(error);
       }
-    };
+      let userData = await getUser(data);
+      setUser(userData);
+      
+    })
+    .catch((error) => {
+      console.error(error);
+      swal({
+        title: "Notice",
+        text: error.message,
+        icon: "warning",
+        buttons: {
+          confirm: {
+            text: "OK",
+            value: true,
+            visible: true,
+            className: "",
+            closeModal: true
+          }
+        }
+      })
+      .then((value) => {
+        if (value) {
+          window.location.href = "/walletConnect"; // Replace with the desired URL
+        }
+      });
+      
+    });
+   
   
-    fetchData();
   }, [query,key]);
   
   const handleBidAmountChange = (e) => {
@@ -176,7 +194,7 @@ export default function NFTDetails() {
     }
   };
 
-  const handleStartAuction = async (e) => {
+  const handleDeployAuctionContract = async (e) => {
     e.preventDefault();
     swal({
       title: "Submitting...",
@@ -205,7 +223,8 @@ export default function NFTDetails() {
         
         const backendData = {
           signedDeployJSON: signedDeployJSON,
-          nftId:nft.tokenId,
+          nftId:nft.id,
+          tokenId:nft.tokenId,
           startDate: startTime,
           endDate: endTime,
           minimumPrice: minPrice,
@@ -213,16 +232,7 @@ export default function NFTDetails() {
         };
         
         console.log("before deploy",signedDeployJSON);
-        // try{
-        //   
-        //   let returnedHash = await deploySigned(signedDeployJSON);
-        //   swal("Deployed!", JSON.stringify(returnedHash), "info");
-        //   console.log("after deploy",returnedHash);
-        // }catch(e){
-        //   console.error(e);
-        //   swal("Error!", "Error here, check console", "error");
-        // }
-        // return;
+       
         try {
           if(signedDeployJSON){
             swal({
@@ -230,7 +240,7 @@ export default function NFTDetails() {
               text: "Please wait while we deploy the NFT.",
               icon: "../../../loading.gif",
               buttons: false,
-              closeOnClickOutside: false,
+              closeOnClickOutside: true,
               closeOnEsc: false,
             });
             if(!axios) alert("Axios is not present");
@@ -242,12 +252,35 @@ export default function NFTDetails() {
             );
             const data = JSON.stringify(response);
             console.log("Sever Response",response);
-            return response.data;
+            if(response.data){
+              swal({
+                title: "Saving Private Auction Contract",
+                text: "Please wait while we save the Contract.",
+                icon: "info",
+                buttons: false,
+                closeOnClickOutside: true,
+                closeOnEsc: false,
+              });
+              try {
+                const response = await axios.post(
+                  "https://shark-app-9kl9z.ondigitalocean.app/api/auction/startAuction",
+                  backendData,
+                  { headers: { "Content-Type": "application/json" } }
+                );
+                if(response.data){
+                  setAuctionData(response.data);
+                  swal("Success","Auction Contract Deployed & Saved Succesfully","success")
+                }
+              } catch (error) {
+                swal("Error!", "Sorry, "+error.message, "error");
+                console.log(error);
+              }
+
+            }
           }
         }catch (error) {
-          swal("Error!", "Error here"+error.message, "error");
+          swal("Error!", "Sorry, "+error.message, "error");
           console.log(error);
-          return false;
         }
        
       }
@@ -259,16 +292,14 @@ export default function NFTDetails() {
 
   async function handleFinalize(){
     const contract = new Contracts.Contract();
-    contract.setContractHash(
-      "hash-3323eb2707533952c7ef758924622f95f8358ee88c4987f14ded307cef1f87cd"
-    );
+    contract.setContractHash(auctionData.contractHash);
 
     const deploy = contract.callEntrypoint(
       "finalize",
       RuntimeArgs.fromMap({
         
       }),
-      CLPublicKey.fromHex(activeKey),
+      CLPublicKey.fromHex(key),
       "casper-test",
       "30000000000"
     );
@@ -290,7 +321,6 @@ export default function NFTDetails() {
           signedDeployJSON: signedDeployJSON,
         };
         
-        console.log("before deploy",signedDeployJSON);
         try {
           if(signedDeployJSON){
             swal({
@@ -308,7 +338,6 @@ export default function NFTDetails() {
             );
             const data = JSON.stringify(response.data);
             swal("Success",data,"success");
-            console.log("Sever Response",response);
             return response.data;
           }
         }catch (error) {
@@ -512,6 +541,138 @@ export default function NFTDetails() {
       DeployUtil.standardPayment(15000000000)
     );
   };
+  const verifyAuction = async(e) => {
+    e.preventDefault();
+    swal({
+      title: "Submitting...",
+      text: "Please wait while we verify your Auction.",
+      icon: "info",
+      buttons: false,
+      closeOnClickOutside: true,
+      closeOnEsc: false,
+    });
+    try {
+      const response = await fetch(`https://shark-app-9kl9z.ondigitalocean.app/api/nft/confirmDeploy/${deployHash}`);
+      const data = await response.json();
+      // alert(JSON.stringify(data));
+      console.log(data.Success);
+      if(data.Success){
+        getHashes(deployHash).then(async (data) => {
+          console.log("Hashes",data);
+          if(data.hashes){
+            updateAuctionHashes(data.hashes).then((data)=> {
+              setAuctionData(data);
+            })
+          }
+        });
+      }
+      return data;
+    } catch (error) {
+      console.error(error);
+      return null;
+    }
+    
+  }
+
+  async function prepareAuctionInitDeploy(publicKey){
+      const contract = new Contracts.Contract();
+      contract.setContractHash(auctionData.contractHash);
+  
+      const C_hash = auctionData.contractHash.substring(5);
+      const hexC_hash = Uint8Array.from(Buffer.from(C_hash, "hex"));
+      const auction_contract_hash = new CLKey(new CLByteArray(hexC_hash));
+      
+      const P_hash = auctionData.packageHash.substring(5);
+      const hexP_hash = Uint8Array.from(Buffer.from(P_hash, "hex"));
+      const package_contract_hash = new CLKey(new CLByteArray(hexP_hash));
+  
+      const deploy = contract.callEntrypoint(
+        "init",
+        RuntimeArgs.fromMap({
+          auction_contract_hash: auction_contract_hash,
+          auction_package_hash: package_contract_hash,
+        }),
+        CLPublicKey.fromHex(publicKey),
+        "casper-test",
+        "30000000000"
+      );
+      return deploy;
+    }
+
+  const startAuction = async(e) => {
+    e.preventDefault();
+    swal({
+      title: "Submitting...",
+      text: "Please wait while we start your Auction.",
+      icon: "info",
+      buttons: false,
+      closeOnClickOutside: true,
+      closeOnEsc: false,
+    });
+
+    const deploy = await prepareAuctionInitDeploy(key);
+  
+    const deployJSON = DeployUtil.deployToJson(deploy);
+
+    try {
+      const res = await WalletService.sign(JSON.stringify(deployJSON), key);
+      if (res.cancelled) {
+        swal("Notice","Casper Wallet Signing cancelled","warning");
+      } else {
+        let signedDeploy = DeployUtil.setSignature(
+          deploy,
+          res.signature,
+          CLPublicKey.fromHex(key)
+        );
+        const signedDeployJSON = DeployUtil.deployToJson(signedDeploy);
+        
+        const backendData = {
+          signedDeployJSON: signedDeployJSON,
+        };
+        console.log("before deploy",signedDeployJSON);
+        try {
+          if(signedDeployJSON){
+            swal({
+              title: "Signing Successful",
+              text: "Please wait while we deploy the contract.",
+              icon: "../../../loading.gif",
+              buttons: false,
+              closeOnClickOutside: false,
+              closeOnEsc: false,
+            });
+            if(!axios) alert("Axios is not present");
+            // Send to the backend server for deployment
+            const response = await axios.post(
+              "https://shark-app-9kl9z.ondigitalocean.app/api/nft/deploySigned",
+              backendData,
+              { headers: { "Content-Type": "application/json" } }
+            );
+            const data = JSON.stringify(response.data);
+            swal("Success","Auction Has been initialized Successfully","success");
+            console.log("Sever Response",response);
+            return response.data;
+          }
+        }catch (error) {
+          swal("Error!", "Error here"+error.message, "error");
+          console.log(error);
+          return false;
+        }
+       
+      }
+    } catch (err) {
+      alert("Error: " + err);
+      console.log(err);
+    }
+
+  }
+  const endAuction = async(e) => {
+    e.preventDefault();
+    
+    handleFinalize().then(async (data) => {
+
+    });
+
+  }
 
   const placeBid = async(e)=>{
     e.preventDefault();
@@ -521,7 +682,7 @@ export default function NFTDetails() {
 
   async function getUser(publicKey) {
     try {
-      const response = await fetch(`https://shark-app-9kl9z.ondigitalocean.app/api/user/userByKey/${publicKey}`);
+      const response = await fetch("https://shark-app-9kl9z.ondigitalocean.app/api/user/userByKey/"+publicKey);
       const data = await response.json();
       return data;
     } catch (error) {
@@ -573,6 +734,50 @@ export default function NFTDetails() {
     }
   }
 
+  async function updateAuctionHashes(hashes){
+    let backendData = {
+      deployHash:deployHash,
+      packageHash:hashes.packageHash,
+      contractHash:hashes.contractHash
+    };
+
+    try {
+      swal({
+        title: "Updating Auction",
+        text: "Please wait while we update the auction.",
+        icon: "info",
+        buttons: false,
+        closeOnClickOutside: true,
+        closeOnEsc: false,
+      });
+      // Send to the backend server for deployment
+      const response = await axios.post(
+        "https://shark-app-9kl9z.ondigitalocean.app/api/auction/updateAuction",
+        backendData,
+        { headers: { "Content-Type": "application/json" } }
+      );
+      const data = JSON.stringify(response);
+      console.log("Sever Response",response);
+      swal("Success!", "Auction Verified and Updated!", "success");
+      return response.data;
+    }catch (error) {
+      swal("Error!", "Sorry, "+error.message, "error");
+      console.log(error);
+      return false;
+    }
+  }
+
+  async function getHashes(deployHash){
+    try {
+      const response = await fetch(`https://shark-app-9kl9z.ondigitalocean.app/api/auction/getHashes/${deployHash}`);
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error(error);
+      return null;
+    }
+  }
+
 
   
 
@@ -594,7 +799,7 @@ export default function NFTDetails() {
                   </span>
                   <span class="dot-separeted"></span>
                   <span class="item-detail-text-meta">
-                    Asset Type :{" "}
+                    Asset Type : 
                     <span class="text-primary fw-semibold">
                       {nft.assetType}
                     </span>
@@ -609,7 +814,7 @@ export default function NFTDetails() {
                   </span>
                 </div>
                 <p class="item-detail-text mb-4">{decodeSpecialCharacters(nft.description)}</p>
-                <div class="item-credits">
+                <div class="item-credits mb-4">
                   <div class="row g-4">
                     <div class="col-xl-6">
                       <div class="card-media card-media-s1">
@@ -618,7 +823,7 @@ export default function NFTDetails() {
                           class="card-media-img flex-shrink-0 d-block"
                         >
                           <img
-                            src="https://cdn.onlinewebfonts.com/svg/img_405324.png"
+                            src="/img_405324.png"
                             alt="avatar"
                           />
                         </a>
@@ -655,49 +860,87 @@ export default function NFTDetails() {
                       <div class="card-media card-media-s1">
                         <div class="card-media-body">
                         <div class="item-detail-btns mt-4">
-                  <ul class="btns-group d-flex">
-                    is owner {isOwner}
-                    <li class="flex-grow-1">
-                      {nft.inAuction && !isOwner && (
-                        <a
-                          href="#"
-                          data-bs-toggle="modal"
-                          data-bs-target="#placeBidModal"
-                          class="btn btn-dark d-block mb-4"
-                        >
-                          Place a Bid
-                        </a>
-                      )}
-                      {!nft.inAuction && isOwner && (
-                        <a
-                          href="#"
-                          data-bs-toggle="modal"
-                          data-bs-target="#startAuctionModal"
-                          class="btn btn-dark d-block"
-                        >
-                          Create Private Auction
-                        </a>
-                      )}
-                    </li>
-                    {/* <TestForm /> */}
-                    <li class="flex-grow-1">
-                      <div class="dropdown">
-                        <a
-                          href="#"
-                          class="btn bg-dark-dim d-block"
-                          data-bs-toggle="dropdown"
-                        >
-                          Share
-                        </a>
-                        
-                      </div>
-                    </li>
-                  </ul>
-                </div>
+                            <ul class="btns-group d-flex">
+                              <li class="flex-grow-1">
+                                {nft.inAuction && !isOwner && (
+                                  <a
+                                    href="#"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#placeBidModal"
+                                    class="btn btn-dark d-block mb-4"
+                                  >
+                                    Place a Bid {isOwner}
+                                  </a>
+                                )}
+                                {!nft.inAuction && isOwner && (
+                                  <a
+                                    href="#"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#startAuctionModal"
+                                    class="btn btn-dark d-block"
+                                  >
+                                    Create Private Auction
+                                  </a>
+                                )}
+                                {nft.inAuction && isOwner  && auctionData.contractHash && !auctionData.approve && (
+                                  <a
+                                    href="#"
+                                  onClick={startAuction}
+                                    class="btn btn-dark d-block"
+                                  >
+                                    Start Auction
+                                  </a>
+                                )}
+                                {nft.inAuction && isOwner  && auctionData.contractHash && !auctionData.approve && (
+                                  <a
+                                    href="#"
+                                  onClick={endAuction}
+                                    class="btn btn-dark d-block"
+                                  >
+                                    End Auction
+                                  </a>
+                                )}
+                                {nft.inAuction && isOwner && !auctionData.contractHash && !auctionData.approve && (
+                                  <a
+                                    href="#"
+                                    onClick={verifyAuction}
+                                    class="btn btn-info bg-dark-dim d-block"
+                                  >
+                                    Verify Auction
+                                  </a>
+                                )}
+                              </li>
+                              {/* <TestForm /> */}
+                              {deployHash && (<li class="flex-grow-1">
+                                <div class="dropdown">
+                                  <a
+                                    href={`https://testnet.cspr.live/deploy/${deployHash}`}
+                                    target="_blank"
+                                    class="btn bg-dark-dim d-block"
+                                  >
+                                    Verify on Explorer
+                                  </a>
+                                  
+                                </div>
+                              </li>)}
+                            </ul>
+                          </div>
                         </div>
                       </div>
                     </div>
                   </div>
+                </div>
+                <div class="item-detail-tab">
+                  <ul class="nav nav-tabs nav-tabs-s1" id="myTab" role="tablist">
+                      <li class="nav-item" role="presentation">
+                          <button class="nav-link" id="bids-tab" data-bs-toggle="tab" data-bs-target="#bids" type="button" role="tab" aria-controls="bids" aria-selected="true">Bids</button>
+                      </li>
+                      {/* <li class="nav-item" role="presentation">
+                          <button class="nav-link active" id="owners-tab" data-bs-toggle="tab" data-bs-target="#owners" type="button" role="tab" aria-controls="owners" aria-selected="falsr">Owners</button>
+                      </li> */}
+                      
+                     
+                  </ul>
                 </div>
                 
               </div>
@@ -735,8 +978,8 @@ export default function NFTDetails() {
               <form onSubmit={handlePlaceBid}>
                 <p class="mb-3">
                   You are about to place a bid for{" "}
-                  <strong>{nft.mediaName}</strong> from{" "}
-                  <strong>{nft.artistName}</strong>
+                  <strong>{nft.mediaName}</strong> 
+                  {/* <strong>{nft.artistName}</strong> */}
                 </p>
                 <div class="mb-3">
                   <label class="form-label">Your bid (CSPR)</label>
@@ -777,7 +1020,7 @@ export default function NFTDetails() {
         <div class="modal-dialog modal-dialog-centered">
           <div class="modal-content">
             <div class="modal-header">
-              <h4 class="modal-title">Start Auction</h4>
+              <h4 class="modal-title">Start Private Auction Contract</h4>
               <button
                 type="button"
                 class="btn-close icon-btn"
@@ -788,9 +1031,9 @@ export default function NFTDetails() {
               </button>
             </div>
             <div class="modal-body">
-              <form onSubmit={handleStartAuction}>
+              <form onSubmit={handleDeployAuctionContract}>
                 <p class="mb-3">
-                  You are about to start an Auction for
+                  You are about to deploy an Auction contract for
                   <strong> {nft.mediaName}</strong>
                   <strong> ({nft.assetSymbol})</strong>
                 </p>
@@ -830,7 +1073,7 @@ export default function NFTDetails() {
                 </div>
                 {/* ... */}
                 <button type="submit" class="btn btn-dark d-block float-right">
-                  Deploy Auction
+                  Deploy Auction Contract
                 </button>
               </form>
             </div>

@@ -1,5 +1,33 @@
 .bg-image{
     background : url("../../slider3.png");
+    background-size:cover;
     height: 400px;
     object-fit:contain;
+  }
+.bg-image1{
+    background : url("../../nifty_slider1.jpg");
+    height: 400px;
+    background-size:cover;
+    object-fit:fill;
+    width:100%;
+  }
+.bg-image2{
+    background : url("../../nifty_slider2.jpg");
+    background-size:cover;
+    height: 400px;
+    object-fit:contain;
+  }
+
+  .fill {
+    background-size: cover;
+    background-position: center;
+    width: 100%;
+    height: 100%;
+  }
+
+  .full {
+    background-repeat: no-repeat;
+    background-position: center;
+    background-attachment: fixed;
+    background-size: cover;
   }

@@ -120,7 +120,7 @@ const Header = () => {
                 </li>
                 <li className="menu-item">
                   <a href="../../marketplace" className="menu-link text-light">
-                    Explore
+                    Marketplace
                   </a>
                 </li>
                 <li className="menu-item has-sub">
@@ -156,7 +156,7 @@ const Header = () => {
                     Connect Wallet
                   </a>
                 </li> */}
-                <li>
+                {/* <li>
                   <a
                     href="#"
                     className="theme-toggler"
@@ -168,8 +168,9 @@ const Header = () => {
                     </span>
                     <span className="theme-toggler-text">Dark Mode</span>
                   </a>
-                </li>
+                </li> */}
               </ul>
+              {publicKey !== "" && (
               <ul class="menu-btns menu-btns-2">
                 
                 <li class="d-none d-lg-inline-block dropdown">
@@ -193,7 +194,7 @@ const Header = () => {
                     </ul>
                 </li>
                 <li class="d-lg-none"><a href="../../WalletConnect" class="btn btn-lg btn-dark">Connect Wallet</a></li>
-              </ul>
+              </ul>)}
             </nav>
             <div className="header-overlay"></div>
           </div>

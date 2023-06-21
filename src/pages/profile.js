@@ -1,5 +1,6 @@
 import Head from "next/head";
 import Image from "next/image";
+import axios from "axios";
 import { Inter } from "next/font/google";
 import React, { useLayoutEffect, useState } from "react";
 import Header from "./components/Header";
@@ -55,10 +56,14 @@ export default function Home() {
           );
           const data = await response.json();
           setUserNfts(data);
-          setUserOwnedNfts(data.filter((nft) => nft.ownerKey === key && nft.deployerKey !== nft.ownerKey && !nft.inAuction));
-        } catch (error) {
+          let res = data.filter((nft) => nft.ownerKey === key && nft.ownerKey!== nft.deployerKey);
+          setUserOwnedNfts(res);
+          let res2 = data.filter((nft) => nft.ownerKey === key && nft.inAuction);
+          setUserNftsInAuction(res2);
+      } catch (error) {
           console.error(error);
         }
+        
       }
     };
   

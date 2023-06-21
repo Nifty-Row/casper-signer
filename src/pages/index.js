@@ -32,23 +32,23 @@ const {
 const inter = Inter({ subsets: ["latin"] });
 
 export default function Home() {
-  const [deployHash, setDeployHash] = useState(null);
-  const [deployHashes, setDeployHashes] = useState(null);
+  // const [deployHash, setDeployHash] = useState(null);
+  // const [deployHashes, setDeployHashes] = useState(null);
   
-  useEffect(() => {
-    setDeployHash("eef00903b00a54d1156dca6ef4c6e616fe8c7b040801fbdb67e204ca0e7a61ae");
-  }, []);
+  // useEffect(() => {
+  //   setDeployHash("eef00903b00a54d1156dca6ef4c6e616fe8c7b040801fbdb67e204ca0e7a61ae");
+  // }, []);
   
-  useEffect(() => {
-    const getHashes = async () => {
-      const url = `https://shark-app-9kl9z.ondigitalocean.app/api/auction/getHashes/${deployHash}`;
-      const response = await axios.get(url); 
-      console.log("deployed Hashes", response.data);
-      setDeployHashes(response.data); // Assuming response.data contains the actual hashes
-    }
+  // useEffect(() => {
+  //   const getHashes = async () => {
+  //     const url = `https://shark-app-9kl9z.ondigitalocean.app/api/auction/getHashes/${deployHash}`;
+  //     const response = await axios.get(url); 
+  //     console.log("deployed Hashes", response.data);
+  //     setDeployHashes(response.data); // Assuming response.data contains the actual hashes
+  //   }
   
-    getHashes();
-  }, [deployHash]);
+  //   getHashes();
+  // }, [deployHash]);
   
   return (
     <>

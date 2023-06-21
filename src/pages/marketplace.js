@@ -23,7 +23,7 @@ export default function Home() {
   return (
     <>
       <Header />
-      <div class="hero-wrap sub-header bg-image">
+      <div class="hero-wrap sub-header bg-image1">
         <div class="container">
           <div class="hero-content text-center py-0">
             <h1 class="hero-title text-white">Nifty Marketplace</h1>

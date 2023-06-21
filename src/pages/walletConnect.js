@@ -66,10 +66,10 @@ export default function walletConnect() {
     setTimeout(async () => {
       try {
         const connected = await WalletService.isSiteConnected();
-        swal("Info","Is site connected ? :"+connected,"info");
+        // swal("Info","Casper Wallet Connection ?"+connected,"info");
         setSignerConnected(connected);
       } catch (err) {
-        swal("Info","Is site connected ? :"+err.message,"info");
+        swal("Info","Casper Wallet Connection Error "+err.message,"info");
         console.log(err);
       }
     }, 100);
