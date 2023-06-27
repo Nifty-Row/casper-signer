@@ -15,7 +15,6 @@ const Header = () => {
     setTimeout(async () => {
       try {
         const connected = await WalletService.isSiteConnected();
-        // swal("Info","Is site connected ? :"+connected,"info");
         setSignerConnected(connected);
       } catch (err) {
         swal("Attention",err.message,"warning");

@@ -5,9 +5,6 @@ import Image from "next/image";
 import { useState, useEffect, useLayoutEffect } from "react";
 import axios from "axios";
 import { useRouter } from "next/router";
-import { Inter } from "next/font/google";
-import styles from "@/styles/Home.module.css";
-import TestForm from "../components/test";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import { Some, None } from "ts-results";
@@ -16,7 +13,7 @@ import moment from "moment";
 import {
   WalletService
 } from "@/utils/WalletServices";
-import { formatDate, decodeSpecialCharacters, deploySigned} from "@/utils/generalUtils";
+import { formatDate, decodeSpecialCharacters, handleRefresh} from "@/utils/generalUtils";
 import {
   Signer,
   DeployUtil,
@@ -28,7 +25,7 @@ import {
   CLString,
   CLValueBuilder,
   CLValue,
-  CLMap,
+  CLURef,
   CLList,
   CLOption,
   CLKey,
@@ -42,44 +39,49 @@ import {
 } from "casper-js-sdk";
 import swal from "sweetalert";
 
-export default function NFTDetails() {
+export default function NFTDetails(){
   const router = useRouter();
+  
   const { query } = router;
-  const [tokenId, setTokenId] = useState(null);
-  const [nft, setNFT] = useState(null);
-  const [key, setKey] = useState(null);
-  const [isOwner, setIsOwner] = useState(null);
-  const [owner, setOwner] = useState(null);
+  const [tokenId, setTokenId] = useState("");
+  const [nft, setNFT] = useState("");
+  const [key, setKey] = useState("");
+  const [isOwner, setIsOwner] = useState("");
+  const [owner, setOwner] = useState("");
   const [bidAmount, setBidAmount] = useState("");
-  const [startTime, setStartTime] = useState(null);
-  const [endTime, setEndTime] = useState(null);
+  const [startTime, setStartTime] = useState("");
+  const [endTime, setEndTime] = useState("");
   const [minPrice, setMinPrice] = useState(10);
   const [fundAmount, setFundAmount] = useState("1");
-  const [user, setUser] = useState(null);
-  const [deployHash, setDeployHash] = useState(null);
-  const [auctionData, setAuctionData] = useState(null);
-  const [bids, setBids] = useState(null);
+  const [user, setUser] = useState("");
+  const [deployHash, setDeployHash] = useState("");
+  const [auctionData, setAuctionData] = useState("");
+  const [bids, setBids] = useState("");
+  const [countdown, setCountdown] = useState('');
+  const [auctionStarted, setAuctionStarted] = useState(false);
+  const [auctionStartDate,setAuctionStartDate] = useState('');
   
-
+  //load page data
   useEffect(() => {
+    const url = window.location.href;
+    const id = url.split("/").pop();
     WalletService.getActivePublicKey()
     .then(async (data) => {
       if(!data) window.location = "/walletConnect";
       setKey(data);
       try {  
-        if (query.tokenId) {
-          setTokenId(query.tokenId);
-          fetch(`https://shark-app-9kl9z.ondigitalocean.app/api/nft/${query.tokenId}`)
+        if (id) {
+          setTokenId(id);
+          fetch(`https://shark-app-9kl9z.ondigitalocean.app/api/nft/${id}`)
             .then((response) => response.json())
             .then(async (data) => {
               setNFT(data);
-              setOwner(data.user);
-              setAuctionData(data.auction);
-              setBids(data.bids);
+              if(data.user) setOwner(data.user);
+              if(data.auction) setAuctionData(data.auction);
               setIsOwner(data.ownerKey === key);
-              if(data.auction.deployHash); setDeployHash(data.auction.deployHash);
-              if(data.bids); setBids(data.auction.deployHash);
-            }).catch((error) => console.error(error));
+              if(data.auction.deployHash) setDeployHash(data.auction.deployHash);
+              if(data.bids) setBids(data.auction.deployHash);
+            }).catch((error) => console.error("Error:",error));
         }
       } catch (error) {
         swal("Notice",error.message,"warning");
@@ -114,8 +116,41 @@ export default function NFTDetails() {
     });
    
   
-  }, [query,key]);
+  }, [key]);
+
+  // set auction countdown if auction has not started
+  useLayoutEffect(() => {
+    if (auctionData.startDate) {
+      const auctionStartDate = new Date(auctionData.startDate).getTime();
   
+      const interval = setInterval(() => {
+        const now = new Date().getTime();
+        const distance = auctionStartDate - now;
+  
+        if (distance <= 0) {
+          clearInterval(interval);
+          setCountdown('Auction has started');
+          setAuctionStarted(true);
+        } else {
+          const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+          const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+          const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+          const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+  
+          setCountdown(`${days}d ${hours}h ${minutes}m ${seconds}s`);
+        }
+      }, 1000);
+  
+      return () => {
+        clearInterval(interval);
+      };
+    } else {
+      setCountdown('This asset is not in auction');
+      setAuctionStarted(false);
+    }
+  }, [auctionData]);
+  
+  //handle page inputs
   const handleBidAmountChange = (e) => {
     setBidAmount(e.target.value);
   };
@@ -135,65 +170,6 @@ export default function NFTDetails() {
     setMinPrice(e.target.value);
   };
 
-  
-
-  const handlePlaceBid = async (e) => {
-    e.preventDefault();
-    // Here you can use the bidAmount and fundAmount values to proceed with placing the bid
-    console.log("Bid Amount:", bidAmount);
-    console.log("Fund Amount:", fundAmount);
-
-    // Call the prepareBidPurseDeploy function with the appropriate values
-    swal("Notice", "Preparing Bid ...", "warning");
-
-    let deploy, deployJSON;
-
-    deploy = await prepareBidPurseDeploy(key);
-    deployJSON = DeployUtil.deployToJson(deploy);
-    let signedDeployJSON;
-    const res = await WalletService.sign(JSON.stringify(deployJSON), key);
-    if (res.cancelled) {
-      swal("Notice","Casper Wallet Signing cancelled","warning");
-    } else {
-      let signedDeploy = DeployUtil.setSignature(
-        deploy,
-        res.signature,
-        CLPublicKey.fromHex(key)
-      );
-      const signedDeployJSON = DeployUtil.deployToJson(signedDeploy);
-
-      const backendData = {
-        signedDeployJSON: signedDeployJSON,
-      };
-      try {
-        if(signedDeployJSON){
-          swal({
-            title: "Signing Successful",
-            text: "Please wait while we deploy the NFT.",
-            icon: "../../../loading.gif",
-            buttons: false,
-            closeOnClickOutside: false,
-            closeOnEsc: false,
-          });
-          
-          // Send to the backend server for deployment
-          const response = await axios.post(
-            "https://shark-app-9kl9z.ondigitalocean.app/api/auction/deployBidPurse",
-            backendData,
-            { headers: { "Content-Type": "application/json" } }
-          );
-          const data = JSON.stringify(response);
-          console.log("Sever Response",response);
-          return response.data;
-        }
-      }catch (error) {
-        swal("Error!", error.message, "error");
-        return false;
-      }
-     
-    }
-  };
-
   const handleDeployAuctionContract = async (e) => {
     e.preventDefault();
     swal({
@@ -205,14 +181,14 @@ export default function NFTDetails() {
       closeOnEsc: false,
     });
     const deploy = await prepareAuctionDeploy(key);
-
+    if(!deploy) return;
     // console.log("deploy",JSON.stringify(deploy));
     const deployJSON = DeployUtil.deployToJson(deploy);
     // console.log(deployJSON)
     try {
       const res = await WalletService.sign(JSON.stringify(deployJSON), key);
       if (res.cancelled) {
-        swal("Notice","Casper Wallet Signing cancelled","warning");
+        swal("Notice","Casper Wallet Signing was cancelled","warning");
       } else {
         let signedDeploy = DeployUtil.setSignature(
           deploy,
@@ -220,6 +196,7 @@ export default function NFTDetails() {
           CLPublicKey.fromHex(key)
         );
         const signedDeployJSON = DeployUtil.deployToJson(signedDeploy);
+        let hash = signedDeployJSON.deploy.hash;
         
         const backendData = {
           signedDeployJSON: signedDeployJSON,
@@ -229,10 +206,11 @@ export default function NFTDetails() {
           endDate: endTime,
           minimumPrice: minPrice,
           deployerKey: key,
+          deployHash: hash,
         };
         
         console.log("before deploy",signedDeployJSON);
-       
+        
         try {
           if(signedDeployJSON){
             swal({
@@ -270,6 +248,7 @@ export default function NFTDetails() {
                 if(response.data){
                   setAuctionData(response.data);
                   swal("Success","Auction Contract Deployed & Saved Succesfully","success")
+                  handleRefresh();
                 }
               } catch (error) {
                 swal("Error!", "Sorry, "+error.message, "error");
@@ -289,73 +268,6 @@ export default function NFTDetails() {
       console.log(err);
     }
   };
-
-  async function handleFinalize(){
-    const contract = new Contracts.Contract();
-    contract.setContractHash(auctionData.contractHash);
-
-    const deploy = contract.callEntrypoint(
-      "finalize",
-      RuntimeArgs.fromMap({
-        
-      }),
-      CLPublicKey.fromHex(key),
-      "casper-test",
-      "30000000000"
-    );
-
-    const deployJSON = DeployUtil.deployToJson(deploy);
-    try {
-      const res = await WalletService.sign(JSON.stringify(deployJSON), key);
-      if (res.cancelled) {
-        swal("Notice","Casper Wallet Signing cancelled","warning");
-      } else {
-        let signedDeploy = DeployUtil.setSignature(
-          deploy,
-          res.signature,
-          CLPublicKey.fromHex(key)
-        );
-        const signedDeployJSON = DeployUtil.deployToJson(signedDeploy);
-        
-        const backendData = {
-          signedDeployJSON: signedDeployJSON,
-        };
-        
-        try {
-          if(signedDeployJSON){
-            swal({
-              title: "Signing Successful",
-              text: "Please wait while we finalize the auction.",
-              icon: "../../../loading.gif",
-              buttons: false,
-              closeOnClickOutside: false,
-              closeOnEsc: false,
-            });
-            const response = await axios.post(
-              "https://shark-app-9kl9z.ondigitalocean.app/api/nft/deploySigned",
-              backendData,
-              { headers: { "Content-Type": "application/json" } }
-            );
-            const data = JSON.stringify(response.data);
-            swal("Success",data,"success");
-            return response.data;
-          }
-        }catch (error) {
-          swal("Error!", "Error here"+error.message, "error");
-          console.log(error);
-          return false;
-        }
-       
-      }
-    } catch (err) {
-      alert("Error: " + err);
-      console.log(err);
-    }
-}
-
-  if (!nft) {
-    return <div>Loading...</div>;
-  }
 
   const prepareAuctionDeploy = async (key) => {
     const Key = CLPublicKey.fromHex(key);
@@ -400,7 +312,7 @@ export default function NFTDetails() {
     const endTimestamp = moment(endTime).valueOf().toString();
 
     // Calculate the cancellation timestamp by adding a duration to the current timestamp
-    const cancellationDuration = 24 * 60 * 60 * 1000; // Example duration of 12 hours
+    const cancellationDuration = 15 * 60 * 1000; // 5 mins after start time
     const cancellationTimestamp = currentTimestamp + cancellationDuration;
     console.log("Time Stamp",startTimestamp.toString());
     console.log("Cancellation Time",cancellationTimestamp.toString());
@@ -409,7 +321,25 @@ export default function NFTDetails() {
     const start_time = new CLU64(startTimestamp); // Unix timestamp based on user-provided start time
     const cancellation_time = new CLU64(cancellationTimestamp.toString()); // Unix timestamp based on calculated cancellation time
     const end_time = new CLU64(endTimestamp); // Unix timestamp based on user-provided end time
+    
+     // Check if the conditions are met
+    if (startTimestamp <= currentTimestamp) {
+      swal("Warning!","Start time "+formatDate(startTime)+" should be in the future.", "warning")
+      console.error("Start time should be in the future.");
+      return false;
+    }
 
+    if (startTimestamp >= cancellationTimestamp) {
+      swal("Warning!","Start time should be earlier than cancellation time, at least 15 minutes from now at "+formatDate(cancellationTimestamp), "warning")
+      console.error("Start time should be earlier than cancellation time.");
+      return false;
+    }
+
+    if (cancellationTimestamp >= endTimestamp) {
+      swal("Warning!","Cancellation time "+formatDate(cancellationTimestamp)+" should be earlier than end time."+formatDate(endTime), "warning")
+      console.error("Cancellation time should be earlier than end time.");
+      return false;
+    }
     const format = new CLString("ENGLISH");
     const kyc_package_has =
       "a2d24badef6020572260d05a180663e631d1147390bd61d981df8ab2496fa91b";
@@ -491,7 +421,169 @@ export default function NFTDetails() {
     }
     
   };
+
+  //verify and update auction details if the auction contract deploymnent was a succcess
+  const verifyAuction = async(e) => {
+    e.preventDefault();
+    swal({
+      title: "Submitting...",
+      text: "Please wait while we verify your Auction.",
+      icon: "info",
+      buttons: false,
+      closeOnClickOutside: true,
+      closeOnEsc: false,
+    });
+    try {
+      const response = await fetch(`https://shark-app-9kl9z.ondigitalocean.app/api/nft/confirmDeploy/${deployHash}`);
+      const data = await response.json();
+      
+      if(data.Success){
+        swal("Success","Private Auction Contract was deployed successfully","success");
+        getHashes(deployHash).then(async (data) => {
+          console.log("Hashes",data);
+          if(data.hashes){
+            updateAuctionHashes(data.hashes).then((data)=> {
+              setAuctionData(data);
+            })
+          }
+        });
+      }else if(data.Failure){
+        swal("Verification Failed","Auction Deploy Failed => "+data.Failure.error_message,"error");
+        deleteAuction(auctionData.id).then(data =>{
+          setAuctionData("");
+          let newNFT = nft;
+          newNFT.inAuction=false;
+          setNFT(newNFT);
+          swal("Auction",data+"You can now redeploy another private auction","info");
+        })
+      }
+      return data;
+    } catch (error) {
+      console.error(error);
+      return null;
+    }
+    
+  }
+
+  async function deleteAuction(auctionId) {
+    try {
+      const response = await axios.delete(`https://shark-app-9kl9z.ondigitalocean.app/api/auction/${auctionId}`);
+      return response.data;
+    } catch (error) {
+      console.error(error);
+      throw new Error('An error occurred while deleting the auction');
+    }
+  }
+ 
+  async function prepareAuctionInitDeploy(publicKey){
+      const contract = new Contracts.Contract();
+      contract.setContractHash(auctionData.contractHash);
   
+      const C_hash = auctionData.contractHash.substring(5);
+      const hexC_hash = Uint8Array.from(Buffer.from(C_hash, "hex"));
+      const auction_contract_hash = new CLKey(new CLByteArray(hexC_hash));
+      
+      const P_hash = auctionData.packageHash.substring(5);
+      const hexP_hash = Uint8Array.from(Buffer.from(P_hash, "hex"));
+      const package_contract_hash = new CLKey(new CLByteArray(hexP_hash));
+  
+      const deploy = contract.callEntrypoint(
+        "init",
+        RuntimeArgs.fromMap({
+          auction_contract_hash: auction_contract_hash,
+          auction_package_hash: package_contract_hash,
+        }),
+        CLPublicKey.fromHex(publicKey),
+        "casper-test",
+        "30000000000"
+      );
+      return deploy;
+  }
+
+  /** Bid Purse and Bid Related Functions */
+
+  const handleBidPurse = async (e) => {
+    e.preventDefault();
+    console.log("Fund Amount:", fundAmount);
+    let deploy, deployJSON;
+
+    deploy = await prepareBidPurseDeploy(key);
+    deployJSON = DeployUtil.deployToJson(deploy);
+    let signedDeployJSON;
+    const res = await WalletService.sign(JSON.stringify(deployJSON), key);
+    if (res.cancelled) {
+      swal("Notice","Casper Wallet Signing cancelled","warning");
+    } else {
+      let signedDeploy = DeployUtil.setSignature(
+        deploy,
+        res.signature,
+        CLPublicKey.fromHex(key)
+      );
+      const signedDeployJSON = DeployUtil.deployToJson(signedDeploy);
+
+      const backendData = {
+        signedDeployJSON: signedDeployJSON,
+      };
+      try {
+        if(signedDeployJSON){
+          swal({
+            title: "Signing Successful",
+            text: "Please wait while we deploy the Purse contract.",
+            icon: "../../../loading.gif",
+            buttons: false,
+            closeOnClickOutside: true,
+            closeOnEsc: false,
+          });
+        
+          // Send to the backend server for deployment
+          const response = await axios.post(
+            "https://shark-app-9kl9z.ondigitalocean.app/api/auction/deployBidPurse",
+            backendData,
+            { headers: { "Content-Type": "application/json" } }
+          );
+          const data = JSON.stringify(response);
+          console.log("Sever Response",response);
+          if(data){
+            let res = await saveBidPurse(signedDeployJSON.deploy.hash);
+          }
+          return response.data;
+        }
+      }catch (error) {
+        swal("Error!", error.message, "error");
+        return false;
+      }
+     
+    }
+  };
+
+  const confirmBidPurse =async(e)=>{
+    e.preventDefault();
+    swal({
+      title: "Verifying Bid Purse",
+      text: "Please wait while we verify and update your bid purse.",
+      icon: "info",
+      buttons: false,
+      closeOnClickOutside: true,
+      closeOnEsc: false,
+    });
+    verifyBidPurse(user.purse.deployHash).then(purse => {
+      if (purse.uref) {
+        return updatePurseUref(user.purse.id, purse.uref).then(data =>{
+          swal("Success","Your Bid Purse has been verified and updated Successfully","success");
+        });
+      }else{
+
+      }
+    })
+    .catch(error => {
+      swal("Error",error.response.data,"error");
+      if(error.response.status === 400) deleteBidPurse(user.purse.id);
+      console.error(error);
+      // Handle the error here
+    });
+
+  }
+
   const prepareBidPurseDeploy = async (key) => {
     const Key = CLPublicKey.fromHex(key);
     const deployParams = new DeployUtil.DeployParams(
@@ -502,10 +594,9 @@ export default function NFTDetails() {
     );
 
     let args = [];
-    const amount = new CLU512(bidAmount * 1e9);
+    const amount = new CLU512(fundAmount * 1e9);
     // const auction_contract =
-    const auction_contract_string =
-      "3323eb2707533952c7ef758924622f95f8358ee88c4987f14ded307cef1f87cd";
+    const auction_contract_string = auctionData.contractHash.substring(5);
 
     const auction_contract_hex = Uint8Array.from(
       Buffer.from(auction_contract_string, "hex")
@@ -516,7 +607,7 @@ export default function NFTDetails() {
     // );
     const auction_contract_hash = new CLByteArray(auction_contract_hex); //
 
-    const purseName = "BidderPurse1";
+    const purseName = "BidderPurse"+user.id;
     const purse_name = new CLString(purseName);
 
     args = RuntimeArgs.fromMap({
@@ -541,63 +632,176 @@ export default function NFTDetails() {
       DeployUtil.standardPayment(15000000000)
     );
   };
-  const verifyAuction = async(e) => {
-    e.preventDefault();
-    swal({
-      title: "Submitting...",
-      text: "Please wait while we verify your Auction.",
-      icon: "info",
-      buttons: false,
-      closeOnClickOutside: true,
-      closeOnEsc: false,
-    });
-    try {
-      const response = await fetch(`https://shark-app-9kl9z.ondigitalocean.app/api/nft/confirmDeploy/${deployHash}`);
-      const data = await response.json();
-      // alert(JSON.stringify(data));
-      console.log(data.Success);
-      if(data.Success){
-        getHashes(deployHash).then(async (data) => {
-          console.log("Hashes",data);
-          if(data.hashes){
-            updateAuctionHashes(data.hashes).then((data)=> {
-              setAuctionData(data);
-            })
-          }
-        });
-      }
-      return data;
-    } catch (error) {
-      console.error(error);
-      return null;
-    }
-    
-  }
-
-  async function prepareAuctionInitDeploy(publicKey){
+  
+  async function prepareBid(publicKey){
+    alert(JSON.stringify(auctionData.contractHash));
       const contract = new Contracts.Contract();
       contract.setContractHash(auctionData.contractHash);
-  
-      const C_hash = auctionData.contractHash.substring(5);
-      const hexC_hash = Uint8Array.from(Buffer.from(C_hash, "hex"));
-      const auction_contract_hash = new CLKey(new CLByteArray(hexC_hash));
       
-      const P_hash = auctionData.packageHash.substring(5);
-      const hexP_hash = Uint8Array.from(Buffer.from(P_hash, "hex"));
-      const package_contract_hash = new CLKey(new CLByteArray(hexP_hash));
+      const bid = new CLU512(bidAmount);
+      
+      const uRef = user.purse.uref;
+      const bid_purse =  CLURef.fromFormattedStr(uRef);
   
       const deploy = contract.callEntrypoint(
-        "init",
+        "bid",
         RuntimeArgs.fromMap({
-          auction_contract_hash: auction_contract_hash,
-          auction_package_hash: package_contract_hash,
+          bid: bid,
+          bid_purse: bid_purse,
         }),
         CLPublicKey.fromHex(publicKey),
         "casper-test",
         "30000000000"
       );
       return deploy;
+  }
+
+  const placeBid = async(e)=>{
+    e.preventDefault();
+    let deploy,deployJson;
+    deploy = await prepareBid(key);
+    swal({
+      title: "Submitting...",
+      text: "Please wait while we place your bid.",
+      icon: "info",
+      buttons: false,
+      closeOnClickOutside: true,
+      closeOnEsc: false,
+    });
+
+    const deployJSON = DeployUtil.deployToJson(deploy);
+
+    try {
+      const res = await WalletService.sign(JSON.stringify(deployJSON), key);
+      if (res.cancelled) {
+        swal("Notice","Casper Wallet Signing cancelled","warning");
+      } else {
+        let signedDeploy = DeployUtil.setSignature(
+          deploy,
+          res.signature,
+          CLPublicKey.fromHex(key)
+        );
+        const signedDeployJSON = DeployUtil.deployToJson(signedDeploy);
+        
+        const backendData = {
+          signedDeployJSON: signedDeployJSON,
+        };
+        console.log("before deploy",signedDeployJSON);
+        try {
+          if(signedDeployJSON){
+            swal({
+              title: "Signing Successful",
+              text: "Please wait while we place your bid.",
+              icon: "../../../loading.gif",
+              buttons: false,
+              closeOnClickOutside: false,
+              closeOnEsc: false,
+            });
+            if(!axios) alert("Axios is not present");
+            // Send to the backend server for deployment
+            const response = await axios.post(
+              "https://shark-app-9kl9z.ondigitalocean.app/api/nft/deploySigned",
+              backendData,
+              { headers: { "Content-Type": "application/json" } }
+            );
+            const data = JSON.stringify(response.data);
+            swal("Success","Bid has been placed Successfully","success");
+            console.log("Sever Response",response);
+            await addBid();
+            return response.data;
+          }
+        }catch (error) {
+          swal("Error!", "Error here"+error.message, "error");
+          console.log(error);
+          return false;
+        }
+       
+      }
+    } catch (err) {
+      alert("Error: " + err);
+      console.log(err);
     }
+
+    
+  }
+
+  async function deleteBidPurse(purseId) {
+    try {
+      const response = await axios.delete(`https://shark-app-9kl9z.ondigitalocean.app/api/auction/purse/${purseId}`);
+      handleRefresh();
+      return response.data;
+    } catch (error) {
+      console.error(error);
+      throw new Error('An error occurred while deleting the auction');
+    }
+  }
+
+  async function handleFinalize(){
+    const contract = new Contracts.Contract();
+    contract.setContractHash(auctionData.contractHash);
+
+    const deploy = contract.callEntrypoint(
+      "finalize",
+      RuntimeArgs.fromMap({
+        
+      }),
+      CLPublicKey.fromHex(key),
+      "casper-test",
+      "30000000000"
+    );
+
+    const deployJSON = DeployUtil.deployToJson(deploy);
+    try {
+      const res = await WalletService.sign(JSON.stringify(deployJSON), key);
+      if (res.cancelled) {
+        swal("Notice","Casper Wallet Signing cancelled","warning");
+      } else {
+        let signedDeploy = DeployUtil.setSignature(
+          deploy,
+          res.signature,
+          CLPublicKey.fromHex(key)
+        );
+        const signedDeployJSON = DeployUtil.deployToJson(signedDeploy);
+        
+        const backendData = {
+          signedDeployJSON: signedDeployJSON,
+        };
+        
+        try {
+          if(signedDeployJSON){
+            swal({
+              title: "Signing Successful",
+              text: "Please wait while we finalize the auction.",
+              icon: "../../../loading.gif",
+              buttons: false,
+              closeOnClickOutside: false,
+              closeOnEsc: false,
+            });
+            const response = await axios.post(
+              "https://shark-app-9kl9z.ondigitalocean.app/api/nft/deploySigned",
+              backendData,
+              { headers: { "Content-Type": "application/json" } }
+            );
+            const data = JSON.stringify(response.data);
+            swal("Success",data,"success");
+            return response.data;
+          }
+        }catch (error) {
+          swal("Error!", "Error here"+error.message, "error");
+          console.log(error);
+          return false;
+        }
+       
+      }
+    } catch (err) {
+      alert("Error: " + err);
+      console.log(err);
+    }
+  }
+
+  if (!nft) {
+    return <div>Loading...</div>;
+  }
 
   const startAuction = async(e) => {
     e.preventDefault();
@@ -650,6 +854,7 @@ export default function NFTDetails() {
             const data = JSON.stringify(response.data);
             swal("Success","Auction Has been initialized Successfully","success");
             console.log("Sever Response",response);
+            await openAuction(auctionData.id);
             return response.data;
           }
         }catch (error) {
@@ -673,13 +878,7 @@ export default function NFTDetails() {
     });
 
   }
-
-  const placeBid = async(e)=>{
-    e.preventDefault();
-
-    
-  }
-
+ 
   async function getUser(publicKey) {
     try {
       const response = await fetch("https://shark-app-9kl9z.ondigitalocean.app/api/user/userByKey/"+publicKey);
@@ -726,14 +925,7 @@ export default function NFTDetails() {
 
   }
 
-  async function addBid(){
-    let backendData = {
-      bid:bidAmount,
-      bidder:key,
-      userId:user.id
-    }
-  }
-
+  
   async function updateAuctionHashes(hashes){
     let backendData = {
       deployHash:deployHash,
@@ -778,7 +970,103 @@ export default function NFTDetails() {
     }
   }
 
-
+  async function openAuction(auctionId){
+    swal({
+      title: "Starting the Auction",
+      text: "Please wait while we make your private auction open for bids.",
+      icon: "info",
+      buttons: false,
+      closeOnClickOutside: true,
+      closeOnEsc: false,
+    });
+    axios.put(`https://shark-app-9kl9z.ondigitalocean.app/api/auction/openAuction/${auctionId}`).then(response => {
+    console.log(response.data); // Process the response data
+    swal("Success","Auction Has been opened Successfully","success");
+    handleRefresh();
+    return response.data
+  })
+  .catch(error => {
+    // Handle error
+    console.error(error);
+  });
+  }
+  async function addBid(){
+    let backendData = {
+      bidder:key,
+      userId:user.id,
+      bid:bidAmount,
+    }
+    swal({
+      title: "Saving Bid",
+      text: "Please wait while we save your bid.",
+      icon: "info",
+      buttons: false,
+      closeOnClickOutside: true,
+      closeOnEsc: false,
+    });
+    axios.post(`https://shark-app-9kl9z.ondigitalocean.app/api/auction/bidOnAuction`,backendData).then(response => {
+    console.log("bid purse deploy Hash",response.data); // Process the response data
+    swal("Success","Bid has been saved Successfully","success");
+    handleRefresh();
+    return response.data
+  })
+  .catch(error => {
+    // Handle error
+    console.error(error);
+  });
+  }
+  async function saveBidPurse(deployHash){
+    let backendData = {
+      name: "BidderPurse"+user.id,
+      deployerKey:key,
+      userId:user.id,
+      amount:fundAmount,
+      deployHash:deployHash,
+      uref: "",
+    }
+    swal({
+      title: "Saving Bid Purse",
+      text: "Please wait while we create a purse for your bids.",
+      icon: "info",
+      buttons: false,
+      closeOnClickOutside: true,
+      closeOnEsc: false,
+    });
+    axios.post(`https://shark-app-9kl9z.ondigitalocean.app/api/auction/saveBidPurseInfo`,backendData).then(response => {
+    console.log("bid purse info",response.data); // Process the response data
+    swal("Success","Bid Purse has been Successfully,please proceed to verify it","success");
+    handleRefresh();
+    return response.data
+  })
+  .catch(error => {
+    // Handle error
+    console.error(error);
+  });
+  }
+  
+  async function updatePurseUref(purseId, uref) {
+    try {
+      const response = await axios.put(`https://shark-app-9kl9z.ondigitalocean.app/api/auction/purse/${purseId}`, { uref });
+      return response.data;
+    } catch (error) {
+      console.error(error);
+      throw new Error('An error occurred while updating purse uref');
+    }
+  }
+  async function verifyBidPurse(deployHash) {
+    try {
+      const response = await axios.get(`https://shark-app-9kl9z.ondigitalocean.app/api/auction/getPurseInfo/${deployHash}`);
+      console.log(response.data); // Process the response data
+      return response.data;
+    } catch (error) {
+      // Handle error
+      swal("Notice", error.message, "error");
+      console.error(error);
+      // You might want to throw the error or return a specific value in case of an error
+      throw error;
+    }
+  }
+  
   
 
   return (
@@ -859,17 +1147,47 @@ export default function NFTDetails() {
                     <div class="col-xl-6">
                       <div class="card-media card-media-s1">
                         <div class="card-media-body">
+                            {countdown !== "Auction has started" && countdown !== "This asset is not in auction" ?(
+                              <div> 
+                              <p>Auction Starts in </p>
+                              <h4>{countdown}</h4>
+                            </div>
+                            ):(
+                              <div> 
+                              <h4>{countdown}</h4>
+                            </div>
+                            )}
+                            
                         <div class="item-detail-btns mt-4">
                             <ul class="btns-group d-flex">
                               <li class="flex-grow-1">
-                                {nft.inAuction && !isOwner && (
-                                  <a
+                                {countdown === "Auction has started" && nft.inAuction && !isOwner && user.purse !== null && (
+                                  <>
+                                  {!user.purse.uref &&(<a
+                                    href="#"
+                                    onClick={confirmBidPurse}
+
+                                    class="btn btn-warning d-block mb-4"
+                                  >
+                                      Confirm Bid Purse
+                                    </a>)}
+                                    <a
                                     href="#"
                                     data-bs-toggle="modal"
                                     data-bs-target="#placeBidModal"
-                                    class="btn btn-dark d-block mb-4"
+                                    class="btn btn-dark d-block mb-0"
                                   >
-                                    Place a Bid {isOwner}
+                                    Place a Bid
+                                  </a></>
+                                )}
+                                {countdown === "Auction has started" && nft.inAuction && !isOwner && user.purse === null && (
+                                  <a
+                                    href="#"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#bidPurseModal"
+                                    class="btn btn-dark d-block "
+                                  >
+                                    Create Bid Purse
                                   </a>
                                 )}
                                 {!nft.inAuction && isOwner && (
@@ -882,16 +1200,16 @@ export default function NFTDetails() {
                                     Create Private Auction
                                   </a>
                                 )}
-                                {nft.inAuction && isOwner  && auctionData.contractHash && !auctionData.approve && (
+                                {nft.inAuction && isOwner  && auctionData.contractHash && auctionData.status === "pending" && (
                                   <a
                                     href="#"
                                   onClick={startAuction}
-                                    class="btn btn-dark d-block"
+                                    class="btn btn-success text-white d-block"
                                   >
-                                    Start Auction
+                                    Open Auction
                                   </a>
                                 )}
-                                {nft.inAuction && isOwner  && auctionData.contractHash && !auctionData.approve && (
+                                {nft.inAuction && isOwner  && auctionData.contractHash && auctionData.status === "open" && (
                                   <a
                                     href="#"
                                   onClick={endAuction}
@@ -911,7 +1229,8 @@ export default function NFTDetails() {
                                 )}
                               </li>
                               {/* <TestForm /> */}
-                              {deployHash && (<li class="flex-grow-1">
+                              {deployHash && (
+                              <li class="flex-grow-1">
                                 <div class="dropdown">
                                   <a
                                     href={`https://testnet.cspr.live/deploy/${deployHash}`}
@@ -930,18 +1249,8 @@ export default function NFTDetails() {
                     </div>
                   </div>
                 </div>
-                <div class="item-detail-tab">
-                  <ul class="nav nav-tabs nav-tabs-s1" id="myTab" role="tablist">
-                      <li class="nav-item" role="presentation">
-                          <button class="nav-link" id="bids-tab" data-bs-toggle="tab" data-bs-target="#bids" type="button" role="tab" aria-controls="bids" aria-selected="true">Bids</button>
-                      </li>
-                      {/* <li class="nav-item" role="presentation">
-                          <button class="nav-link active" id="owners-tab" data-bs-toggle="tab" data-bs-target="#owners" type="button" role="tab" aria-controls="owners" aria-selected="falsr">Owners</button>
-                      </li> */}
-                      
-                     
-                  </ul>
-                </div>
+                
+                
                 
               </div>
             </div>
@@ -955,6 +1264,47 @@ export default function NFTDetails() {
           </div>
         </div>
       </section>
+      <div
+        class="modal fade"
+        id="bidPurseModal"
+        tabindex="-1"
+        aria-hidden="true"
+      >
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h4 class="modal-title">Create Bid Purse</h4>
+              <button
+                type="button"
+                class="btn-close icon-btn"
+                data-bs-dismiss="modal"
+                aria-label="Close"
+              >
+                <em class="ni ni-cross"></em>
+              </button>
+            </div>
+            <div class="modal-body">
+              <form onSubmit={handleBidPurse}>
+                
+                <div class="mb-3">
+                  <label class="form-label">
+                    Enter Amount to fund your bid purse
+                  </label>
+                  <input
+                    type="text"
+                    class="form-control form-control-s1"
+                    value={fundAmount}
+                    onChange={handleFundAmountChange}
+                  />
+                </div>
+                {/* ... */}
+                <button type="submit" class="btn btn-dark d-block">
+                 Create Purse </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
       <div
         class="modal fade"
         id="placeBidModal"
@@ -975,10 +1325,10 @@ export default function NFTDetails() {
               </button>
             </div>
             <div class="modal-body">
-              <form onSubmit={handlePlaceBid}>
+              <form onSubmit={placeBid}>
                 <p class="mb-3">
-                  You are about to place a bid for{" "}
-                  <strong>{nft.mediaName}</strong> 
+                  You are about to place a bid for
+                  <strong> {nft.mediaName}</strong> 
                   {/* <strong>{nft.artistName}</strong> */}
                 </p>
                 <div class="mb-3">
@@ -991,20 +1341,8 @@ export default function NFTDetails() {
                     onChange={handleBidAmountChange}
                   />
                 </div>
-                <div class="mb-3">
-                  <label class="form-label">
-                    Enter Amount to fund your bid purse
-                  </label>
-                  <input
-                    type="text"
-                    class="form-control form-control-s1"
-                    value={fundAmount}
-                    onChange={handleFundAmountChange}
-                  />
-                </div>
-                {/* ... */}
                 <button type="submit" class="btn btn-dark d-block">
-                  Place a Bid
+                  Place your Bid
                 </button>
               </form>
             </div>
@@ -1080,6 +1418,49 @@ export default function NFTDetails() {
           </div>
         </div>
       </div>
+      {bids && (<div class="row mb-4">
+        
+        <div class="col-10 mx-auto">
+          <div class="item-detail-tab">
+            <ul class="nav nav-tabs nav-tabs-s1" id="myTab" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="bids-tab" data-bs-toggle="tab" data-bs-target="#bids" type="button" role="tab" aria-controls="bids" aria-selected="true">Bids</button>
+                </li>
+            </ul>
+          </div>
+          <div class="table-responsive">
+              <table class="table mb-0 table-s1 fs-13 bg-gray">
+                  <thead>
+                      <tr>
+                          <th scope="col">Bidder</th>
+                          <th scope="col">Bid</th>
+                          <th scope="col">Date</th>
+                      </tr>
+                  </thead>
+                  <tbody>
+                      <tr>
+                          {/* <th scope="row" class="fw-regular">Created</th> */}
+                          <td>Monica Lucas</td>
+                          <td>1</td>
+                          <td>1 day ago</td>
+                      </tr>
+                      <tr>
+                          {/* <th scope="row" class="fw-regular">Created</th> */}
+                          <td>-</td>
+                          <td>2 days ago</td>
+                      </tr>
+                      <tr>
+                          {/* <th scope="row" class="fw-regular">Sale</th> */}
+                          <td>Diamond Cube</td>
+                          <td>1</td>
+                          <td>3 days ago</td>
+                      </tr>
+                      
+                  </tbody>
+              </table>
+          </div>
+        </div>
+      </div>)}
       <Footer />
     </>
   );

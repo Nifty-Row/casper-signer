@@ -128,3 +128,7 @@ export async function getDeployedHashes(deployHash) {
     return "";
   }
 }
+
+export function handleRefresh(){
+  window.location.reload(); // Refresh the page
+};
