@@ -3,19 +3,18 @@ import Image from "next/image";
 
 
 const ProfileForm = ({activekey, userData }) => {
-  // let userData = userData || {};
-  // alert(JSON.stringify(userData));
-  const [displayName, setDisplayName] = useState(userData.fullName || '');
-  const [username, setUsername] = useState(userData.username || '');
-  const [bio, setBio] = useState(userData.about || '');
-  const [email, setEmail] = useState(userData.email || '');
-  const [facebook, setFacebook] = useState(userData.facebook || '');
-  const [twitter, setTwitter] = useState(userData.twitter || '');
-  const [instagram, setInstagram] = useState(userData.instagram || '');
-  const [linkedin, setLinkedin] = useState(userData.linkedin || '/img_405324.png');
-  const [category, setCategory] = useState(userData.category || '');
-  const [website, setWebsite] = useState(userData.website || '');
-  const [activeKey, setActiveKey] = useState(userData.publicKey || '');
+  const [displayName, setDisplayName] = useState(userData?.fullName || '');
+  const [username, setUsername] = useState(userData?.username || '');
+  const [bio, setBio] = useState(userData?.about || '');
+  const [email, setEmail] = useState(userData?.email || '');
+  const [facebook, setFacebook] = useState(userData?.facebook || '');
+  const [twitter, setTwitter] = useState(userData?.twitter || '');
+  const [instagram, setInstagram] = useState(userData?.instagram || '');
+  const [linkedin, setLinkedin] = useState(userData?.linkedin || '/img_405324.png');
+  const [category, setCategory] = useState(userData?.category || '');
+  const [website, setWebsite] = useState(userData?.website || '');
+  const [activeKey, setActiveKey] = useState(userData?.publicKey || '');
+
   function handleSubmit() {
     const displayName = document.getElementById("displayName").value;
     const username = document.getElementById("displayUserName").value;
