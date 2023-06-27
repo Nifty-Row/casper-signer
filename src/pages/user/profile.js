@@ -7,7 +7,7 @@ import Header from "../components/Header";
 import Footer from "../components/Footer";
 import { WalletService } from "@/utils/WalletServices";
 import { truncateKey } from "@/utils/generalUtils";
-import ProfileForm from "../components/ProfileForm";
+import ProfileForm from "@/pages/components/ProfileForm";
 
 const inter = Inter({ subsets: ["latin"] });
 

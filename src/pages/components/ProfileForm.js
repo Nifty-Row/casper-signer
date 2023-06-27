@@ -2,7 +2,7 @@ import { useState } from 'react';
 import Image from "next/image";
 
 
-export default function ProfileForm({activekey, userData }) {
+const ProfileForm = ({activekey, userData }) => {
   // let userData = userData || {};
   // alert(JSON.stringify(userData));
   const [displayName, setDisplayName] = useState(userData.fullName || '');
@@ -123,3 +123,4 @@ export default function ProfileForm({activekey, userData }) {
     </div>
   );
 }
+export default ProfileForm;
