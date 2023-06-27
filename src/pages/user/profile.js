@@ -198,7 +198,9 @@ export default function Home() {
                                 </ul>
                                 <div class="tab-content mt-4" id="myTabContent">
                                     <div class="tab-pane fade show active" id="account-information" role="tabpanel" aria-labelledby="account-information-tab">
-                                    <ProfileForm activeKey={activeKey} userData={userData} />
+                                    
+                                    
+                                    {userData && (<ProfileForm activeKey={activeKey} userData={userData} />)}
 
 
                                     </div>
