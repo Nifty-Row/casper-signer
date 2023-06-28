@@ -146,167 +146,183 @@ const MintForm = (key) => {
   
   const handleSubmit = async (event) => {
     event.preventDefault();
-
-    if (!category || !assetType) {
-      swal("Notice", "Please select asset category and type.", "warning");
-      return;
-    }
-    if (!publicKey) {
-      console.log(key);
-      swal("Notice", "Public Key is empty. key :" + key, "warning");
-      return;
-    }
-
-    if (category === "Artwork" && !artworkFile) {
-      swal("Notice", "Please upload an artwork image.", "warning");
-      return;
-    } else if (category === "Music" && (!musicThumbnail || !musicSample)) {
-      swal(
-        "Notice",
-        "Please upload both the audio thumbnail and sample file.",
-        "warning"
-      );
-      return;
-    } else if (
-      category === "Movie & Animation" &&
-      (!movieThumbnail || !movieSample)
-    ) {
-      swal(
-        "Notice",
-        "Please upload both the video thumbnail and file.",
-        "warning"
-      );
-      return;
-    }
-
-    const formData = new FormData();
-    const files = {};
-    if (artworkFile) {
-      Object.assign(files, { artFile: artworkFile });
-      formData.append("artFile", artworkFile);
-    }
-    if (musicThumbnail) {
-      Object.assign(files, { musicThumbnail: musicThumbnail });
-    }
-    if (musicSample) {
-      Object.assign(files, { musicFile: musicSample });
-    }
-    if (movieThumbnail) {
-      Object.assign(files, { movieThumbnail: movieThumbnail });
-    }
-    if (movieSample) {
-      Object.assign(files, { movieFile: movieSample });
-    }
-
-    formData.append("mediaType", category.toLowerCase());
-    formData.append("files", files);
+    // Display the confirmation dialog and perform an action based on the response
     swal({
-      title: "Submitting...",
-      text: "Please wait while we process your request.",
-      icon: "info",
-      buttons: false,
-      closeOnClickOutside: false,
-      closeOnEsc: false,
-    });
+      title: "Are you sure you want to submit?",
+      text: "This action cannot be undone.",
+      icon:"warning",
+      dangerMode: true,
+      buttons: {
+        cancel: "No",
+        confirm: "Yes",
+      },
+    }).then((response) => {
+      if (!response) {
+        swal("Notice","Submission Cancelled","info")
+        return;
+      } 
+      else{
+        if (!category || !assetType) {
+          swal("Notice", "Please select asset category and type.", "warning");
+          return;
+        }
+        if (!publicKey) {
+          console.log(key);
+          swal("Notice", "Public Key is empty. key :" + key, "warning");
+          return;
+        }
     
-    generateMediaUrls(formData)
-    .then(async (data)=>{
-      const nftData = {
-        tokenId: tokenId,
-        deployerKey: publicKey,
-        ownerKey: publicKey,
-        tokenHash: "",
-        userId: user.id,
-        mediaName: nftName,
-        description: nftDescription,
-        socialMediaLink: socialMediaLink,
-        assetSymbol: assetSymbol,
-        assetType: assetType,
-        mediaType: category,
-        artistName: artistName,
-        medium: medium,
-        year: year,
-        size: size,
-        artworkUrl: artworkUrl,
-        musicThumbnailUrl: musicThumbnailUrl,
-        musicFileUrl: musicFileUrl,
-        movieThumbnailUrl: movieThumbnailUrl,
-        movieFileUrl: movieFileUrl,
-      };
-     
-      let deploy = await prepareDeploy(nftData);
-      swal({
-        title: "Sign the Transaction",
-        text: "Please Sign the transaction with your Casper Wallet",
-        icon: "info",
-        buttons: false,
-        closeOnClickOutside: false,
-        closeOnEsc: false,
-      });
-      deployNFT(deploy)
-        .then(data => {
-
-          swal("Deployed Successfully", data, "success");
-          console.log(data);
-          nftData.tokenHash = data;
-          setTokenHash(data);
-          saveNFT(nftData).then(data =>{
-            if(data){
-              
-              swal({
-                title: 'Minting Complete',
-                text: `NFT Asset ${nftData.assetSymbol} Minted and Saved successfully. What would you like to do next?`,
-                icon: 'success',
-                dangerMode: true,
-                buttons: {
-                  mint: {
-                    text: "Mint",
-                    value: "mint",
-                  },
-                  check: {
-                    text: "View on Casper",
-                    className:"text-warning",
-                    value: "confirm",
-                  },
-                  view: {
-                    text: "View NFTs!",
-                    value: "catch",
-                  }
-                  
-                },
-               
-              }).then((result) => {
-                switch (result) {
-         
-                  case "confirm":
-                    // swal("View Deployment on the Blockchain Network");
-                    window.open(`https://testnet.cspr.live/deploy/${tokenHash}`, '_blank');
-                    break;
-               
-                  case "catch":
-                    // swal("Gotcha!", "View Your NFTs!", "success");
-                    window.open(`/profile`,);
-                    break;
-        
-                  case "mint":
-                    resetForm();
-                    swal("Gotcha!", "Mint New NFTs!", "success");
-                    break;
-
-                }
-                
-              });
-            }
-          });
-        })
-        .catch(error => {
-          swal("Deployment Error", error.message, "error");
-          console.error(error);
+        if (category === "Artwork" && !artworkFile) {
+          swal("Notice", "Please upload an artwork image.", "warning");
+          return;
+        } else if (category === "Music" && (!musicThumbnail || !musicSample)) {
+          swal(
+            "Notice",
+            "Please upload both the audio thumbnail and sample file.",
+            "warning"
+          );
+          return;
+        } else if (
+          category === "Movie & Animation" &&
+          (!movieThumbnail || !movieSample)
+        ) {
+          swal(
+            "Notice",
+            "Please upload both the video thumbnail and file.",
+            "warning"
+          );
+          return;
+        }
+    
+        const formData = new FormData();
+        const files = {};
+        if (artworkFile) {
+          Object.assign(files, { artFile: artworkFile });
+          formData.append("artFile", artworkFile);
+        }
+        if (musicThumbnail) {
+          Object.assign(files, { musicThumbnail: musicThumbnail });
+        }
+        if (musicSample) {
+          Object.assign(files, { musicFile: musicSample });
+        }
+        if (movieThumbnail) {
+          Object.assign(files, { movieThumbnail: movieThumbnail });
+        }
+        if (movieSample) {
+          Object.assign(files, { movieFile: movieSample });
+        }
+    
+        formData.append("mediaType", category.toLowerCase());
+        formData.append("files", files);
+        swal({
+          title: "Submitting...",
+          text: "Please wait while we process your request.",
+          icon: "info",
+          buttons: false,
+          closeOnClickOutside: false,
+          closeOnEsc: false,
         });
+        
+        generateMediaUrls(formData)
+        .then(async (data)=>{
+          const nftData = {
+            tokenId: tokenId,
+            deployerKey: publicKey,
+            ownerKey: publicKey,
+            tokenHash: "",
+            userId: user.id,
+            mediaName: nftName,
+            description: nftDescription,
+            socialMediaLink: socialMediaLink,
+            assetSymbol: assetSymbol,
+            assetType: assetType,
+            mediaType: category,
+            artistName: artistName,
+            medium: medium,
+            year: year,
+            size: size,
+            artworkUrl: artworkUrl,
+            musicThumbnailUrl: musicThumbnailUrl,
+            musicFileUrl: musicFileUrl,
+            movieThumbnailUrl: movieThumbnailUrl,
+            movieFileUrl: movieFileUrl,
+          };
+         
+          let deploy = await prepareDeploy(nftData);
+          swal({
+            title: "Sign the Transaction",
+            text: "Please Sign the transaction with your Casper Wallet",
+            icon: "info",
+            buttons: false,
+            closeOnClickOutside: false,
+            closeOnEsc: false,
+          });
+          deployNFT(deploy)
+            .then(data => {
+    
+              swal("Deployed Successfully", data, "success");
+              console.log(data);
+              nftData.tokenHash = data;
+              setTokenHash(data);
+              saveNFT(nftData).then(data =>{
+                if(data){
+                  
+                  swal({
+                    title: 'Minting Complete',
+                    text: `NFT Asset ${nftData.assetSymbol} Minted and Saved successfully. What would you like to do next?`,
+                    icon: 'success',
+                    dangerMode: true,
+                    buttons: {
+                      mint: {
+                        text: "Mint",
+                        value: "mint",
+                      },
+                      check: {
+                        text: "View on Casper",
+                        className:"text-warning",
+                        value: "confirm",
+                      },
+                      view: {
+                        text: "View NFTs!",
+                        value: "catch",
+                      }
+                      
+                    },
+                   
+                  }).then((result) => {
+                    switch (result) {
+             
+                      case "confirm":
+                        // swal("View Deployment on the Blockchain Network");
+                        window.open(`https://testnet.cspr.live/deploy/${tokenHash}`, '_blank');
+                        break;
+                   
+                      case "catch":
+                        // swal("Gotcha!", "View Your NFTs!", "success");
+                        window.open(`/profile`,);
+                        break;
+            
+                      case "mint":
+                        resetForm();
+                        swal("Gotcha!", "Mint New NFTs!", "success");
+                        break;
+    
+                    }
+                    
+                  });
+                }
+              });
+            })
+            .catch(error => {
+              swal("Deployment Error", error.message, "error");
+              console.error(error);
+            });
+        });
+        
+      }
     });
     
-    
-    // alert("redirect  here");
   };
 
   async function saveNFT(nftData){
@@ -585,7 +601,7 @@ const MintForm = (key) => {
       <section>
         <div class="container mt-4">
           <div class="row mt-4">
-            <div class="col-lg-8">
+            <div class="col-lg-12 mx-auto">
               <form ref={formRef} class="vstack gap-4" onSubmit={handleSubmit}>
                 <div class="card shadow">
                   <div class="card-header border-bottom">

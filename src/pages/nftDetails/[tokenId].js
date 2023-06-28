@@ -122,15 +122,20 @@ export default function NFTDetails(){
   useLayoutEffect(() => {
     if (auctionData.startDate) {
       const auctionStartDate = new Date(auctionData.startDate).getTime();
+      const auctionEndDate = new Date(auctionData.endDate).getTime();
   
       const interval = setInterval(() => {
         const now = new Date().getTime();
         const distance = auctionStartDate - now;
-  
+        const distancee = auctionEndDate - now;
+        console.log(distancee);
+        console.log(distance);
         if (distance <= 0) {
           clearInterval(interval);
           setCountdown('Auction has started');
           setAuctionStarted(true);
+        }else if(distancee <= 0){
+
         } else {
           const days = Math.floor(distance / (1000 * 60 * 60 * 24));
           const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
