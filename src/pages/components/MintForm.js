@@ -70,7 +70,12 @@ const MintForm = (key) => {
       setTokenId(hex.substring(0, 12));
       setPublicKey(newKey);
     };
-
+    const fetchUser = async ()=>{
+       let userD = await getUserDataByKey(newKey);
+       setUser(userD);
+    }
+    
+    fetchUser();
     token();
     generateTokenId();
   }, [newKey]);
@@ -224,8 +229,27 @@ const MintForm = (key) => {
           closeOnEsc: false,
         });
         
-        generateMediaUrls(formData)
-        .then(async (data)=>{
+        generateMediaUrls(formData).then(async (data)=>{
+          
+          console.log(data);
+          let artworkUrls = {};
+          let musicUrls = {};
+          let movieUrls = {};
+
+          if (category === 'Artwork') {
+            artworkUrls = data.artworkUrl || '';
+          } else if (category === 'Music') {
+            musicUrls = {
+              fileUrl: data.fileUrl || '',
+              thumbnailUrl: data.thumbnailUrl || '',
+            };
+          } else if (category === 'Movie') {
+            movieUrls = {
+              fileUrl: data.fileUrl || '',
+              thumbnailUrl: data.thumbnailUrl || '',
+            };
+          }
+
           const nftData = {
             tokenId: tokenId,
             deployerKey: publicKey,
@@ -242,14 +266,15 @@ const MintForm = (key) => {
             medium: medium,
             year: year,
             size: size,
-            artworkUrl: artworkUrl,
-            musicThumbnailUrl: musicThumbnailUrl,
-            musicFileUrl: musicFileUrl,
-            movieThumbnailUrl: movieThumbnailUrl,
-            movieFileUrl: movieFileUrl,
+            artworkUrl: artworkUrls,
+            musicThumbnailUrl: musicUrls.thumbnailUrl,
+            musicFileUrl: musicUrls.fileUrl,
+            movieThumbnailUrl: movieUrls.thumbnailUrl,
+            movieFileUrl: movieUrls.fileUrl,
           };
          
           let deploy = await prepareDeploy(nftData);
+          console.log(deploy);
           swal({
             title: "Sign the Transaction",
             text: "Please Sign the transaction with your Casper Wallet",
@@ -264,6 +289,7 @@ const MintForm = (key) => {
               swal("Deployed Successfully", data, "success");
               console.log(data);
               nftData.tokenHash = data;
+              let deployHash =data;
               setTokenHash(data);
               saveNFT(nftData).then(data =>{
                 if(data){
@@ -295,7 +321,7 @@ const MintForm = (key) => {
              
                       case "confirm":
                         // swal("View Deployment on the Blockchain Network");
-                        window.open(`https://testnet.cspr.live/deploy/${tokenHash}`, '_blank');
+                        window.open(`https://testnet.cspr.live/deploy/${deployHash}`, '_blank');
                         break;
                    
                       case "catch":
@@ -420,7 +446,7 @@ const MintForm = (key) => {
         "https://shark-app-9kl9z.ondigitalocean.app/api/nft/generateMediaUrls",
         formData
       );
-
+      
       if (category === "Artwork") {
         setMovieThumbnailUrl("");
         setMovieFileUrl("");
@@ -431,36 +457,39 @@ const MintForm = (key) => {
         setMovieSample(null);
         setMusicThumbnail(null);
         setArtworkUrl(data.artworkUrl);
-        // swal({
-        //   title: "Success",
-        //   text: "Upload Successful",
-        //   icon: data.artworkUrl,
-        // });
-        return true;
+        swal({
+          title: "Success",
+          text: "Upload Successful",
+          icon: data.artworkUrl,
+        });
+        data.category = category;
+        return data;
       } else if (category === "Music") {
         setArtworkUrl(null);
         setMovieThumbnailUrl("");
         setMovieFileUrl("");
         setMusicThumbnailUrl(data.thumbnailUrl);
         setMusicFileUrl(data.fileUrl);
-        // swal({
-        //   title: "Success",
-        //   text: "Upload Successful",
-        //   icon: data.thumbnailUrl,
-        // });
-        return true;
+        swal({
+          title: "Success",
+          text: "Upload Successful",
+          icon: data.thumbnailUrl,
+        });
+        data.category = category;
+        return data;
       } else if (category === "Movie") {
         setArtworkFile(null);
         setMusicThumbnailUrl("");
         setMusicFileUrl("");
         setMovieThumbnailUrl(data.thumbnailUrl);
         setMovieFileUrl(data.fileUrl);
-        // swal({
-        //   title: "Success",
-        //   text: "Upload Successful",
-        //   icon: data.thumbnailUrl,
-        // });
-        return true;
+        swal({
+          title: "Success",
+          text: "Upload Successful",
+          icon: data.thumbnailUrl,
+        });
+        data.category = category;
+        return data;
       }
       return false;
     } catch (err) {
@@ -813,7 +842,7 @@ const MintForm = (key) => {
                                     type="text"
                                     id="thumbnail-image"
                                     onChange={(e) =>
-                                      setArtistName(e.target.files[0])
+                                      setArtistName(e.target.value)
                                     }
                                     accept="image/gif, image/jpeg, image/png"
                                   />
