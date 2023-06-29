@@ -14,7 +14,7 @@
 .bg-image2{
     background : url("../../nifty_slider2.jpg");
     background-size:cover;
-    height: 400px;
+    height: 120px;
     object-fit:contain;
   }
 

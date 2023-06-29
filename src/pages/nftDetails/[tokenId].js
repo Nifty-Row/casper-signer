@@ -13,7 +13,7 @@ import moment from "moment";
 import {
   WalletService
 } from "@/utils/WalletServices";
-import { formatDate, decodeSpecialCharacters, handleRefresh} from "@/utils/generalUtils";
+import { formatDate, decodeSpecialCharacters, handleRefresh, truncateKey} from "@/utils/generalUtils";
 import {
   Signer,
   DeployUtil,
@@ -53,6 +53,7 @@ export default function NFTDetails(){
   const [endTime, setEndTime] = useState("");
   const [minPrice, setMinPrice] = useState(10);
   const [fundAmount, setFundAmount] = useState("1");
+  const [highestBid, setHighestBid] = useState("1");
   const [user, setUser] = useState("");
   const [deployHash, setDeployHash] = useState("");
   const [auctionData, setAuctionData] = useState("");
@@ -80,7 +81,10 @@ export default function NFTDetails(){
               if(data.auction) setAuctionData(data.auction);
               setIsOwner(data.ownerKey === key);
               if(data.auction.deployHash) setDeployHash(data.auction.deployHash);
-              if(data.bids) setBids(data.auction.deployHash);
+              if(data.auction.bids) setBids(data.auction.bids);
+              let bidValues = data.auction.bids.map(bid => bid.bid);
+              let highest = Math.max(...bidValues);
+              setHighestBid(highest)
             }).catch((error) => console.error("Error:",error));
         }
       } catch (error) {
@@ -133,6 +137,7 @@ export default function NFTDetails(){
         if (distance <= 0) {
           clearInterval(interval);
           setCountdown('Auction has started');
+          setFundAmount(auctionData.minimumPrice)
           setAuctionStarted(true);
         }else if(distancee <= 0){
 
@@ -383,7 +388,7 @@ export default function NFTDetails(){
       Uint8Array.from(Buffer.from(hexString5, "hex"))
     );
 
-    const marketplace_commission = new CLU32("200000");
+    const marketplace_commission = new CLU32("200");
     const has_enhanced_nft = new CLBool(false);
     const deployParams = new DeployUtil.DeployParams(
       CLPublicKey.fromHex(key),
@@ -589,8 +594,12 @@ export default function NFTDetails(){
     });
     verifyBidPurse(user.purse.deployHash).then(purse => {
       if (purse.uref) {
-        return updatePurseUref(user.purse.id, purse.uref).then(data =>{
-          swal("Success","Your Bid Purse has been verified and updated Successfully","success");
+        let bid = purse.amount.toString().slice(0, -9);
+        updatePurseUref(user.purse.id, purse.uref).then(data =>{
+          addBid(bid).then(data =>{
+            swal("Success","Your Bid has been verified and updated Successfully","success");
+            handleRefresh();
+          });
         });
       }else{
 
@@ -1011,11 +1020,12 @@ export default function NFTDetails(){
     console.error(error);
   });
   }
-  async function addBid(){
+  async function addBid(amount){
     let backendData = {
       bidder:key,
       userId:user.id,
-      bid:bidAmount,
+      bid:amount? amount:bidAmount,
+      auctionId:auctionData.id,
     }
     swal({
       title: "Saving Bid",
@@ -1026,7 +1036,7 @@ export default function NFTDetails(){
       closeOnEsc: false,
     });
     axios.post(`https://shark-app-9kl9z.ondigitalocean.app/api/auction/bidOnAuction`,backendData).then(response => {
-    console.log("bid purse deploy Hash",response.data); // Process the response data
+    // console.log("bid purse deploy Hash",response.data); // Process the response data
     swal("Success","Bid has been saved Successfully","success");
     handleRefresh();
     return response.data
@@ -1093,6 +1103,34 @@ export default function NFTDetails(){
   return (
     <>
       <Header />
+            <div class="hero-wrap sub-header bg-image2">
+              <div class="container">
+                  <div class="hero-content py-0 d-flex align-items-center">
+                  <div class="avatar avatar-3 flex-shrink-0"><Image src="/img_405324.png" width={100} height={100} alt="avatar" /></div>
+                  <div class="author-hero-content-wrap d-flex flex-wrap justify-content-between ms-3 flex-grow-1">
+                      <div class="author-hero-content me-3">
+                          <h4 class="hero-author-title mb-1 text-white">{owner.fullName}</h4>
+                          <p class="hero-author-username mb-1 text-white">@{owner.username}</p>
+                          <div class="d-flex align-items-center">
+                              <input type="text" class="copy-input text-white" value={truncateKey(owner.ownerKey)} id="copy-input" readonly />
+                              <div class="tooltip-s1">
+                                  <button data-clipboard-target="#copy-input" class="copy-text text-white ms-2" type="button"><span class="tooltip-s1-text tooltip-text">Copy</span><em class="ni ni-copy"></em></button>
+                              </div>
+                          </div>
+                      </div>
+                      <div class="hero-action-wrap d-flex align-items-center my-2">
+                          {/* <button type="button" class="btn btn-light">Follow</button>
+                          <div class="dropdown ms-3">
+                              <a class="icon-btn icon-btn-s1" href="#" data-bs-toggle="dropdown" id="reportDropdown"><em class="ni ni-more-h"></em></a>
+                              <ul class="dropdown-menu card-generic p-2 dropdown-menu-end mt-2 card-generic-sm" aria-labelledby="reportDropdown">
+                                  <li><a class="dropdown-item card-generic-item" href="#" data-bs-toggle="modal" data-bs-target="#reportModal">Report Page</a></li>
+                              </ul>
+                          </div> */}
+                      </div>
+                  </div>
+              </div>
+          </div>
+        </div>
       <section class="item-detail-section mb-4">
         <div class="container">
           <div class="row">
@@ -1125,30 +1163,39 @@ export default function NFTDetails(){
                 <p class="item-detail-text mb-4">{decodeSpecialCharacters(nft.description)}</p>
                 <div class="item-credits mb-4">
                   <div class="row g-4">
-                    <div class="col-xl-6">
+                    <div class="col-xl-5">
                       <div class="card-media card-media-s1">
-                        <a
-                          href="#"
-                          class="card-media-img flex-shrink-0 d-block"
-                        >
-                          <img
-                            src="/img_405324.png"
-                            alt="avatar"
-                          />
-                        </a>
+                        
                         <div class="card-media-body">
-                          {owner &&(
-                              <><a href={`/author/${owner.username}`} class="fw-semibold">
-                              @{owner.username}
-                            </a><p class="fw-medium small">
-                                {owner.category}
-                              </p><p class="fw-medium small text-dark">
+                          <div class="d-flex">
+                            <a
+                            href="#"
+                            class="card-media-img flex-shrink-0 d-block"
+                            >
+                            <img
+                              src="/img_405324.png"
+                              alt="avatar"
+                            />
+                          </a>
+                          {owner && (
+                              <>
+                              <div>
+                              <a href={`/author/${owner.username}`} class="fw-semibold mr-4">
+                                @{owner.username}
+                              </a><p class="fw-medium small">
+                                  {owner.category}
+                                </p>
+                              </div></>
+                            )}
+                        </div>
+                        {owner &&(
+                              <><p class="fw-medium small text-dark">
                                 {owner.about}
                               </p>
                               <p class="fw-medium small text-dark">
                                 Joined : {formatDate(owner.createdAt)}
                               </p>
-                              <div class="dropdown-menu card-generic p-2 keep-open w-100 mt-1">
+                              {/* <div class="dropdown-menu card-generic p-2 keep-open w-100 mt-1">
                                 <a href="#" class="dropdown-item card-generic-item">
                                   <em class="ni ni-facebook-f me-2"></em> Facebook
                                 </a>
@@ -1158,14 +1205,41 @@ export default function NFTDetails(){
                                 <a href="#" class="dropdown-item card-generic-item">
                                   <em class="ni ni-instagram me-2"></em> Instagram
                                 </a>
-                              </div></>
+                              </div> */}
+                              
+                              </>
                           )}
                           
                         </div>
                         
                       </div>
                     </div>
-                    <div class="col-xl-6">
+                    <div class="col-xl-7">
+                      <div class="card-media card-media-s1">
+                        
+                        <div class="card-media-body">
+                          {owner &&(
+                              <>
+                            <a href="#" class="badge fw-semibold">
+                              Auction Start :  <span class="fw-bold text-primary mt-2"> {formatDate(auctionData.startDate)}</span>
+                            </a><hr></hr>
+                            <a href="#" class="badge fw-semibold">
+                              Auction End :  <span class="fw-bold text-danger"> {formatDate(auctionData.endDate)}</span>
+                            </a><hr></hr>
+                            <a href="#" class="badge fw-semibold">
+                              Minimum Price :  <span class="fw-bold text-info"> {auctionData.minimumPrice.toLocaleString("en-Us")} CSPR </span>
+                            </a><hr></hr>
+                            <a href="#" class="badge fw-semibold">
+                              Highest Bid : <span class="fw-semibold text-info"> {highestBid} CSPR</span> 
+                            </a>
+                              </>
+                          )}
+                          
+                        </div>
+                        
+                      </div>
+                    </div>
+                    <div class="col-xl-12">
                       <div class="card-media card-media-s1">
                         <div class="card-media-body">
                             {countdown !== "Auction has started" && countdown !== "This asset is not in auction" ?(
@@ -1182,7 +1256,7 @@ export default function NFTDetails(){
                             </div>
                             )}
                             
-                        <div class="item-detail-btns mt-4">
+                          <div class="item-detail-btns mt-4">
                             <ul class="btns-group d-flex">
                               <li class="flex-grow-1">
                                 {countdown === "Auction has started" && nft.inAuction && !isOwner && user.purse !== null && (
@@ -1323,7 +1397,7 @@ export default function NFTDetails(){
                 </div>
                 {/* ... */}
                 <button type="submit" class="btn btn-dark d-block">
-                 Create Purse </button>
+                 Bid </button>
               </form>
             </div>
           </div>
@@ -1442,49 +1516,42 @@ export default function NFTDetails(){
           </div>
         </div>
       </div>
-      {bids && (<div class="row mb-4">
-        
-        <div class="col-10 mx-auto">
-          <div class="item-detail-tab">
-            <ul class="nav nav-tabs nav-tabs-s1" id="myTab" role="tablist">
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="bids-tab" data-bs-toggle="tab" data-bs-target="#bids" type="button" role="tab" aria-controls="bids" aria-selected="true">Bids</button>
-                </li>
-            </ul>
-          </div>
-          <div class="table-responsive">
-              <table class="table mb-0 table-s1 fs-13 bg-gray">
-                  <thead>
-                      <tr>
-                          <th scope="col">Bidder</th>
-                          <th scope="col">Bid</th>
-                          <th scope="col">Date</th>
-                      </tr>
-                  </thead>
-                  <tbody>
-                      <tr>
-                          {/* <th scope="row" class="fw-regular">Created</th> */}
-                          <td>Monica Lucas</td>
-                          <td>1</td>
-                          <td>1 day ago</td>
-                      </tr>
-                      <tr>
-                          {/* <th scope="row" class="fw-regular">Created</th> */}
-                          <td>-</td>
-                          <td>2 days ago</td>
-                      </tr>
-                      <tr>
-                          {/* <th scope="row" class="fw-regular">Sale</th> */}
-                          <td>Diamond Cube</td>
-                          <td>1</td>
-                          <td>3 days ago</td>
-                      </tr>
-                      
-                  </tbody>
-              </table>
-          </div>
-        </div>
-      </div>)}
+      
+      {bids && (
+  <div class="row mb-4">
+    <div class="col-10 mx-auto">
+      <div class="item-detail-tab">
+        <ul class="nav nav-tabs nav-tabs-s1" id="myTab" role="tablist">
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="bids-tab" data-bs-toggle="tab" data-bs-target="#bids" type="button" role="tab" aria-controls="bids" aria-selected="true">Bids</button>
+          </li>
+        </ul>
+      </div>
+      <div class="table-responsive">
+        <table class="table mb-0 table-s1 fs-13 bg-gray">
+          <thead>
+            <tr>
+              <th scope="col">Bidder</th>
+              <th scope="col">Bid Amount</th>
+              <th scope="col">Date</th>
+              <th scope="col">Verify</th>
+            </tr>
+          </thead>
+          <tbody>
+            {bids.map(bid => (
+              <tr key={bid.id}>
+                <td>{truncateKey(bid.bidder)} @{bid.user.username}</td>
+                <td>{bid.bid} CSPR</td>
+                <td>{formatDate(bid.createdAt)}</td>
+                <td><a class="btn btn-info btn-sm" href={`https://testnet.cspr.live/deploy/${bid.user.purse.deployHash}`} target="_blank">Verify</a></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+)}
       <Footer />
     </>
   );
