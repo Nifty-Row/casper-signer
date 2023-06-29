@@ -603,9 +603,9 @@ const MintForm = (key) => {
           <div class="row mt-4">
             <div class="col-lg-12 mx-auto">
               <form ref={formRef} class="vstack gap-4" onSubmit={handleSubmit}>
-                <div class="card shadow">
-                  <div class="card-header border-bottom">
-                    <h5 class="mb-4">NFT Details</h5>
+                <div class="card ">
+                  <div class="card-header">
+                    <h3 class="mb-4"><center>NFT Details</center></h3>
                   </div>
                 </div>
                 <div class="card-body shadow mb-4">

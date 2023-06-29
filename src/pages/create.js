@@ -80,7 +80,7 @@ export default function WalletConnect() {
       <div class="hero-wrap sub-header">
         <div class="container">
           <div class="hero-content text-center py-0">
-            <h1 class="hero-title">Nifty Marketplace</h1>
+            <h1 class="hero-title">Mint NFT</h1>
             <nav aria-label="breadcrumb">
               <ol class="breadcrumb breadcrumb-s1 justify-content-center mt-3 mb-0">
                 <li class="breadcrumb-item">

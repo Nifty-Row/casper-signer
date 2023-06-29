@@ -212,6 +212,7 @@ export default function NFTDetails(){
           minimumPrice: minPrice,
           deployerKey: key,
           deployHash: hash,
+          userId:user.id,
         };
         
         console.log("before deploy",signedDeployJSON);
@@ -311,17 +312,18 @@ export default function NFTDetails(){
 
     const currentTimestamp = Date.now(); // Get the current timestamp in milliseconds
 
-
     // Convert user-provided start and end times to timestamps
     const startTimestamp = moment(startTime).valueOf().toString();
-    const endTimestamp = moment(endTime).valueOf().toString();
+    const endTimestamp = moment(endTime, 'YYYY-MM-DDTHH:mm').valueOf().toString();
 
     // Calculate the cancellation timestamp by adding a duration to the current timestamp
-    const cancellationDuration = 15 * 60 * 1000; // 5 mins after start time
-    const cancellationTimestamp = currentTimestamp + cancellationDuration;
+    const cancellationDuration = 15 * 60 * 1000; // 15 mins after start time
+    const cancellationTimestamp = +startTimestamp + +cancellationDuration;
+
     console.log("Time Stamp",startTimestamp.toString());
-    console.log("Cancellation Time",cancellationTimestamp.toString());
-    console.log("End Time",endTimestamp.toString());
+    console.log("Cancellation Time",cancellationTimestamp,formatDate(cancellationTimestamp));
+    console.log("End Time", endTimestamp);
+    console.log("End Time", endTime);
     // Create CLU64 objects using the calculated timestamps
     const start_time = new CLU64(startTimestamp); // Unix timestamp based on user-provided start time
     const cancellation_time = new CLU64(cancellationTimestamp.toString()); // Unix timestamp based on calculated cancellation time
@@ -335,7 +337,7 @@ export default function NFTDetails(){
     }
 
     if (startTimestamp >= cancellationTimestamp) {
-      swal("Warning!","Start time should be earlier than cancellation time, at least 15 minutes from now at "+formatDate(cancellationTimestamp), "warning")
+      swal("Warning!","Start time should be earlier than cancellation time "+formatDate(cancellationTimestamp)+", at least 15 minutes from now at "+formatDate(cancellationTimestamp), "warning")
       console.error("Start time should be earlier than cancellation time.");
       return false;
     }
@@ -343,6 +345,20 @@ export default function NFTDetails(){
     if (cancellationTimestamp >= endTimestamp) {
       swal("Warning!","Cancellation time "+formatDate(cancellationTimestamp)+" should be earlier than end time."+formatDate(endTime), "warning")
       console.error("Cancellation time should be earlier than end time.");
+      return false;
+    }
+    // Validate the start time
+    if (startTimestamp - currentTimestamp < 10 * 60 * 1000) {
+      swal("Warning!","Start time "+formatDate(startTimestamp)+" should be at least 10 minutes from the current time."+formatDate(currentTimestamp), "warning")
+      console.error("Start time "+formatDate(startTimestamp)+" should be at least 10 minutes from the current time."+formatDate(currentTimestamp));
+      return false;
+    }
+
+    // Validate the end time
+    if (endTimestamp - cancellationTimestamp < 60 * 60 * 1000) {
+      // End time is less than an hour from the cancellation time
+      swal("Warning!","End time "+formatDate(endTimestamp)+" should be at least 1 hour from."+formatDate(cancellationTimestamp), "warning")
+      console.error("End time "+formatDate(endTimestamp)+" should be at least 1 hour from "+formatDate(cancellationTimestamp));
       return false;
     }
     const format = new CLString("ENGLISH");
@@ -1154,8 +1170,11 @@ export default function NFTDetails(){
                         <div class="card-media-body">
                             {countdown !== "Auction has started" && countdown !== "This asset is not in auction" ?(
                               <div> 
-                              <p>Auction Starts in </p>
-                              <h4>{countdown}</h4>
+                                {!auctionData.contractHash ?(
+                                  <h4 class="text-danger">Auction not Verified</h4>
+                                ):(
+                                  <><p>Auction Starts in </p><h4>{countdown}</h4></>
+                                )}
                             </div>
                             ):(
                               <div> 

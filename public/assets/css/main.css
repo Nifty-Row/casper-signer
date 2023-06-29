@@ -31,3 +31,8 @@
     background-attachment: fixed;
     background-size: cover;
   }
+  .casper{
+    width: 30px !important;
+    margin: 8px !important;
+    height: 20px !important;
+  }

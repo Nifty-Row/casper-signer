@@ -57,9 +57,9 @@ const Header = () => {
                   alt="logo"
                 />
                 <img
-                  src="../../casperSigner-icon.svg"
+                  src="../../casperlabslogo.png"
                   alt="logo"
-                  class="card-media-img flex-shrink-0 me-0 mb-3"
+                  class="card-media-img flex-shrink-2 casper me-0 mb-3"
                 />
                 <img
                   className="logo-light logo-img"

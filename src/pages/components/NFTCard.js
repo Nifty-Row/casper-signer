@@ -15,11 +15,12 @@ const NFTCard = ({ nftData }) => {
     mediaType,
     assetSymbol,
     artistName,
-    user,
+    user = {},
   } = nftData;
 
-  const placeBidLink = `nftDetails/${tokenId}`;
+  const fullName = user ? user.fullName : '';
 
+  const placeBidLink = `nftDetails/${tokenId}`;
   return (
     <div className="col-xl-4 col-lg-4 col-sm-6">
       <div className="card card-full card-s3">
@@ -34,7 +35,7 @@ const NFTCard = ({ nftData }) => {
             <div className="custom-tooltip-wrap card-author-by-wrap">
               <span className="card-author-by card-author-by-2">Owned by</span>
               <a href="#" className="custom-tooltip author-link">
-                {user.fullName}
+                {fullName}
               </a>
             </div>
           </div>
