@@ -1261,23 +1261,28 @@ export default function NFTDetails(){
                               <li class="flex-grow-1">
                                 {countdown === "Auction has started" && nft.inAuction && !isOwner && user.purse !== null && (
                                   <>
-                                  {!user.purse.uref &&(<a
-                                    href="#"
-                                    onClick={confirmBidPurse}
+                                  {!user.purse || !user.purse.uref ? (
+                                    <>
+                                      <a
+                                        href="#"
+                                        onClick={confirmBidPurse}
+                                        class="btn btn-warning d-block mb-4"
+                                      >
+                                        Confirm Bid Purse
+                                      </a>
+                                      <a
+                                        href="#"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#placeBidModal"
+                                        class="btn btn-dark d-block mb-0"
+                                      >
+                                        Place a Bid
+                                      </a>
+                                    </>
+                                  ) : (
+                                    null // Render nothing if user.purse.uref exists
+                                  )}
 
-                                    class="btn btn-warning d-block mb-4"
-                                  >
-                                      Confirm Bid Purse
-                                    </a>)}
-                                    <a
-                                    href="#"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#placeBidModal"
-                                    class="btn btn-dark d-block mb-0"
-                                  >
-                                    Place a Bid
-                                  </a></>
-                                )}
                                 {countdown === "Auction has started" && nft.inAuction && !isOwner && user.purse === null && (
                                   <a
                                     href="#"
