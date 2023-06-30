@@ -437,7 +437,7 @@ export default function NFTDetails(){
      let ddeploy = DeployUtil.makeDeploy(
         deployParams,
         session,
-        DeployUtil.standardPayment(300000000000)
+        DeployUtil.standardPayment(200000000000)
       );
       // console.log("deploy",ddeploy);
       // return;
@@ -1221,13 +1221,13 @@ export default function NFTDetails(){
                           {owner &&(
                               <>
                             <a href="#" class="badge fw-semibold">
-                              Auction Start :  <span class="fw-bold text-primary mt-2"> {formatDate(auctionData.startDate)}</span>
+                              Auction Start :  <span class="fw-bold text-primary mt-2"> {auctionData ?( formatDate(auctionData.startDate)):(countdown)}</span>
                             </a><hr></hr>
                             <a href="#" class="badge fw-semibold">
-                              Auction End :  <span class="fw-bold text-danger"> {formatDate(auctionData.endDate)}</span>
+                              Auction End :  <span class="fw-bold text-danger"> {auctionData ?( formatDate(auctionData.endDate)):(countdown)}</span>
                             </a><hr></hr>
                             <a href="#" class="badge fw-semibold">
-                              Minimum Price :  <span class="fw-bold text-info"> {auctionData.minimumPrice.toLocaleString("en-Us")} CSPR </span>
+                              Minimum Price :  <span class="fw-bold text-info"> {auctionData ?( auctionData.minimumPrice.toLocaleString("en-Us")):(0)} CSPR </span>
                             </a><hr></hr>
                             <a href="#" class="badge fw-semibold">
                               Highest Bid : <span class="fw-semibold text-info"> {highestBid} CSPR</span> 
