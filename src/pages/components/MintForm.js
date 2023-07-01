@@ -293,7 +293,7 @@ const MintForm = (key) => {
               setTokenHash(data);
               saveNFT(nftData).then(data =>{
                 if(data){
-                  
+                  window.open(`/nftDetails/${nftData.tokenId}`);
                   swal({
                     title: 'Minting Complete',
                     text: `NFT Asset ${nftData.assetSymbol} Minted and Saved successfully. What would you like to do next?`,
@@ -599,11 +599,9 @@ const MintForm = (key) => {
     const account_hashh = new CLString(
       "account-hash-268e98a4faf44865080eaba8bc88b07f8ae870575d100eb611d64c4f518d7f85"
     );
-    const link = new CLString("https://media.istockphoto.com/id/1367699775/photo/nft-non-fungible-token-golden-coins-falling-trendy-cryptocurrencies-and-coins-on-the.jpg?s=2048x2048&w=is&k=20&c=soA6I6ONJc5Ctcq6ymGVjlgE5nfLgKyMm3WfJRkd3vo=");
     const token_commission = new CLMap([
-      [new CLString("nifty_rate"), new CLString("2")],
       [new CLString("nifty_account"), account_hashh],
-      [new CLString("image"), link],
+      [new CLString("nifty_rate"), new CLString("2")],
     ]);
 
     const token_metas = new CLList([tempOptions]);

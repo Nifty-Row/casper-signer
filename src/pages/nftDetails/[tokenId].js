@@ -47,7 +47,7 @@ export default function NFTDetails(){
   const [nft, setNFT] = useState("");
   const [key, setKey] = useState("");
   const [isOwner, setIsOwner] = useState("");
-  const [owner, setOwner] = useState("");
+  const [owner, setOwner] = useState(false);
   const [bidAmount, setBidAmount] = useState("");
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState("");
@@ -61,6 +61,7 @@ export default function NFTDetails(){
   const [countdown, setCountdown] = useState('');
   const [auctionStarted, setAuctionStarted] = useState(false);
   const [auctionStartDate,setAuctionStartDate] = useState('');
+  const [auctionEndDate,setAuctionEndDate] = useState('');
   
   //load page data
   useEffect(() => {
@@ -79,6 +80,7 @@ export default function NFTDetails(){
               setNFT(data);
               if(data.user) setOwner(data.user);
               if(data.auction) setAuctionData(data.auction);
+              alert(data.ownerKey === key);
               setIsOwner(data.ownerKey === key);
               if(data.auction.deployHash) setDeployHash(data.auction.deployHash);
               if(data.auction.bids) setBids(data.auction.bids);
@@ -125,22 +127,25 @@ export default function NFTDetails(){
   // set auction countdown if auction has not started
   useLayoutEffect(() => {
     if (auctionData.startDate) {
-      const auctionStartDate = new Date(auctionData.startDate).getTime();
-      const auctionEndDate = new Date(auctionData.endDate).getTime();
+
+      let auctionStartDate = new Date(auctionData.startDate);
+      // auctionStartDate.setHours(auctionStartDate.getHours() - 1);//.getTime();
+      let auctionEndDate = new Date(auctionData.endDate);
+      // auctionEndDate.setHours(auctionEndDate.getHours() - 1);
   
       const interval = setInterval(() => {
         const now = new Date().getTime();
         const distance = auctionStartDate - now;
         const distancee = auctionEndDate - now;
-        console.log(distancee);
-        console.log(distance);
-        if (distance <= 0) {
+  
+        if (distance <= 0 && distancee >= 0) {
           clearInterval(interval);
           setCountdown('Auction has started');
-          setFundAmount(auctionData.minimumPrice)
+          setFundAmount(auctionData.minimumPrice);
           setAuctionStarted(true);
-        }else if(distancee <= 0){
-
+        } else if (distancee <= 0 && auctionData.status === "close") {
+          setCountdown('Auction has Ended for this Asset');
+          clearInterval(interval);
         } else {
           const days = Math.floor(distance / (1000 * 60 * 60 * 24));
           const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
@@ -149,6 +154,16 @@ export default function NFTDetails(){
   
           setCountdown(`${days}d ${hours}h ${minutes}m ${seconds}s`);
         }
+  
+        const closeTheAuction = async () => {
+          if (distancee < 0 && auctionData.status === "open" && bids.length === 0) {
+            setCountdown('Auction has Ended for this Asset');
+            clearInterval(interval);
+            await closeAuction(auctionData.id); // Call the closeAuction function with auctionData.id as a parameter
+          }
+        }
+  
+        closeTheAuction();
       }, 1000);
   
       return () => {
@@ -158,7 +173,7 @@ export default function NFTDetails(){
       setCountdown('This asset is not in auction');
       setAuctionStarted(false);
     }
-  }, [auctionData]);
+  }, [auctionData, closeAuction]);
   
   //handle page inputs
   const handleBidAmountChange = (e) => {
@@ -220,8 +235,8 @@ export default function NFTDetails(){
           userId:user.id,
         };
         
-        console.log("before deploy",signedDeployJSON);
-        
+        console.log("before deploy",backendData);
+        // return;
         try {
           if(signedDeployJSON){
             swal({
@@ -318,8 +333,8 @@ export default function NFTDetails(){
     const currentTimestamp = Date.now(); // Get the current timestamp in milliseconds
 
     // Convert user-provided start and end times to timestamps
-    const startTimestamp = moment(startTime).valueOf().toString();
-    const endTimestamp = moment(endTime, 'YYYY-MM-DDTHH:mm').valueOf().toString();
+    const startTimestamp = moment.utc(startTime, 'YYYY-MM-DDTHH:mm').valueOf().toString();
+    const endTimestamp = moment.utc(endTime, 'YYYY-MM-DDTHH:mm').valueOf().toString();
 
     // Calculate the cancellation timestamp by adding a duration to the current timestamp
     const cancellationDuration = 15 * 60 * 1000; // 15 mins after start time
@@ -353,17 +368,17 @@ export default function NFTDetails(){
       return false;
     }
     // Validate the start time
-    if (startTimestamp - currentTimestamp < 10 * 60 * 1000) {
-      swal("Warning!","Start time "+formatDate(startTimestamp)+" should be at least 10 minutes from the current time."+formatDate(currentTimestamp), "warning")
-      console.error("Start time "+formatDate(startTimestamp)+" should be at least 10 minutes from the current time."+formatDate(currentTimestamp));
+    if (startTimestamp - currentTimestamp < 5 * 60 * 1000) {
+      swal("Warning!","Start time "+formatDate(startTime)+" should be at least 5 minutes from the current time."+formatDate(currentTimestamp), "warning")
+      console.error("Start time "+formatDate(startTime)+" should be at least 5 minutes from the current time."+formatDate(currentTimestamp));
       return false;
     }
 
     // Validate the end time
-    if (endTimestamp - cancellationTimestamp < 60 * 60 * 1000) {
+    if (endTimestamp - cancellationTimestamp < 15 * 60 * 1000) {
       // End time is less than an hour from the cancellation time
-      swal("Warning!","End time "+formatDate(endTimestamp)+" should be at least 1 hour from."+formatDate(cancellationTimestamp), "warning")
-      console.error("End time "+formatDate(endTimestamp)+" should be at least 1 hour from "+formatDate(cancellationTimestamp));
+      swal("Warning!","End time "+formatDate(endTime)+" should be at least 15 minutes from "+formatDate(cancellationTimestamp), "warning")
+      console.error("End time "+formatDate(endTime)+" should be at least 15 minutes from "+formatDate(cancellationTimestamp));
       return false;
     }
     const format = new CLString("ENGLISH");
@@ -1020,6 +1035,28 @@ export default function NFTDetails(){
     console.error(error);
   });
   }
+
+  async function closeAuction(auctionId){
+    swal({
+      title: "Closing the Auction",
+      text: "Please wait while we make your private auction open for bids.",
+      icon: "info",
+      buttons: false,
+      closeOnClickOutside: true,
+      closeOnEsc: false,
+    });
+    axios.put(`https://shark-app-9kl9z.ondigitalocean.app/api/auction/closeAuction/${auctionId}`).then(response => {
+    console.log(response.data); // Process the response data
+    // swal("Success","Auction Has been opened Successfully","success");
+    handleRefresh();
+    return response.data
+  })
+  .catch(error => {
+    // Handle error
+    console.error(error);
+  });
+  }
+
   async function addBid(amount){
     let backendData = {
       bidder:key,
@@ -1276,7 +1313,7 @@ export default function NFTDetails(){
                                       data-bs-target="#placeBidModal"
                                       class="btn btn-dark d-block mb-0"
                                     >
-                                      Place a Bid
+                                      Place  Bid {isOwner}
                                     </a>
                                   </>
                                 )}
@@ -1291,17 +1328,17 @@ export default function NFTDetails(){
                                     Create Bid Purse
                                   </a>
                                 )}
-                                {!nft.inAuction && isOwner && (
+                                {!nft.inAuction && isOwner && !auctionData.status && (
                                   <a
                                     href="#"
                                     data-bs-toggle="modal"
                                     data-bs-target="#startAuctionModal"
                                     class="btn btn-dark d-block"
                                   >
-                                    Create Private Auction
+                                    Create Auction
                                   </a>
                                 )}
-                                {nft.inAuction && isOwner  && auctionData.contractHash && auctionData.status === "pending" && (
+                                {nft.inAuction && isOwner  && auctionData.status === "pending" && (
                                   <a
                                     href="#"
                                   onClick={startAuction}
@@ -1310,7 +1347,7 @@ export default function NFTDetails(){
                                     Open Auction
                                   </a>
                                 )}
-                                {nft.inAuction && isOwner  && auctionData.contractHash && auctionData.status === "open" && (
+                                {!nft.inAuction && isOwner  && auctionData.status === "close" && (
                                   <a
                                     href="#"
                                   onClick={endAuction}
@@ -1329,7 +1366,6 @@ export default function NFTDetails(){
                                   </a>
                                 )}
                               </li>
-                              {/* <TestForm /> */}
                               {deployHash && (
                               <li class="flex-grow-1">
                                 <div class="dropdown">
