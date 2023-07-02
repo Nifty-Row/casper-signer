@@ -1426,7 +1426,7 @@ export default function NFTDetails(){
                                         onClick={confirmBidPurse}
                                         class="btn btn-warning d-block mb-4"
                                       >
-                                        Confirm Bid Purse
+                                        Confirm Bid
                                       </a>
                                     )}
                                     <a
