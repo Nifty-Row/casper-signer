@@ -633,6 +633,10 @@ export default function NFTDetails(){
           console.log("Sever Response",response);
           if(data){
             let res = await saveBidPurse(signedDeployJSON.deploy.hash);
+            addBid(fundAmount).then(data =>{
+              console/log("Bidd Added");
+              handleRefresh();
+            });
           }
           return response.data;
         }
@@ -1150,7 +1154,6 @@ export default function NFTDetails(){
     axios.post(`https://shark-app-9kl9z.ondigitalocean.app/api/auction/bidOnAuction`,backendData).then(response => {
     // console.log("bid purse deploy Hash",response.data); // Process the response data
     swal("Success","Bid has been saved Successfully","success");
-    handleRefresh();
     return response.data
   })
   .catch(error => {
@@ -1178,7 +1181,6 @@ export default function NFTDetails(){
     axios.post(`https://shark-app-9kl9z.ondigitalocean.app/api/auction/saveBidPurseInfo`,backendData).then(response => {
     console.log("bid purse info",response.data); // Process the response data
     swal("Success","Bid Purse has been Successfully,please proceed to verify it","success");
-    handleRefresh();
     return response.data
   })
   .catch(error => {
