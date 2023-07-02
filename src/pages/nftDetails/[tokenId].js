@@ -1,6 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 /* eslint-disable react-hooks/rules-of-hooks */
 import Head from "next/head";
+import Link from "next/link";
 import Image from "next/image";
 import { useState, useEffect, useLayoutEffect } from "react";
 import axios from "axios";
@@ -1238,7 +1239,7 @@ export default function NFTDetails(){
                 <path d="M11,9H13V7H11M12,20C7.59,20 4,16.41 4,12C4,7.59 7.59,4 12,4C16.41,4 20,7.59 20, 12C20,16.41 16.41,20 12,20M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10, 10 0 0,0 12,2M11,17H13V11H11V17Z"></path>
               </svg>
               <p class="fs-14">No Nft Was Found with details {tokenId} 
-                <a href="/marketplace" class="btn-link"> Go to Marketplace.</a>
+                <Link href="/marketplace" class="btn-link"> Go to Marketplace.</Link>
               </p>
             </div>
             </div>
