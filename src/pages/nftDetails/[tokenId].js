@@ -167,7 +167,7 @@ export default function NFTDetails(){
   
         const closeTheAuction = async () => {
           //check if auction satrt date is exhausted and if there are no bids
-          if (nft.inAuction && distancee < 0 && auctionData.status === "open" && bids.length >= 0) {
+          if (nft.inAuction && distancee < 0 && auctionData.status === "open" && auctionData.bids.length >= 0) {
             setCountdown('Auction has Ended');
             clearInterval(interval);
             // await closeAuction(auctionData.id); // Call the closeAuction function with auctionData.id as a parameter
