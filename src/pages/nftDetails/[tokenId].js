@@ -78,7 +78,7 @@ export default function NFTDetails(){
               if(data.user) setOwner(data.user);
               if(data.auction) setAuctionData(data.auction);
               let isOwner = data.ownerKey === key;
-              alert("Is Owner ?"+isOwner);
+              // alert("Is Owner ?"+isOwner);
               if(data.auction) setMinPrice(data.auction.minimumPrice);
               setIsOwner(isOwner);
               if(data.auction.deployHash) setDeployHash(data.auction.deployHash);
