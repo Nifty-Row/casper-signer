@@ -55,6 +55,7 @@ export default function NFTDetails(){
   const [bids, setBids] = useState("");
   const [countdown, setCountdown] = useState('');
   const [auctionStarted, setAuctionStarted] = useState(false);
+  const [auctionEnded, setAuctionEnded] = useState(false);
   const [auctionStartDate,setAuctionStartDate] = useState('');
   const [auctionEndDate,setAuctionEndDate] = useState('');
   const [verifiable, setVerifiable] = useState(false);
@@ -147,10 +148,11 @@ export default function NFTDetails(){
           setFundAmount(auctionData.minimumPrice);
           setAuctionStarted(true);
         } else if (distancee <= 0  && nft.inAuction) {
-          alert(nft.inAuction);
+          // alert(nft.inAuction);
           setAuctionStarted(false);
           // setAuctionClosed(true);
           setCountdown('Auction has Ended for this Asset');
+          setAuctionEnded(true);
           clearInterval(interval);
         } else if (distancee <= 0 && auctionData.status === "close" && !nft.inAuction) {
           setAuctionStarted(false);
@@ -170,6 +172,7 @@ export default function NFTDetails(){
           //check if auction satrt date is exhausted and if there are no bids
           if (nft.inAuction && distancee < 0 && auctionData.status === "open" && auctionData.bids.length >= 0) {
             setCountdown('Auction has Ended');
+            setAuctionEnded(true);
             clearInterval(interval);
             // await closeAuction(auctionData.id); // Call the closeAuction function with auctionData.id as a parameter
           }
@@ -981,8 +984,8 @@ export default function NFTDetails(){
   
     // Wait for 15 seconds before calling handleRefresh
     setTimeout(() => {
-      handleRefresh();
-    }, 15000);
+      // handleRefresh();
+    }, 150000);
   };
   
  
@@ -1469,7 +1472,7 @@ export default function NFTDetails(){
                                     Open Auction
                                   </a>
                                 )}
-                                {auctionData && isOwner  && auctionData.status === "open" && auctionData.status !== "pending" && (
+                                {auctionData && isOwner  && auctionEnded && (
                                   <a
                                     href="#"
                                   onClick={endAuction}
