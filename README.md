@@ -2,7 +2,7 @@
 
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/Nifty-Row/casper-frontend/blob/main/LICENSE)
 
-> A decentralized NFT marketplace platform powered by Casper Blockchain, enabling users to buy, sell, and trade CEP-47 NFTs securely.
+> A decentralized NFT marketplace platform powered by Casper Blockchain, enabling users to mint, auction, and bid on CEP-47 NFTs securely.
 
 This repository contains the frontend code for the Casper NFT Marketplace Platform. The platform provides a user-friendly interface for seamless navigation and interaction with a wide range of CEP-47 NFTs. Built on Casper Blockchain, the platform ensures immutability, transparency, and enhanced security for all transactions and smart contracts.
 
