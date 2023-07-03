@@ -1,6 +1,6 @@
 # Casper NFT Marketplace Platform
 
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/Nifty-Row/casper-frontend/blob/main/LICENSE)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/Nifty-Row/casper-frontend/blob/master/LICENSE)
 
 > A decentralized NFT marketplace platform powered by Casper Blockchain, enabling users to mint, auction and bid on CEP-47 NFTs securely.
 
@@ -37,13 +37,13 @@ npm install`
 
 ## Backend Code
 
-The backend code for our Casper NFT Marketplace Platform can be found in the following repository: [Casper Signer Backend Repository](https://github.com/Nifty-Row/casper-signer)
+The backend code for our Casper NFT Marketplace Platform can be found in the following repository: [Backend Repository](https://github.com/Nifty-Row/casper-server)
 
 Please refer to the repository for detailed instructions on setting up and deploying the backend.
 
 ## Contributing
 
-We welcome contributions from the community to enhance the features, fix issues, and improve the overall user experience of our Casper NFT Marketplace Platform. If you would like to contribute, please follow the guidelines outlined in our [Contribution Guide](https://github.com/Nifty-Row/casper-frontend/blob/main/CONTRIBUTING.md).
+We welcome contributions from the community to enhance the features, fix issues, and improve the overall user experience of our Casper NFT Marketplace Platform. If you would like to contribute, please follow the guidelines outlined in our [Contribution Guide](https://github.com/Nifty-Row/casper-frontend/blob/master/CONTRIBUTING.md).
 
 ## Support
 
@@ -51,6 +51,6 @@ For any queries or issues related to the Casper NFT Marketplace Platform, feel f
 
 ## License
 
-This project is licensed under the [MIT License](https://github.com/Nifty-Row/casper-frontend/blob/main/LICENSE).
+This project is licensed under the [MIT License](https://github.com/Nifty-Row/casper-frontend/blob/master/LICENSE).
 
 **Note:** Please note that this README is a template and should be customized based on your specific project.
