@@ -1,15 +1,56 @@
-NFT Marketplace Platform with Casper Blockchain
-Introduction
-Welcome to our NFT Marketplace Platform powered by Casper Blockchain! This platform allows users to buy, sell, and trade non-fungible tokens (NFTs) securely and transparently. With the integration of Casper Blockchain, we ensure immutability, decentralization, and enhanced security for all transactions and smart contracts.
+# Casper NFT Marketplace Platform
 
-Features
-User-Friendly Interface: Our platform provides an intuitive and user-friendly interface, making it easy for users to navigate and explore the vast collection of NFTs.
-NFT Listings: Users can list their NFTs for sale or auction, setting their desired price, duration, and other parameters.
-Bidding and Auctions: Users can participate in auctions, place bids, and compete for ownership of unique NFTs.
-Secure Wallet Integration: We support integration with various secure wallets, allowing users to manage their NFTs and funds conveniently.
-Casper Blockchain Integration: Casper Blockchain ensures the integrity of transactions and smart contracts, providing a secure and decentralized environment for all marketplace activities.
-Transaction History: Users can view their transaction history, including purchases, sales, bids, and more.
-Search and Filter: Users can easily search and filter NFTs based on categories, artists, collections, and other criteria.
-Community and Social Features: Our platform fosters a vibrant community where users can connect, follow each other, and engage in discussions about NFTs and digital art.
-Getting Started
-To set up the NFT Marketplace Platform locally, follow these steps:
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/Nifty-Row/casper-frontend/blob/main/LICENSE)
+
+> A decentralized NFT marketplace platform powered by Casper Blockchain, enabling users to buy, sell, and trade CEP-47 NFTs securely.
+
+This repository contains the frontend code for the Casper NFT Marketplace Platform. The platform provides a user-friendly interface for seamless navigation and interaction with a wide range of CEP-47 NFTs. Built on Casper Blockchain, the platform ensures immutability, transparency, and enhanced security for all transactions and smart contracts.
+
+Demo: [https://vercel-deploy-eight-gamma.vercel.app](https://vercel-deploy-eight-gamma.vercel.app)
+
+## Features
+
+- Explore and discover a diverse collection of CEP-47 NFTs.
+- Buy, sell, and trade NFTs securely and transparently.
+- Participate in auctions and place bids on unique NFTs.
+- Integrated wallet support for managing NFTs and funds.
+
+## Getting Started
+
+To set up the Casper NFT Marketplace Platform locally, follow these steps:
+
+1. Clone the repository:
+git clone https://github.com/Nifty-Row/casper-frontend.git
+
+
+2. Install the dependencies:
+cd casper-frontend
+npm install
+
+
+3. Configure the backend:
+- Open `config.js` and set the necessary parameters such as the Casper Blockchain endpoint, API keys, and other required configurations.
+
+4. Launch the application:
+
+5. Access the platform locally by visiting `http://localhost:3000` in your web browser.
+
+## Backend Code
+
+The backend code for our Casper NFT Marketplace Platform can be found in the following repository: [Casper Signer Backend Repository](https://github.com/Nifty-Row/casper-signer)
+
+Please refer to the repository for detailed instructions on setting up and deploying the backend.
+
+## Contributing
+
+We welcome contributions from the community to enhance the features, fix issues, and improve the overall user experience of our Casper NFT Marketplace Platform. If you would like to contribute, please follow the guidelines outlined in our [Contribution Guide](https://github.com/Nifty-Row/casper-frontend/blob/main/CONTRIBUTING.md).
+
+## Support
+
+For any queries or issues related to the Casper NFT Marketplace Platform, feel free to reach out to our support team at [support@nftmarketplace.com](mailto:support@nftmarketplace.com). We are always here to assist you.
+
+## License
+
+This project is licensed under the [MIT License](https://github.com/Nifty-Row/casper-frontend/blob/main/LICENSE).
+
+**Note:** Please note that this README is a template and should be customized based on your specific project.
