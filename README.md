@@ -6,7 +6,8 @@
 
 This repository contains the frontend code for the Casper NFT Marketplace Platform. The platform provides a user-friendly interface for seamless navigation and interaction with a wide range of CEP-47 NFTs. Built on Casper Blockchain, the platform ensures immutability, transparency, and enhanced security for all transactions and smart contracts.
 
-Demo: [https://vercel-deploy-eight-gamma.vercel.app](https://vercel-deploy-eight-gamma.vercel.app)
+Demo Testnet: [https://vercel-deploy-eight-gamma.vercel.app](https://vercel-deploy-eight-gamma.vercel.app)
+Live URl Mainet: [https://casper.niftyrow.com](https://casper.niftyrow.com)
 
 ## Features
 
