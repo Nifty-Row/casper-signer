@@ -47,7 +47,7 @@ We welcome contributions from the community to enhance the features, fix issues,
 
 ## Support
 
-For any queries or issues related to the Casper NFT Marketplace Platform, feel free to reach out to our support team at [support@nftmarketplace.com](mailto:support@nftmarketplace.com). We are always here to assist you.
+For any queries or issues related to the Casper NFT Marketplace Platform, feel free to reach out to our support team at [support@niftyrow.io](mailto:support@niftyrow.io). We are always here to assist you.
 
 ## License
 
