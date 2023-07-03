@@ -1,6 +1,6 @@
 # NiftyRow with Casper NFT Marketplace Platform
 
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/Nifty-Row/casper-frontend/blob/master/LICENSE)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/Nifty-Row/casper-frontend/blob/main/LICENSE)
 
 > A decentralized NFT marketplace platform powered by Casper Blockchain, enabling users to mint, auction and bid on CEP-47 NFTs securely.
 
@@ -44,7 +44,7 @@ Please refer to the repository for detailed instructions on setting up and deplo
 
 ## Contributing
 
-We welcome contributions from the community to enhance the features, fix issues, and improve the overall user experience of our Casper NFT Marketplace Platform. If you would like to contribute, please follow the guidelines outlined in our [Contribution Guide](https://github.com/Nifty-Row/casper-frontend/blob/master/CONTRIBUTING.md).
+We welcome contributions from the community to enhance the features, fix issues, and improve the overall user experience of our Casper NFT Marketplace Platform. If you would like to contribute, please follow the guidelines outlined in our [Contribution Guide](https://github.com/Nifty-Row/casper-frontend/blob/main/CONTRIBUTING.md).
 
 ## Support
 
