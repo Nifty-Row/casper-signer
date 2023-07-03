@@ -1,4 +1,4 @@
-# Casper NFT Marketplace Platform
+# NiftyRow with Casper NFT Marketplace Platform
 
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/Nifty-Row/casper-frontend/blob/master/LICENSE)
 
