@@ -1,38 +1,57 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# NiftyRow with Casper NFT Marketplace Platform
+
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/Nifty-Row/casper-frontend/blob/main/LICENSE)
+
+> A decentralized NFT marketplace platform powered by Casper Blockchain, enabling users to mint, auction and bid on CEP-47 NFTs securely.
+
+This repository contains the frontend code for the Casper NFT Marketplace Platform. The platform provides a user-friendly interface for seamless navigation and interaction with a wide range of CEP-47 NFTs. Built on Casper Blockchain, the platform ensures immutability, transparency, and enhanced security for all transactions and smart contracts.
+
+Demo Testnet: [https://vercel-deploy-eight-gamma.vercel.app](https://vercel-deploy-eight-gamma.vercel.app)
+Live URl Mainet: [https://casper.niftyrow.com](https://casper.niftyrow.com)
+
+## Features
+
+- Explore and discover a diverse collection of CEP-47 NFTs.
+- Buy, sell, and trade NFTs securely and transparently.
+- Participate in auctions and place bids on unique NFTs.
+- Integrated wallet support for managing NFTs and funds.
 
 ## Getting Started
 
-First, run the development server:
+To set up the Casper NFT Marketplace Platform locally, follow these steps:
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-```
+1. Clone the repository:
+`git clone https://github.com/Nifty-Row/casper-frontend.git`
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `pages/index.js`. The page auto-updates as you edit the file.
+2. Install the dependencies:
+`cd casper-frontend
+npm install`
 
-[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.js`.
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
+3. Configure the backend:
+- Open `config.js` and set the necessary parameters such as the Casper Blockchain endpoint, API keys, and other required configurations.
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+4. Launch the application:
 
-## Learn More
+5. Access the platform locally by visiting `http://localhost:3000` in your web browser.
 
-To learn more about Next.js, take a look at the following resources:
+## Backend Code
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+The backend code for our Casper NFT Marketplace Platform can be found in the following repository: [Backend Repository](https://github.com/Nifty-Row/casper-server)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+Please refer to the repository for detailed instructions on setting up and deploying the backend.
 
-## Deploy on Vercel
+## Contributing
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+We welcome contributions from the community to enhance the features, fix issues, and improve the overall user experience of our Casper NFT Marketplace Platform. If you would like to contribute, please follow the guidelines outlined in our [Contribution Guide](https://github.com/Nifty-Row/casper-frontend/blob/main/CONTRIBUTING.md).
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+## Support
+
+For any queries or issues related to the Casper NFT Marketplace Platform, feel free to reach out to our support team at [support@niftyrow.io](mailto:support@niftyrow.io). We are always here to assist you.
+
+## License
+
+This project is licensed under the [MIT License](https://github.com/Nifty-Row/casper-frontend/blob/master/LICENSE).
+
+**Note:** Please note that this README is a template and should be customized based on your specific project.

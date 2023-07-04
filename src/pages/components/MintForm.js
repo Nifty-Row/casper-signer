@@ -176,6 +176,22 @@ const MintForm = (key) => {
           swal("Notice", "Public Key is empty. key :" + key, "warning");
           return;
         }
+        if (!nftName) {
+          swal("Notice", "Please Enter a name/title", "warning");
+          return;
+        }
+        if (!assetSymbol) {
+          swal("Notice", "Please Enter an asset symbol", "warning");
+          return;
+        }
+        if (assetSymbol.length <3) {
+          swal("Notice", "Asset Symbol must be at least 3 characters", "warning");
+          return;
+        }
+        if (!nftDescription) {
+          swal("Notice", "Please Enter asset description", "warning");
+          return;
+        }
     
         if (category === "Artwork" && !artworkFile) {
           swal("Notice", "Please upload an artwork image.", "warning");
@@ -202,20 +218,20 @@ const MintForm = (key) => {
         const formData = new FormData();
         const files = {};
         if (artworkFile) {
-          Object.assign(files, { artFile: artworkFile });
+          // Object.assign(files, { artFile: artworkFile });
           formData.append("artFile", artworkFile);
         }
         if (musicThumbnail) {
-          Object.assign(files, { musicThumbnail: musicThumbnail });
+          formData.append("musicThumbnail", musicThumbnail);
         }
         if (musicSample) {
-          Object.assign(files, { musicFile: musicSample });
+          formData.append("musicFile", musicSample);
         }
         if (movieThumbnail) {
-          Object.assign(files, { movieThumbnail: movieThumbnail });
+          formData.append("movieThumbnail", movieThumbnail);
         }
         if (movieSample) {
-          Object.assign(files, { movieFile: movieSample });
+          formData.append("movieFile", movieSample);
         }
     
         formData.append("mediaType", category.toLowerCase());
@@ -230,7 +246,7 @@ const MintForm = (key) => {
         });
         
         generateMediaUrls(formData).then(async (data)=>{
-          
+          if(!data) return;
           console.log(data);
           let artworkUrls = {};
           let musicUrls = {};
@@ -493,8 +509,10 @@ const MintForm = (key) => {
       }
       return false;
     } catch (err) {
-      swal("Error",JSON.stringify(err.message),"error");
+      let msg = (err.response.data)? err.response.data : "Upload was not successful."
+      swal("Error",JSON.stringify(err.message)+" : "+msg,"error");
       console.log(err);
+      return false;
     }
   }
 
@@ -569,7 +587,7 @@ const MintForm = (key) => {
       ]);
     }
     
-    if (category === "Movie & Animation" && assetType === "Digital") {
+    if (category === "Movie" && assetType === "Digital") {
       tempOptions = new CLMap([
         [new CLString("name"), new CLString(nftData.mediaName)],
         [new CLString("description"), new CLString(nftData.description)],
@@ -580,7 +598,7 @@ const MintForm = (key) => {
         [new CLString("movieThumbnailUrl"), new CLString(nftData.movieThumbnailUrl)],
         [new CLString("movieFileUrl"), new CLString(nftData.movieFileUrl)],
       ]);
-    } else if (category === "Movie & Animation" && assetType === "Physical") {
+    } else if (category === "Movie" && assetType === "Physical") {
       tempOptions = new CLMap([
         [new CLString("name"), new CLString(nftData.mediaName)],
         [new CLString("description"), new CLString(nftData.description)],
@@ -684,7 +702,7 @@ const MintForm = (key) => {
                             class="form-check-input"
                             type="radio"
                             name="category"
-                            value="Movie & Animation"
+                            value="Movie"
                             id="category3"
                             checked={category === "Movie & Animation"}
                             onChange={(e) => setCategory(e.target.value)}

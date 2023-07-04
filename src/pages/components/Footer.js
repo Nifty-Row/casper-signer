@@ -58,7 +58,7 @@ const Footer = () => {
                       <h5 className="mb-4">Company</h5>
                       <ul className="list-item list-item-s1">
                         <li>
-                          <a href="https://niftyrow.io">About</a>
+                          <a href="https://www.niftyrow.io">About</a>
                         </li>
                         <li>
                           <a href="#">Blog</a>
@@ -77,16 +77,16 @@ const Footer = () => {
                       <h5 className="mb-4">Marketplace</h5>
                       <ul className="list-item list-item-s1">
                         <li>
-                          <a href="marketplace">All Assets</a>
+                          <a href="../marketplace">All Assets</a>
                         </li>
                         <li>
-                          <a href="marketplace/artwork">Artwork</a>
+                          <a href="../marketplace">Artwork</a>
                         </li>
                         <li>
-                          <a href="marketplace/music">Music</a>
+                          <a href="../marketplace">Music</a>
                         </li>
                         <li>
-                          <a href="marketplace/videos">Videos</a>
+                          <a href="../marketplace">Videos</a>
                         </li>
                       </ul>
                     </div>
@@ -98,26 +98,16 @@ const Footer = () => {
           <hr className="bg-white-slim my-0" />
           <div className="copyright-wrap d-flex flex-wrap py-3 align-items-center justify-content-between">
             <p className="footer-copy-text py-2">
-              {/* Copyright &copy; 2022 NiftyRow. Template Made by{" "}
-    <a
-      href="https://themeforest.net/user/softnio/portfolio"
-      target="_blank"
-    >
-      Softnio
-    </a> */}
             </p>
             <ul className="list-item list-item-s1 list-item-inline">
               <li>
-                <a href="explore.html">Explore</a>
+                <a href="../marketplace">Explore</a>
               </li>
               <li>
-                <a href="activity.html">Activity</a>
+                <a href="#">Activity</a>
               </li>
               <li>
-                <a href="login.html">Login</a>
-              </li>
-              <li>
-                <a href="wallet.html">Wallet</a>
+                <a href="../walletConnect">Wallet</a>
               </li>
             </ul>
           </div>

@@ -22,7 +22,7 @@ const NFTCard = ({ nftData }) => {
 
   const placeBidLink = `nftDetails/${tokenId}`;
   return (
-    <div className="col-xl-4 col-lg-4 col-sm-6">
+    <div className="col-xl-3 col-lg-3 col-sm-6">
       <div className="card card-full card-s3">
         <div className="card-author d-flex align-items-center justify-content-between pb-3">
           <div className="d-flex align-items-center">
@@ -35,26 +35,26 @@ const NFTCard = ({ nftData }) => {
             <div className="custom-tooltip-wrap card-author-by-wrap">
               <span className="card-author-by card-author-by-2">Owned by</span>
               <a href="#" className="custom-tooltip author-link">
-                {fullName}
+                {fullName ?(fullName):('Anonymous ')}
               </a>
             </div>
           </div>
         </div>
         <div className="card-image">
           {mediaType === "artwork" && (
-            <img src={artworkUrl} className="card-img" alt="art image" />
+            <img src={artworkUrl} className="card-img nftcard-img" alt="art image" />
           )}
           {mediaType === "movie" && (
             <img
               src={movieThumbnailUrl}
-              className="card-img"
+              className="card-img nftcard-img"
               alt="Movie Thumbnail"
             />
           )}
           {mediaType === "music" && (
             <img
               src={musicThumbnailUrl}
-              className="card-img"
+              className="card-img nftcard-img"
               alt="Music Thumbnail"
             />
           )}
