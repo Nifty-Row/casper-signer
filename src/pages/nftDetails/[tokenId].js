@@ -80,14 +80,16 @@ export default function NFTDetails(){
               if(data.user) setOwner(data.user);
               if(data.auction) setAuctionData(data.auction);
               let isOwner = data.ownerKey === key;
-              // alert("Is Owner ?"+isOwner);
-              if(data.auction) setMinPrice(data.auction.minimumPrice);
               setIsOwner(isOwner);
-              if(data.auction.deployHash) setDeployHash(data.auction.deployHash);
-              if(data.auction.bids) setBids(data.auction.bids);
-              let bidValues = data.auction.bids.map(bid => bid.bid);
-              let highest = Math.max(...bidValues);
-              if(highest > 0) setHighestBid(highest);
+              if(data.auction){
+                setMinPrice(data.auction.minimumPrice);
+                if(data.auction.deployHash !== null) setDeployHash(data.auction.deployHash);
+                if(data.auction.bids) setBids(data.auction.bids);
+                let bidValues = data.auction.bids.map(bid => bid.bid);
+                let highest = Math.max(...bidValues);
+                if(highest > 0) setHighestBid(highest);
+              }              
+              
             }).catch((error) => {
               console.log("Error :",error);
               setNFT(error);
@@ -193,10 +195,13 @@ export default function NFTDetails(){
   useEffect(() => {
     if(!nft.inAuction) return;
 
-    const updatedTime = moment(auctionData.updatedAt);
+    const updatedTime = moment(auctionData.createdAt);
     const fiveMinutesLater = moment(updatedTime).add(5, 'minutes');
     const now = moment();
-
+    console.log(formatDate(updatedTime));
+    console.log(formatDate(fiveMinutesLater));
+    console.log(formatDate(now));
+    console.log(now.isAfter(fiveMinutesLater))
     if (now.isAfter(fiveMinutesLater)) {
       setVerifiable(true);
     }
@@ -257,9 +262,7 @@ export default function NFTDetails(){
     });
     const deploy = await prepareAuctionDeploy(key);
     if(!deploy) return;
-    // console.log("deploy",JSON.stringify(deploy));
     const deployJSON = DeployUtil.deployToJson(deploy);
-    // console.log(deployJSON)
     try {
       const res = await WalletService.sign(JSON.stringify(deployJSON), key);
       if (res.cancelled) {
@@ -1453,7 +1456,7 @@ export default function NFTDetails(){
                                     Create Bid Purse
                                   </a>
                                 )}
-                                {!nft.inAuction && isOwner && auctionData.status === "close" && (
+                                {!nft.inAuction && isOwner && (
                                   <a
                                     href="#"
                                     data-bs-toggle="modal"
@@ -1492,7 +1495,7 @@ export default function NFTDetails(){
                                         Verify Auction
                                       </a></>
                                     ) : (
-                                      <p>Please come back in a few minutes to confimr private auction status.</p>
+                                      <p>Please come back in a few minutes to confirm private auction status.</p>
                                     )}
                                   </div>
                                 )}
