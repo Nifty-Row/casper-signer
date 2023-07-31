@@ -68,8 +68,8 @@ export default function Home() {
             {/* <div className="gap-2x"></div> */}
             <div className="filter-container row g-gs">
               <div className="col-md-12 mb-4">
-                <h4 className="text-danger text-center">Please ensure your wallet is connected to view profile details</h4>
-                <center><a href="../../walletConnect" class="btn btn-primary btn-lg float-center mt-4 mb-4">Connect Wallet</a></center>
+                <h4 className="text-danger text-center">This page will be available in the next milestone</h4>
+                <center><a href="../../profile" class="btn btn-primary btn-lg float-center mt-4 mb-4">Go to profile</a></center>
 
               </div>
             </div>

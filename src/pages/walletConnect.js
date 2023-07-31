@@ -42,7 +42,7 @@ export default function walletConnect() {
         const response = await walletToUser(activeKey);
         if (response.ok) {
           const router = require("next/router").default;
-          // router.push("/");
+          router.push("/");
         } else {
           // Handle API call failure, e.g., show an error message to the user.
           console.error("API call failed:", response.statusText);
