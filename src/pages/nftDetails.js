@@ -4,8 +4,6 @@ import Image from "next/image";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import { Inter } from "next/font/google";
-import styles from "@/styles/Home.module.css";
-import Mint from "./components/mint";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import { Signer } from "casper-js-sdk";
