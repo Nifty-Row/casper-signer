@@ -37,9 +37,24 @@ const Header = () => {
   }, [signerConnected]);
 
   const handleDisconnect = async () => {
-    WalletService.disconnect().then(() => {
-      const router = require("next/router").default;
-      router.push("/");
+    swal({
+      title: "Disconnect Wallet",
+      text: "Are you sure you want to disconnect your wallet?",
+      icon: "warning",
+      dangerMode: true,
+      buttons: {
+        cancel: "No",
+        confirm: "Yes",
+      },
+    }).then((confirmed) => {
+      // If the user clicks the "Yes" button (confirmed is true), proceed with disconnection
+      if (confirmed) {
+        WalletService.disconnect().then(() => {
+          swal("Disconnected!", "Wallet Disconnected", "success");
+          const router = require("next/router").default;
+          router.push("/");
+        });
+      }
     });
   };
 
@@ -59,7 +74,7 @@ const Header = () => {
                 <img
                   src="../../casperlabslogo.png"
                   alt="logo"
-                  class="card-media-img flex-shrink-2 casper me-0 mb-3"
+                  className="card-media-img flex-shrink-2 casper me-0 mb-3"
                 />
                 <img
                   className="logo-light logo-img"
@@ -68,41 +83,39 @@ const Header = () => {
                 />
               </a>
             </div>
-            <div class="header-mobile-action">
-    <div class="header-search-mobile dropdown me-2">
-        <a class="icon-btn" href="#" data-bs-toggle="dropdown"><em class="ni ni-search"></em></a>
-        <div class="dropdown-menu dropdown-menu-end card-generic">
-            <div class="input-group">
-                <input type="search" class="form-control form-control-s1" placeholder="Search item here..." /><a href="#" class="btn btn-sm btn-outline-secondary"><em class="ni ni-search"></em></a>
+            <div className="header-mobile-action">
+                <div className="header-search-mobile dropdown me-2">
+                    <a className="icon-btn" href="#" data-bs-toggle="dropdown"><em className="ni ni-search"></em></a>
+                    <div className="dropdown-menu dropdown-menu-end card-generic">
+                        <div className="input-group">
+                            <input type="search" className="form-control form-control-s1" placeholder="Search item here..." /><a href="#" className="btn btn-sm btn-outline-secondary"><em className="ni ni-search"></em></a>
+                        </div>
+                    </div>
+                </div>
+                <div className="header-mobile-user-menu dropdown me-2">
+                    <button type="button" className="icon-btn" data-bs-toggle="dropdown" aria-expanded="false"><em className="ni ni-user"></em></button>
+                    <ul className="dropdown-menu card-generic card-generic-s3 dropdown-menu-end mt-2">
+                        <li><h6 className="dropdown-header">Hello !</h6></li>
+                        <li>
+                            <a className="dropdown-item card-generic-item" href="user/profile"><em className="ni ni-user me-2"></em> Profile</a>
+                        </li>
+                        <li>
+                            <a className="dropdown-item card-generic-item" href="user/dashboard"><em className="ni ni-dashboard me-2"></em> Dashboard</a>
+                        </li>
+                        
+                        <li>
+                            <a href="#" className="dropdown-item card-generic-item theme-toggler" title="Toggle Dark/Light mode"><em className="ni ni-moon me-2"></em> Dark Mode</a>
+                        </li>
+                        <li><hr className="dropdown-divider" /></li>
+                        <li>
+                            <a className="dropdown-item card-generic-item" href="index.html"><em className="ni ni-power me-2"></em> Logout</a>
+                        </li>
+                    </ul>
+                </div>
+                <div className="header-toggle">
+                    <button className="menu-toggler"><em className="menu-on menu-icon ni ni-menu"></em><em className="menu-off menu-icon ni ni-cross"></em></button>
+                </div>
             </div>
-        </div>
-    </div>
-    <div class="header-mobile-user-menu dropdown me-2">
-        <button type="button" class="icon-btn" data-bs-toggle="dropdown" aria-expanded="false"><em class="ni ni-user"></em></button>
-        <ul class="dropdown-menu card-generic card-generic-s3 dropdown-menu-end mt-2">
-            <li><h6 class="dropdown-header">Hello !</h6></li>
-            <li>
-                <a class="dropdown-item card-generic-item" href="user/profile"><em class="ni ni-user me-2"></em> Profile</a>
-            </li>
-            <li>
-                <a class="dropdown-item card-generic-item" href="user/dashboard"><em class="ni ni-dashboard me-2"></em> Dashboard</a>
-            </li>
-            
-            <li>
-                <a href="#" class="dropdown-item card-generic-item theme-toggler" title="Toggle Dark/Light mode"><em class="ni ni-moon me-2"></em> Dark Mode</a>
-            </li>
-            <li><hr class="dropdown-divider" /></li>
-            <li>
-                <a class="dropdown-item card-generic-item" href="index.html"><em class="ni ni-power me-2"></em> Logout</a>
-            </li>
-        </ul>
-    </div>
-    <div class="header-toggle">
-        <button class="menu-toggler"><em class="menu-on menu-icon ni ni-menu"></em><em class="menu-off menu-icon ni ni-cross"></em></button>
-    </div>
-</div>
-
-
             <div className="header-search-form">
               <input
                 type="search"
@@ -170,29 +183,32 @@ const Header = () => {
                 </li> */}
               </ul>
               {publicKey !== "" && (
-              <ul class="menu-btns menu-btns-2">
+              <ul className="menu-btns menu-btns-2">
                 
-                <li class="d-none d-lg-inline-block dropdown">
-                    <button type="button" class="icon-btn icon-btn-s1" data-bs-toggle="dropdown"><em class="ni ni-user"></em></button>
-                    <ul class="dropdown-menu card-generic card-generic-s3 dropdown-menu-end mt-2">
-                        <li><h6 class="dropdown-header">Hello !</h6></li>
+                <li className="d-none d-lg-inline-block dropdown">
+                    <button type="button" className="icon-btn icon-btn-s1" data-bs-toggle="dropdown"><em className="ni ni-user"></em></button>
+                    <ul className="dropdown-menu card-generic card-generic-s3 dropdown-menu-end mt-2">
+                        <li><h6 className="dropdown-header">Hello !</h6></li>
                         <li>
-                            <a class="dropdown-item card-generic-item" href="../user/profile"><em class="ni ni-user me-2"></em> Profile</a>
+                            <a className="dropdown-item card-generic-item" href="../user/profile"><em className="ni ni-user me-2"></em> Profile</a>
                         </li>
                         <li>
-                            <a class="dropdown-item card-generic-item" href="../../user/dashboard"><em class="ni ni-dashboard me-2"></em> Dashboard</a>
+                            <a className="dropdown-item card-generic-item" href="../../user/dashboard"><em className="ni ni-dashboard me-2"></em> Dashboard</a>
                         </li>
                        
+                        {/* <li>
+                            <a href="#" className="dropdown-item card-generic-item theme-toggler" title="Toggle Dark/Light mode"><em className="ni ni-moon me-2"></em> Dark Mode</a>
+                        </li> */}
+                        <li><hr className="dropdown-divider" /></li>
                         <li>
-                            <a href="#" class="dropdown-item card-generic-item theme-toggler" title="Toggle Dark/Light mode"><em class="ni ni-moon me-2"></em> Dark Mode</a>
+                          <a className="dropdown-item card-generic-item" onClick={handleDisconnect}>
+                            <em className="ni ni-power me-2"></em> Disconnect
+                          </a>
                         </li>
-                        <li><hr class="dropdown-divider" /></li>
-                        <li>
-                            <a class="dropdown-item card-generic-item" onclick={handleDisconnect}><em class="ni ni-power me-2"></em> Disconnect</a>
-                        </li>
+
                     </ul>
                 </li>
-                <li class="d-lg-none"><a href="../../WalletConnect" class="btn btn-lg btn-dark">Connect Wallet</a></li>
+                <li className="d-lg-none"><a href="../../WalletConnect" className="btn btn-lg btn-dark">Connect Wallet</a></li>
               </ul>)}
             </nav>
             <div className="header-overlay"></div>

@@ -5,25 +5,16 @@ import Head from "next/head";
 import Image from "next/image";
 import { useState, useEffect } from "react";
 import { Inter } from "next/font/google";
-import styles from "@/styles/Home.module.css";
-import Mint from "./components/mint";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
-import { Signer } from "casper-js-sdk";
 import { WalletService } from '../utils/WalletServices';
-import {
-  checkConnection,
-  getActiveKeyFromSigner,
-  connectCasperSigner,
-  connectCasperWallet,
-} from "../utils/CasperUtils";
 import swal from "sweetalert";
+import axios from "axios";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export default function walletConnect() {
 
-  console.log("Service : ",WalletService);
   const [signerConnected, setSignerConnected] = useState(false);
   const [publicKey, setPublicKey] = useState(null);
   const [signerLocked, setSignerLocked] = useState(true);
@@ -38,29 +29,30 @@ export default function walletConnect() {
     ? ` ${publicKey.slice(0, 6)}...${publicKey.slice(-6)}`
     : "Connect Wallet";
 
-  // const checkConnection = async () => {
-  //   try {
-  //     return await Signer.isConnected();
-  //   } catch (error) {
-  //     if (
-  //       error.message ===
-  //       "Content script not found - make sure you have the Signer installed and refresh the page before trying again."
-  //     ) {
-  //       const installUrl = "https://www.casperwallet.io/";
-  //       window.open(installUrl, "_blank");
-  //       // You can also display a message to the user indicating that they need to install the wallet
-  //     } else {
-  //       console.error("Failed to connect to the signer:", error.message);
-  //     }
-  //   }
-  // };
 
-  const connectCasperWallet = async () => {
-    WalletService.connect().then(()=>{
-      const router = require("next/router").default;
-      router.push("/");
-    });
-  }
+    const connectCasperWallet = async () => {
+      try {
+        await WalletService.connect();
+        let activeKey =  await WalletService.getActivePublicKey();
+        if (!activeKey) {
+          swal('Error', 'Could not connect Wallet', 'warning');
+          return false;
+        }
+
+        const response = await walletToUser(activeKey);
+        if (response.ok) {
+          const router = require("next/router").default;
+          // router.push("/");
+        } else {
+          // Handle API call failure, e.g., show an error message to the user.
+          console.error("API call failed:", response.statusText);
+        }
+      } catch (error) {
+        console.error("Error making API call:", error);
+        // Handle the error, e.g., show an error message to the user.
+      }
+    };
+    
 
   useEffect(() => {
     setTimeout(async () => {
@@ -86,20 +78,37 @@ export default function walletConnect() {
     checkSignerConnection();
   }, [signerConnected]);
 
+  async function  walletToUser(key) {
+    try {
+      const response = await axios.post("https://shark-app-9kl9z.ondigitalocean.app/api/user/addNewWallet", {
+        publicKey: key,
+      });
+      if (response.status === 200) {
+        return response.data.message; // Return a success message or data if needed
+      } else {
+        throw new Error("Failed to add new user to wallet.");
+      }
+    } catch (error) {
+      // Handle API call failure, e.g., show an error message to the user. to do
+      console.error("Error adding new user to wallet:", error.message);
+      throw error; // Rethrow the error to handle it in the calling function if needed
+    }
+  }
+
   return (
     <>
       <Header />
-      <div class="hero-wrap hero-wrap-4">
-        <div class="hero-wrap sub-header">
-          <div class="container">
-            <div class="hero-content text-center py-0">
-              <h1 class="hero-title">Connect Wallet</h1>
+      <div className="hero-wrap hero-wrap-4">
+        <div className="hero-wrap sub-header">
+          <div className="container">
+            <div className="hero-content text-center py-0">
+              <h1 className="hero-title">Connect Wallet</h1>
               <nav aria-label="breadcrumb">
-                <ol class="breadcrumb breadcrumb-s1 justify-content-center mt-3 mb-0">
-                  <li class="breadcrumb-item">
+                <ol className="breadcrumb breadcrumb-s1 justify-content-center mt-3 mb-0">
+                  <li className="breadcrumb-item">
                     <a href="../../">Home</a>
                   </li>
-                  <li class="breadcrumb-item active" aria-current="page">
+                  <li className="breadcrumb-item active" aria-current="page">
                     Wallet
                   </li>
                 </ol>
@@ -108,43 +117,27 @@ export default function walletConnect() {
           </div>
         </div>
       </div>
-      <section class="wallet-section section-space-b">
-        <div class="container">
-          <div class="row g-gs">
-            {/* <div class="col-sm-12 col-md-12 col-xl-6">
-              <a
-                href="#"
-                onClick={connectCasperSigner}
-                class="card-media card-full card-media-s1 flex-column justify-content-center flex-wrap p-4"
-              >
-                <img
-                  src="../../casperSigner-icon.svg"
-                  alt="logo"
-                  class="card-media-img flex-shrink-0 me-0 mb-3"
-                />
-                <h6 class="mb-3">Casper Signer</h6>
-                <span class="btn btn-sm btn-outline-secondary">Connect</span>
-              </a>
-            </div> */}
-            <div class="col-sm-12 col-md-12 col-xl-12">
+      <section className="wallet-section section-space-b">
+        <div className="container">
+          <div className="row g-gs">
+            <div className="col-sm-12 col-md-12 col-xl-12">
               <a
                 href="#"
                 onClick={connectCasperWallet}
-                class="card-media card-full card-media-s1 flex-column justify-content-center flex-wrap p-4"
+                className="card-media card-full card-media-s1 flex-column justify-content-center flex-wrap p-4"
               >
                 <img
                   src="../../cspr-live-full.svg"
                   alt="logo"
-                  class="card-media-img flex-shrink-0 me-0 mb-3"
+                  className="card-media-img flex-shrink-0 me-0 mb-3"
                 />
-                <h6 class="mb-3">Casper Wallet</h6>
-                <span class="btn btn-sm btn-outline-secondary">{buttonLabel}</span>
+                <h6 className="mb-3">Casper Wallet</h6>
+                <span className="btn btn-sm btn-outline-secondary">{buttonLabel}</span>
               </a>
             </div>
           </div>
         </div>
       </section>
-      {/* <Mint /> */}
       <Footer />
     </>
   );
