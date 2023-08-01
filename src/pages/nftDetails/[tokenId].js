@@ -1486,6 +1486,7 @@ export default function NFTDetails(){
                                 )}
                                 {nft.inAuction && isOwner && !auctionData.contractHash && !auctionData.approve && (
                                   <div>
+
                                     {verifiable ? (
                                       <><p>You can now verify private Auction Status.</p><a
                                         href="#"
@@ -1495,7 +1496,14 @@ export default function NFTDetails(){
                                         Verify Auction
                                       </a></>
                                     ) : (
-                                      <p>Please come back in a few minutes to confirm private auction status.</p>
+                                      <><p>Please come back in a few minutes to confirm private auction status.</p><a
+                                      href="#"
+                                      onClick={verifyAuction}
+                                      class="btn btn-primary bg-dark-dim d-block"
+                                      disabled
+                                    >
+                                      Verify Auction
+                                    </a></>
                                     )}
                                   </div>
                                 )}
