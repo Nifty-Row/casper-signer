@@ -351,7 +351,7 @@ export default function NFTDetails(){
   const prepareAuctionDeploy = async (key) => {
     const Key = CLPublicKey.fromHex(key);
     const caskNFTPackageHash =
-      "9c24caddcce2d5ef16ff567da3db9b5d235aa96b39b2ebb127f1657cbf5d6115"; // nft token hash //cvcv_contract_package_hash
+      "6cde257852d7fcb0dd6b86dd3af612f5d3bf0f333ee16e69e2cde2954fb3bad2"; // nft token hash //cvcv_contract_package_hash
 
     const bufferedHash = Uint8Array.from(Buffer.from(caskNFTPackageHash, "hex"));
 
