@@ -1404,7 +1404,7 @@ export default function NFTDetails(){
                         <div class="card-media-body">
                             {countdown !== "Auction has started" &&  countdown !== "This asset is not in auction" ?(
                               <div> 
-                                {!auctionData.contractHash  ?(
+                                {!auctionData.contractHash && isOwner  ?(
                                   <h4 class="text-danger">Auction not Verified</h4>
                                 ):(
                                   null
@@ -1493,14 +1493,14 @@ export default function NFTDetails(){
                                         onClick={verifyAuction}
                                         class="btn btn-info bg-dark-dim d-block"
                                       >
-                                        Verify Auction
+                                        Verify Auction Status
                                       </a></>
                                     ) : (
                                       <><p>Please come back in a few minutes to confirm private auction status.</p><a
                                       href="#"
-                                      onClick={verifyAuction}
-                                      class="btn btn-primary bg-dark-dim d-block"
-                                      disabled
+                                      onClick={() => swal("Please come back in a few minutes to confirm private auction status.")}
+                                      class="btn btn-primary text-white d-block"
+                                      disabled="disabled"
                                     >
                                       Verify Auction
                                     </a></>

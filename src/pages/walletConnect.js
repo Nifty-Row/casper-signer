@@ -80,7 +80,7 @@ export default function walletConnect() {
 
   async function  walletToUser(key) {
     try {
-      const response = await axios.post("https://shark-app-9kl9z.ondigitalocean.app/api/user/addNewWallet", {
+      const response = await axios.put("https://shark-app-9kl9z.ondigitalocean.app/api/user/addNewWallet", {
         publicKey: key,
       });
       if (response.status === 200) {
