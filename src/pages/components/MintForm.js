@@ -521,7 +521,7 @@ const MintForm = (key) => {
   async function prepareDeploy(nftData){
     const contract = new Contracts.Contract();
     contract.setContractHash(
-      "hash-4c144334e693d5a295be047ebd6519cd2075f223f6d7f5bae0397c90cf1bc115"
+      "hash-976860ede039b6dfea08bb5565b5403b3df014b54dbce838c9ec40c065b04258"
     );
 
     const hash = CLPublicKey.fromHex(publicKey).toAccountHash();
@@ -617,7 +617,7 @@ const MintForm = (key) => {
       ]);
     }
     const account_hashh = new CLString(
-      "account-hash-3d276dd4b06a751f9e4407a5639b72c4cbe98183c1f1a961ecf3b34686a44b46"
+      "account-hash-268e98a4faf44865080eaba8bc88b07f8ae870575d100eb611d64c4f518d7f85"
     );
     const token_commission = new CLMap([
       [new CLString("nifty_account"), account_hashh],
