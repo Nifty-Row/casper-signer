@@ -660,7 +660,7 @@ const MintForm = (key) => {
             {!canMint ?(
               <><div className="col-md-12" >
                 <h4 className="text-danger text-center">You do not have access to mint an NFT</h4>
-                <center><button onClick={grantMinter(publicKey)}  class="btn btn-primary btn-lg float-center mt-4 mb-4">Request Mint Access</button></center>
+                <center><button onClick={() => grantMinter(publicKey)}  class="btn btn-primary btn-lg float-center mt-4 mb-4">Request Mint Access</button></center>
               </div> </>
             ) : (
               <>
