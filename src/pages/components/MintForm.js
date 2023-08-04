@@ -117,6 +117,7 @@ const MintForm = (key) => {
   }
   
   async function grantMinter(publicKey) {
+    if(canMint) return ;
     swal({
       title: "Submitting...",
       text: "Please wait while we grant you access to mint NFTs.",
@@ -141,11 +142,12 @@ const MintForm = (key) => {
           "success"
         );
       } else {
-        console.error("Error:", response.data);
-        swal("Error", response.data, "error");
+        console.error("Error:", response.data.response);
+        swal("Error", JSON.stringify(response.data), "error");
       }
     } catch (error) {
       console.error("Error:", error);
+      swal("Error", JSON.stringify(error.response.data), "error");
     }
   }
   
@@ -448,7 +450,7 @@ const MintForm = (key) => {
        
       }
     } catch (err) {
-      alert("Error: " + err);
+      console.log("Error: " + err);
     }
 
 
@@ -519,7 +521,7 @@ const MintForm = (key) => {
   async function prepareDeploy(nftData){
     const contract = new Contracts.Contract();
     contract.setContractHash(
-      "hash-4c144334e693d5a295be047ebd6519cd2075f223f6d7f5bae0397c90cf1bc115"
+      "hash-976860ede039b6dfea08bb5565b5403b3df014b54dbce838c9ec40c065b04258"
     );
 
     const hash = CLPublicKey.fromHex(publicKey).toAccountHash();
@@ -615,7 +617,7 @@ const MintForm = (key) => {
       ]);
     }
     const account_hashh = new CLString(
-      "account-hash-3d276dd4b06a751f9e4407a5639b72c4cbe98183c1f1a961ecf3b34686a44b46"
+      "account-hash-268e98a4faf44865080eaba8bc88b07f8ae870575d100eb611d64c4f518d7f85"
     );
     const token_commission = new CLMap([
       [new CLString("nifty_account"), account_hashh],
@@ -655,318 +657,325 @@ const MintForm = (key) => {
       <section>
         <div class="container mt-4">
           <div class="row mt-4">
-            <div class="col-lg-12 mx-auto">
-              <form ref={formRef} class="vstack gap-4" onSubmit={handleSubmit}>
-                <div class="card ">
-                  <div class="card-header">
-                    <h3 class="mb-4"><center>NFT Details</center></h3>
+            {!canMint ?(
+              <><div className="col-md-12" >
+                <h4 className="text-danger text-center">You do not have access to mint an NFT</h4>
+                <center><button onClick={() => grantMinter(publicKey)}  class="btn btn-primary btn-lg float-center mt-4 mb-4">Request Mint Access</button></center>
+              </div> </>
+            ) : (
+              <>
+              <div class="col-lg-12 mx-auto">
+                <form ref={formRef} class="vstack gap-4" onSubmit={handleSubmit}>
+                  <div class="card ">
+                    <div class="card-header">
+                      <h3 class="mb-4"><center>NFT Details</center></h3>
+                    </div>
                   </div>
-                </div>
-                <div class="card-body shadow mb-4">
-                  <div class="row g-3 mb-4 p-12">
-                    <div class="col-md-6">
-                      <label class="form-label text-dark text-bold">
-                        Asset Category *
-                      </label>
-                      <div class="d-sm-flex">
-                        <div class="form-check radio-bg-light me-4">
-                          <input
-                            class="form-check-input"
-                            name="category"
-                            value="Artwork"
-                            type="radio"
-                            id="category1"
-                            checked={category === "Artwork"}
-                            onChange={(e) => setCategory(e.target.value)}
-                          />
-                          <label class="form-check-label" for="category1">
-                            Artwork
-                          </label>
-                        </div>
-                        <div class="form-check radio-bg-light me-4">
-                          <input
-                            class="form-check-input"
-                            type="radio"
-                            name="category"
-                            value="Music"
-                            id="category2"
-                            checked={category === "Music"}
-                            onChange={(e) => setCategory(e.target.value)}
-                          />
-                          <label class="form-check-label" for="category2">
-                            Music
-                          </label>
-                        </div>
-                        <div class="form-check radio-bg-light me-4">
-                          <input
-                            class="form-check-input"
-                            type="radio"
-                            name="category"
-                            value="Movie"
-                            id="category3"
-                            checked={category === "Movie & Animation"}
-                            onChange={(e) => setCategory(e.target.value)}
-                          />
-                          <label class="form-check-label" for="category3">
-                            Movies & Animations
-                          </label>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="col-md-6">
-                      <label class="form-label text-dark text-bold">
-                        Asset Type *
-                      </label>
-                      <div class="d-sm-flex">
-                        <div class="form-check radio-bg-light me-4">
-                          <input
-                            class="form-check-input"
-                            type="radio"
-                            name="assetType"
-                            id="assetType1"
-                            value="Digital"
-                            checked={assetType === "Digital"}
-                            onChange={(e) => setAssetType(e.target.value)}
-                          />
-                          <label class="form-check-label" for="assetType1">
-                            Digital Asset
-                          </label>
-                        </div>
-                        <div class="form-check radio-bg-light me-4">
-                          <input
-                            class="form-check-input"
-                            type="radio"
-                            name="assetType"
-                            id="assetType2"
-                            value="Physical"
-                            checked={assetType === "Physical"}
-                            onChange={(e) => setAssetType(e.target.value)}
-                          />
-                          <label class="form-check-label" for="assetType2">
-                            Physical Asset
-                          </label>
+                  <div class="card-body shadow mb-4">
+                    <div class="row g-3 mb-4 p-12">
+                      <div class="col-md-6">
+                        <label class="form-label text-dark text-bold">
+                          Asset Category *
+                        </label>
+                        <div class="d-sm-flex">
+                          <div class="form-check radio-bg-light me-4">
+                            <input
+                              class="form-check-input"
+                              name="category"
+                              value="Artwork"
+                              type="radio"
+                              id="category1"
+                              checked={category === "Artwork"}
+                              onChange={(e) => setCategory(e.target.value)}
+                            />
+                            <label class="form-check-label" for="category1">
+                              Artwork
+                            </label>
+                          </div>
+                          <div class="form-check radio-bg-light me-4">
+                            <input
+                              class="form-check-input"
+                              type="radio"
+                              name="category"
+                              value="Music"
+                              id="category2"
+                              checked={category === "Music"}
+                              onChange={(e) => setCategory(e.target.value)}
+                            />
+                            <label class="form-check-label" for="category2">
+                              Music
+                            </label>
+                          </div>
+                          <div class="form-check radio-bg-light me-4">
+                            <input
+                              class="form-check-input"
+                              type="radio"
+                              name="category"
+                              value="Movie"
+                              id="category3"
+                              checked={category === "Movie & Animation"}
+                              onChange={(e) => setCategory(e.target.value)}
+                            />
+                            <label class="form-check-label" for="category3">
+                              Movies & Animations
+                            </label>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                    <div class="col-md-6">
-                      <div class="card ">
-                        {/* <div class="card-header border-bottom">
-                                            <h5 class="mb-0">Upload Files</h5>
-                                        </div> */}
-                        <div class="card-body">
-                          <div class="row g-3">
-                            {category === "Artwork" && (
-                              <div class="col-12">
-                                <label class="form-label">
-                                  Image upload for artwork:
-                                </label>
-                                <input
-                                  class="form-control"
-                                  type="file"
-                                  id="artwork-image"
-                                  onChange={(e) =>
-                                    setArtworkFile(e.target.files[0])
-                                  }
-                                  accept="image/gif, image/jpeg, image/png"
-                                />
-                                {/* <p class="small mb-0 mt-2"><b>Note:</b> Only JPG, JPEG, and PNG. Our suggested dimensions are 600px * 450px. The larger image will be cropped to 4:3 to fit our thumbnails/previews.</p> */}
-                              </div>
-                            )}
-                            {category === "Music" && (
-                              <>
+                      <div class="col-md-6">
+                        <label class="form-label text-dark text-bold">
+                          Asset Type *
+                        </label>
+                        <div class="d-sm-flex">
+                          <div class="form-check radio-bg-light me-4">
+                            <input
+                              class="form-check-input"
+                              type="radio"
+                              name="assetType"
+                              id="assetType1"
+                              value="Digital"
+                              checked={assetType === "Digital"}
+                              onChange={(e) => setAssetType(e.target.value)}
+                            />
+                            <label class="form-check-label" for="assetType1">
+                              Digital Asset
+                            </label>
+                          </div>
+                          <div class="form-check radio-bg-light me-4">
+                            <input
+                              class="form-check-input"
+                              type="radio"
+                              name="assetType"
+                              id="assetType2"
+                              value="Physical"
+                              checked={assetType === "Physical"}
+                              onChange={(e) => setAssetType(e.target.value)}
+                            />
+                            <label class="form-check-label" for="assetType2">
+                              Physical Asset
+                            </label>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-md-6">
+                        <div class="card ">
+                          {/* <div class="card-header border-bottom">
+                                              <h5 class="mb-0">Upload Files</h5>
+                                          </div> */}
+                          <div class="card-body">
+                            <div class="row g-3">
+                              {category === "Artwork" && (
                                 <div class="col-12">
                                   <label class="form-label">
-                                    Audio Thumbnail Image:
+                                    Image upload for artwork:
                                   </label>
                                   <input
                                     class="form-control"
                                     type="file"
-                                    id="thumbnail-image"
-                                    onChange={(e) =>
-                                      setMusicThumbnail(e.target.files[0])
-                                    }
-                                    accept="image/gif, image/jpeg, image/png"
-                                  />
-                                  {/* <p class="small mb-0 mt-2"><b>Note:</b> Only JPG, JPEG, and PNG. Our suggested dimensions are 600px * 450px. The larger image will be cropped to 4:3 to fit our thumbnails/previews.</p> */}
-                                </div>
-                                <div class="col-12">
-                                  <label class="form-label">
-                                    Sample audio file:
-                                  </label>
-                                  <input
-                                    class="form-control"
-                                    type="file"
-                                    id="sample-audio"
-                                    onChange={(e) =>
-                                      setMusicSample(e.target.files[0])
-                                    }
-                                    accept="audio/wav, audio/mp3"
-                                  />
-                                  <p class="small mb-0 mt-2">
-                                    <b>Note:</b> Only .MP3, .WAV, and .MP4
-                                    accepted.{" "}
-                                  </p>
-                                </div>
-                              </>
-                            )}
-                            {category === "Movie & Animation" && (
-                              <>
-                                <div class="col-12">
-                                  <label class="form-label">
-                                    Video Thumbnail Image:
-                                  </label>
-                                  <input
-                                    class="form-control"
-                                    type="file"
-                                    id="movie-thumbnail-image"
-                                    onChange={(e) =>
-                                      setMovieThumbnail(e.target.files[0])
-                                    }
-                                    accept="image/gif, image/jpeg, image/png"
-                                  />
-                                  {/* <p class="small mb-0 mt-2"><b>Note:</b> Only JPG, JPEG, and PNG. Our suggested dimensions are 600px * 450px. The larger image will be cropped to 4:3 to fit our thumbnails/previews.</p> */}
-                                </div>
-                                <div class="col-12">
-                                  <label class="form-label">
-                                    Sample Video file:
-                                  </label>
-                                  <input
-                                    class="form-control"
-                                    type="file"
-                                    name="my-image"
                                     id="artwork-image"
                                     onChange={(e) =>
-                                      setMovieSample(e.target.files[0])
-                                    }
-                                    accept="video/mp4, video/mov, video/webm"
-                                  />
-                                  <p class="small mb-0 mt-2">
-                                    <b>Note:</b> Only .MP4, .MOV, and .WEBM
-                                    accepted.{" "}
-                                  </p>
-                                </div>
-                              </>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="col-md-6">
-                      <div class="card ">
-                        <div class="card-body">
-                          <div class="row g-3">
-                            {assetType === "Digital" && (
-                              <div class="col-12"></div>
-                            )}
-                            {assetType === "Physical" && (
-                              <>
-                                <div class="col-6">
-                                  <label class="form-label">Artist Name:</label>
-                                  <input
-                                    class="form-control"
-                                    type="text"
-                                    id="thumbnail-image"
-                                    onChange={(e) =>
-                                      setArtistName(e.target.value)
+                                      setArtworkFile(e.target.files[0])
                                     }
                                     accept="image/gif, image/jpeg, image/png"
                                   />
                                   {/* <p class="small mb-0 mt-2"><b>Note:</b> Only JPG, JPEG, and PNG. Our suggested dimensions are 600px * 450px. The larger image will be cropped to 4:3 to fit our thumbnails/previews.</p> */}
                                 </div>
-                                <div class="col-6">
-                                  <label class="form-label">Medium:</label>
-                                  <input
-                                    class="form-control"
-                                    type="text"
-                                    value={medium}
-                                    onChange={(e) => setMedium(e.target.value)}
-                                  />
-                                </div>
-                                <div class="col-6">
-                                  <label class="form-label">
-                                    Production Year:
-                                  </label>
-                                  <input
-                                    class="form-control"
-                                    type="text"
-                                    value={year}
-                                    onChange={(e) => setYear(e.target.value)}
-                                  />
-                                </div>
-                                <div class="col-6">
-                                  <label class="form-label">Asset Size:</label>
-                                  <input
-                                    class="form-control"
-                                    type="text"
-                                    value={size}
-                                    onChange={(e) => setSize(e.target.value)}
-                                  />
-                                </div>
-                              </>
-                            )}
+                              )}
+                              {category === "Music" && (
+                                <>
+                                  <div class="col-12">
+                                    <label class="form-label">
+                                      Audio Thumbnail Image:
+                                    </label>
+                                    <input
+                                      class="form-control"
+                                      type="file"
+                                      id="thumbnail-image"
+                                      onChange={(e) =>
+                                        setMusicThumbnail(e.target.files[0])
+                                      }
+                                      accept="image/gif, image/jpeg, image/png"
+                                    />
+                                    {/* <p class="small mb-0 mt-2"><b>Note:</b> Only JPG, JPEG, and PNG. Our suggested dimensions are 600px * 450px. The larger image will be cropped to 4:3 to fit our thumbnails/previews.</p> */}
+                                  </div>
+                                  <div class="col-12">
+                                    <label class="form-label">
+                                      Sample audio file:
+                                    </label>
+                                    <input
+                                      class="form-control"
+                                      type="file"
+                                      id="sample-audio"
+                                      onChange={(e) =>
+                                        setMusicSample(e.target.files[0])
+                                      }
+                                      accept="audio/wav, audio/mp3"
+                                    />
+                                    <p class="small mb-0 mt-2">
+                                      <b>Note:</b> Only .MP3, .WAV, and .MP4
+                                      accepted.{" "}
+                                    </p>
+                                  </div>
+                                </>
+                              )}
+                              {category === "Movie & Animation" && (
+                                <>
+                                  <div class="col-12">
+                                    <label class="form-label">
+                                      Video Thumbnail Image:
+                                    </label>
+                                    <input
+                                      class="form-control"
+                                      type="file"
+                                      id="movie-thumbnail-image"
+                                      onChange={(e) =>
+                                        setMovieThumbnail(e.target.files[0])
+                                      }
+                                      accept="image/gif, image/jpeg, image/png"
+                                    />
+                                    {/* <p class="small mb-0 mt-2"><b>Note:</b> Only JPG, JPEG, and PNG. Our suggested dimensions are 600px * 450px. The larger image will be cropped to 4:3 to fit our thumbnails/previews.</p> */}
+                                  </div>
+                                  <div class="col-12">
+                                    <label class="form-label">
+                                      Sample Video file:
+                                    </label>
+                                    <input
+                                      class="form-control"
+                                      type="file"
+                                      name="my-image"
+                                      id="artwork-image"
+                                      onChange={(e) =>
+                                        setMovieSample(e.target.files[0])
+                                      }
+                                      accept="video/mp4, video/mov, video/webm"
+                                    />
+                                    <p class="small mb-0 mt-2">
+                                      <b>Note:</b> Only .MP4, .MOV, and .WEBM
+                                      accepted.{" "}
+                                    </p>
+                                  </div>
+                                </>
+                              )}
+                            </div>
                           </div>
                         </div>
                       </div>
-                    </div>
+                      <div class="col-md-6">
+                        <div class="card ">
+                          <div class="card-body">
+                            <div class="row g-3">
+                              {assetType === "Digital" && (
+                                <div class="col-12"></div>
+                              )}
+                              {assetType === "Physical" && (
+                                <>
+                                  <div class="col-6">
+                                    <label class="form-label">Artist Name:</label>
+                                    <input
+                                      class="form-control"
+                                      type="text"
+                                      id="thumbnail-image"
+                                      onChange={(e) =>
+                                        setArtistName(e.target.value)
+                                      }
+                                      accept="image/gif, image/jpeg, image/png"
+                                    />
+                                    {/* <p class="small mb-0 mt-2"><b>Note:</b> Only JPG, JPEG, and PNG. Our suggested dimensions are 600px * 450px. The larger image will be cropped to 4:3 to fit our thumbnails/previews.</p> */}
+                                  </div>
+                                  <div class="col-6">
+                                    <label class="form-label">Medium:</label>
+                                    <input
+                                      class="form-control"
+                                      type="text"
+                                      value={medium}
+                                      onChange={(e) => setMedium(e.target.value)}
+                                    />
+                                  </div>
+                                  <div class="col-6">
+                                    <label class="form-label">
+                                      Production Year:
+                                    </label>
+                                    <input
+                                      class="form-control"
+                                      type="text"
+                                      value={year}
+                                      onChange={(e) => setYear(e.target.value)}
+                                    />
+                                  </div>
+                                  <div class="col-6">
+                                    <label class="form-label">Asset Size:</label>
+                                    <input
+                                      class="form-control"
+                                      type="text"
+                                      value={size}
+                                      onChange={(e) => setSize(e.target.value)}
+                                    />
+                                  </div>
+                                </>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
 
-                    <div class="col-md-6">
-                      <label class="form-label text-dark text-bold">
-                        Asset Name/Title
-                      </label>
-                      <input
-                        class="form-control"
-                        type="text"
-                        placeholder="Enter Asset name"
-                        value={nftName}
-                        onChange={(e) => setNftName(e.target.value)}
-                      />
-                    </div>
-                    <div class="col-md-6">
-                      <label class="form-label text-dark text-bold">
-                        Asset Symbol
-                      </label>
-                      <input
-                        class="form-control"
-                        type="text"
-                        placeholder="Enter Asset Symbol E.g NGH"
-                        value={assetSymbol}
-                        onChange={(e) => setAssetSymbol(e.target.value)}
-                      />
-                    </div>
-                    <div class="col-md-12">
-                      <label class="form-label text-dark text-bold">
-                        Asset Description
-                      </label>
-                      <textarea
-                        class="form-control"
-                        rows="6"
-                        placeholder="Enter Asset Description"
-                        value={nftDescription}
-                        onChange={(e) => setNftDescription(e.target.value)}
-                      ></textarea>
-                    </div>
-                    <div class="col-md-6">
-                      <label class="form-label text-dark text-bold">
-                        Asset Social Link
-                      </label>
-                      <input
-                        class="form-control"
-                        type="text"
-                        placeholder="Enter Social Link"
-                        value={socialMediaLink}
-                        onChange={(e) => setSocialMediaLink(e.target.value)}
-                      />
+                      <div class="col-md-6">
+                        <label class="form-label text-dark text-bold">
+                          Asset Name/Title
+                        </label>
+                        <input
+                          class="form-control"
+                          type="text"
+                          placeholder="Enter Asset name"
+                          value={nftName}
+                          onChange={(e) => setNftName(e.target.value)}
+                        />
+                      </div>
+                      <div class="col-md-6">
+                        <label class="form-label text-dark text-bold">
+                          Asset Symbol
+                        </label>
+                        <input
+                          class="form-control"
+                          type="text"
+                          placeholder="Enter Asset Symbol E.g NGH"
+                          value={assetSymbol}
+                          onChange={(e) => setAssetSymbol(e.target.value)}
+                        />
+                      </div>
+                      <div class="col-md-12">
+                        <label class="form-label text-dark text-bold">
+                          Asset Description
+                        </label>
+                        <textarea
+                          class="form-control"
+                          rows="6"
+                          placeholder="Enter Asset Description"
+                          value={nftDescription}
+                          onChange={(e) => setNftDescription(e.target.value)}
+                        ></textarea>
+                      </div>
+                      <div class="col-md-6">
+                        <label class="form-label text-dark text-bold">
+                          Asset Social Link
+                        </label>
+                        <input
+                          class="form-control"
+                          type="text"
+                          placeholder="Enter Social Link"
+                          value={socialMediaLink}
+                          onChange={(e) => setSocialMediaLink(e.target.value)}
+                        />
+                      </div>
                     </div>
                   </div>
-                </div>
-                <div class="text-end mb-4">
-                  <button class="btn btn-success mb-4 text-white" >Proceed</button>
-                </div>
-              </form>
-            </div>
-            <div class="col-lg-4">
-
-            </div>
+                  <div class="text-end mb-4">
+                    <button class="btn btn-success mb-4 text-white" >Proceed</button>
+                  </div>
+                </form>
+              </div>
+              <div class="col-lg-4">
+              </div></>
+            )}
           </div>
         </div>
       </section>

@@ -5,14 +5,10 @@ import Head from "next/head";
 import Image from "next/image";
 
 import { Inter } from "next/font/google";
-import styles from "@/styles/Home.module.css";
-import Mint from "./components/mint";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import MintForm from "./components/MintForm";
-import { Signer } from "casper-js-sdk";
 import { useEffect, useState } from "react";
-import { useRouter } from "next/router";
 import { WalletService } from "../utils/WalletServices";
 
 const inter = Inter({ subsets: ["latin"] });
