@@ -81,7 +81,7 @@ export default function walletConnect() {
         publicKey: key,
       });
       if (response.status === 200) {
-        return response.data.message; // Return a success message or data if needed
+        return response.data; // Return a success message or data if needed
       } else {
         swal("Error","Failed to add new wallet.","error");
         return false;

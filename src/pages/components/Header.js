@@ -2,7 +2,7 @@
 /* eslint-disable @next/next/no-img-element */
 import { useEffect, useState } from "react";
 import {WalletService} from "../../utils/WalletServices";
-import {truncateKey} from "../../utils/generalUtils";
+import {truncateKey, handleRefresh} from "../../utils/generalUtils";
 import swal from "sweetalert";
 import { Signer } from "casper-js-sdk";
 
@@ -51,8 +51,9 @@ const Header = () => {
       if (confirmed) {
         WalletService.disconnect().then(() => {
           swal("Disconnected!", "Wallet Disconnected", "success");
-          const router = require("next/router").default;
-          router.push("/");
+          // const router = require("next/router").default;
+          // router.push("/");
+          handleRefresh();
         });
       }
     });

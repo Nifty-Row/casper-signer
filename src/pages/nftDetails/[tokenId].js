@@ -1733,7 +1733,17 @@ export default function NFTDetails(){
                       <td>{truncateKey(bid.bidder)} @{bid.user.username}</td>
                       <td>{bid.bid} CSPR</td>
                       <td>{formatDate(bid.createdAt)}</td>
-                      <td><a class="btn btn-info btn-sm" href={`https://testnet.cspr.live/deploy/${bid.user.purse.deployHash}`} target="_blank">Verify</a></td>
+                      <td>
+                        {bid.user?.purse?.deployHash && (
+                          <a
+                            className="btn btn-info btn-sm"
+                            href={`https://testnet.cspr.live/deploy/${bid.user.purse.deployHash}`}
+                            target="_blank"
+                          >
+                            Verify
+                          </a>
+                        )}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
