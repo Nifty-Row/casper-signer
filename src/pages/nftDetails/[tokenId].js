@@ -8,6 +8,7 @@ import axios from "axios";
 import { useRouter } from "next/router";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
+import Copier from "../components/Copier";
 import { Some, None } from "ts-results";
 import moment from "moment";
 
@@ -1271,12 +1272,7 @@ export default function NFTDetails(){
                       <div class="author-hero-content me-3">
                           <h4 class="hero-author-title mb-1 text-white">{owner.fullName}</h4>
                           <p class="hero-author-username mb-1 text-white">@{owner.username}</p>
-                          <div class="d-flex align-items-center">
-                              <input type="text" class="copy-input text-white" value={truncateKey(owner.ownerKey)} id="copy-input" readonly />
-                              <div class="tooltip-s1">
-                                  <button data-clipboard-target="#copy-input" class="copy-text text-white ms-2" type="button"><span class="tooltip-s1-text tooltip-text">Copy</span><em class="ni ni-copy"></em></button>
-                              </div>
-                          </div>
+                          <Copier text={owner.publicKey} />
                       </div>
                       <div class="hero-action-wrap d-flex align-items-center my-2">
                           {/* <button type="button" class="btn btn-light">Follow</button>

@@ -9,6 +9,7 @@ import NFTCard from "./components/NFTCard";
 
 import { WalletService } from "@/utils/WalletServices";
 import { truncateKey } from "@/utils/generalUtils";
+import Copier from "./components/Copier";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -83,12 +84,7 @@ export default function Home() {
                       <div class="author-hero-content me-3">
                           <h4 class="hero-author-title mb-1 text-white">{user.fullName}</h4>
                           <p class="hero-author-username mb-1 text-white">@{user.username}</p>
-                          <div class="d-flex align-items-center">
-                              <input type="text" class="copy-input text-white" value={truncateKey(activeKey)} id="copy-input" readonly />
-                              <div class="tooltip-s1">
-                                  <button data-clipboard-target="#copy-input" class="copy-text text-white ms-2" type="button"><span class="tooltip-s1-text tooltip-text">Copy</span><em class="ni ni-copy"></em></button>
-                              </div>
-                          </div>
+                          <Copier text={activeKey} />
                       </div>
                       <div class="hero-action-wrap d-flex align-items-center my-2">
                           {/* <button type="button" class="btn btn-light">Follow</button>
