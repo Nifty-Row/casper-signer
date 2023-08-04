@@ -8,7 +8,6 @@ import Footer from "../components/Footer";
 import { WalletService } from "@/utils/WalletServices";
 import { truncateKey } from "@/utils/generalUtils";
 import ProfileForm from "@/pages/components/ProfileForm";
-import Copier from "../components/Copier";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -69,8 +68,8 @@ export default function Home() {
             {/* <div className="gap-2x"></div> */}
             <div className="filter-container row g-gs">
               <div className="col-md-12 mb-4">
-                <h4 className="text-danger text-center">Please ensure your wallet is connected to view profile details</h4>
-                <center><a href="../../walletConnect" class="btn btn-primary btn-lg float-center mt-4 mb-4">Connect Wallet</a></center>
+                <h4 className="text-danger text-center">This page will be available in the next milestone</h4>
+                <center><a href="../../profile" class="btn btn-primary btn-lg float-center mt-4 mb-4">Go to profile</a></center>
 
               </div>
             </div>
@@ -131,7 +130,12 @@ export default function Home() {
                     <div class="author-hero-content me-3">
                         <h4 class="hero-author-title mb-1 text-white">{userData.fullName}</h4>
                         <p class="hero-author-username mb-1 text-white">@{userData.username}</p>
-                        <Copier text={userData.publicKey} />
+                        <div class="d-flex align-items-center">
+                            <input type="text" class="copy-input text-white" value={truncateKey(userData.publicKey)} id="copy-input" readonly />
+                            <div class="tooltip-s1">
+                                <button data-clipboard-target="#copy-input" class="copy-text text-white ms-2" type="button"><span class="tooltip-s1-text tooltip-text">Copy</span><em class="ni ni-copy"></em></button>
+                            </div>
+                        </div>
                     </div>
                     <div class="hero-action-wrap d-flex align-items-center my-2">
                         <button type="button" class="btn btn-light">Follow</button>

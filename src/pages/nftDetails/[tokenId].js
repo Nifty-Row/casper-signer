@@ -8,6 +8,7 @@ import axios from "axios";
 import { useRouter } from "next/router";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
+import Copier from "../components/Copier";
 import { Some, None } from "ts-results";
 import moment from "moment";
 
@@ -80,14 +81,16 @@ export default function NFTDetails(){
               if(data.user) setOwner(data.user);
               if(data.auction) setAuctionData(data.auction);
               let isOwner = data.ownerKey === key;
-              // alert("Is Owner ?"+isOwner);
-              if(data.auction) setMinPrice(data.auction.minimumPrice);
               setIsOwner(isOwner);
-              if(data.auction.deployHash) setDeployHash(data.auction.deployHash);
-              if(data.auction.bids) setBids(data.auction.bids);
-              let bidValues = data.auction.bids.map(bid => bid.bid);
-              let highest = Math.max(...bidValues);
-              if(highest > 0) setHighestBid(highest);
+              if(data.auction){
+                setMinPrice(data.auction.minimumPrice);
+                if(data.auction.deployHash !== null) setDeployHash(data.auction.deployHash);
+                if(data.auction.bids) setBids(data.auction.bids);
+                let bidValues = data.auction.bids.map(bid => bid.bid);
+                let highest = Math.max(...bidValues);
+                if(highest > 0) setHighestBid(highest);
+              }              
+              
             }).catch((error) => {
               console.log("Error :",error);
               setNFT(error);
@@ -193,10 +196,13 @@ export default function NFTDetails(){
   useEffect(() => {
     if(!nft.inAuction) return;
 
-    const updatedTime = moment(auctionData.updatedAt);
+    const updatedTime = moment(auctionData.createdAt);
     const fiveMinutesLater = moment(updatedTime).add(5, 'minutes');
     const now = moment();
-
+    console.log(formatDate(updatedTime));
+    console.log(formatDate(fiveMinutesLater));
+    console.log(formatDate(now));
+    console.log(now.isAfter(fiveMinutesLater))
     if (now.isAfter(fiveMinutesLater)) {
       setVerifiable(true);
     }
@@ -257,9 +263,7 @@ export default function NFTDetails(){
     });
     const deploy = await prepareAuctionDeploy(key);
     if(!deploy) return;
-    // console.log("deploy",JSON.stringify(deploy));
     const deployJSON = DeployUtil.deployToJson(deploy);
-    // console.log(deployJSON)
     try {
       const res = await WalletService.sign(JSON.stringify(deployJSON), key);
       if (res.cancelled) {
@@ -1268,12 +1272,7 @@ export default function NFTDetails(){
                       <div class="author-hero-content me-3">
                           <h4 class="hero-author-title mb-1 text-white">{owner.fullName}</h4>
                           <p class="hero-author-username mb-1 text-white">@{owner.username}</p>
-                          <div class="d-flex align-items-center">
-                              <input type="text" class="copy-input text-white" value={truncateKey(owner.ownerKey)} id="copy-input" readonly />
-                              <div class="tooltip-s1">
-                                  <button data-clipboard-target="#copy-input" class="copy-text text-white ms-2" type="button"><span class="tooltip-s1-text tooltip-text">Copy</span><em class="ni ni-copy"></em></button>
-                              </div>
-                          </div>
+                          <Copier text={owner.publicKey} />
                       </div>
                       <div class="hero-action-wrap d-flex align-items-center my-2">
                           {/* <button type="button" class="btn btn-light">Follow</button>
@@ -1401,7 +1400,7 @@ export default function NFTDetails(){
                         <div class="card-media-body">
                             {countdown !== "Auction has started" &&  countdown !== "This asset is not in auction" ?(
                               <div> 
-                                {!auctionData.contractHash  ?(
+                                {!auctionData.contractHash && isOwner  ?(
                                   <h4 class="text-danger">Auction not Verified</h4>
                                 ):(
                                   null
@@ -1453,7 +1452,7 @@ export default function NFTDetails(){
                                     Create Bid Purse
                                   </a>
                                 )}
-                                {!nft.inAuction && isOwner && auctionData.status === "close" && (
+                                {!nft.inAuction && isOwner && (
                                   <a
                                     href="#"
                                     data-bs-toggle="modal"
@@ -1483,16 +1482,24 @@ export default function NFTDetails(){
                                 )}
                                 {nft.inAuction && isOwner && !auctionData.contractHash && !auctionData.approve && (
                                   <div>
+
                                     {verifiable ? (
                                       <><p>You can now verify private Auction Status.</p><a
                                         href="#"
                                         onClick={verifyAuction}
                                         class="btn btn-info bg-dark-dim d-block"
                                       >
-                                        Verify Auction
+                                        Verify Auction Status
                                       </a></>
                                     ) : (
-                                      <p>Please come back in a few minutes to confimr private auction status.</p>
+                                      <><p>Please come back in a few minutes to confirm private auction status.</p><a
+                                      href="#"
+                                      onClick={() => swal("Please come back in a few minutes to confirm private auction status.")}
+                                      class="btn btn-primary text-white d-block"
+                                      disabled="disabled"
+                                    >
+                                      Verify Auction
+                                    </a></>
                                     )}
                                   </div>
                                 )}
@@ -1722,7 +1729,17 @@ export default function NFTDetails(){
                       <td>{truncateKey(bid.bidder)} @{bid.user.username}</td>
                       <td>{bid.bid} CSPR</td>
                       <td>{formatDate(bid.createdAt)}</td>
-                      <td><a class="btn btn-info btn-sm" href={`https://testnet.cspr.live/deploy/${bid.user.purse.deployHash}`} target="_blank">Verify</a></td>
+                      <td>
+                        {bid.user?.purse?.deployHash && (
+                          <a
+                            className="btn btn-info btn-sm"
+                            href={`https://testnet.cspr.live/deploy/${bid.user.purse.deployHash}`}
+                            target="_blank"
+                          >
+                            Verify
+                          </a>
+                        )}
+                      </td>
                     </tr>
                   ))}
                 </tbody>

@@ -50,7 +50,6 @@ function CasperConnect() {
     setTimeout(async () => {
       try {
         const connected = await checkConnection();
-        alert("connected");
         setSignerConnected(connected);
       } catch (err) {
         alert("not connected");

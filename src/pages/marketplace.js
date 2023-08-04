@@ -44,7 +44,7 @@ export default function Home() {
         <div className="container">
           <div className="filter-box"></div>
           {/* <div className="gap-2x"></div> */}
-          <div className="filter-container row g-gs">
+          <div className="filter-container row g-gs mx-auto">
             {nfts.map((nft) => (
               <NFTCard key={nft.id} nftData={nft} />
             ))}
