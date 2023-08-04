@@ -40,13 +40,10 @@ export default function walletConnect() {
         }
 
         const response = await walletToUser(activeKey);
-        if (response) {
+        if (response == "Success") {
           const router = require("next/router").default;
           router.push("/");
-        } else {
-          // Handle API call failure, e.g., show an error message to the user.
-          console.error("API call failed:", response.statusText);
-        }
+        } 
       } catch (error) {
         console.error("Error making API call:", error);
         // Handle the error, e.g., show an error message to the user.
@@ -86,13 +83,15 @@ export default function walletConnect() {
       if (response.status === 200) {
         return response.data.message; // Return a success message or data if needed
       } else {
-        throw new Error("Failed to add new user to wallet.");
+        swal("Error","Failed to add new wallet.","error");
+        return false;
       }
     } catch (error) {
-      // Handle API call failure, e.g., show an error message to the user. to do
-      console.error("Error adding new user to wallet:", error.message);
-      throw error; // Rethrow the error to handle it in the calling function if needed
+      swal("Error","Failed to add new wallet.","error");
+      console.error("Error adding new wallet:", error.message);
+      return false;
     }
+    return false;
   }
 
   return (
