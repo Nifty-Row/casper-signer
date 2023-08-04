@@ -40,7 +40,7 @@ export default function walletConnect() {
         }
 
         const response = await walletToUser(activeKey);
-        if (response.ok) {
+        if (response) {
           const router = require("next/router").default;
           router.push("/");
         } else {
