@@ -61,7 +61,7 @@ const NFTCard = ({ nftData }) => {
         </div>
         <div className="card-body px-0 pb-0">
           <h5 className="card-title text-truncate">
-            <a href="{placeBidLink}">{mediaName}</a>
+            <a href={placeBidLink}>{mediaName}</a>
           </h5>
           <div className="card-price-wrap d-flex align-items-center justify-content-sm-between pb-3">
             <div className="me-5 me-sm-2">
