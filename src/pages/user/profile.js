@@ -165,9 +165,9 @@ export default function Home() {
                                         <li class="active">
                                             <a href="#"><em class="ni ni-edit me-2"></em>Edit Profile</a>
                                         </li>
-                                        <li>
+                                       {/* <li>
                                             <a href="#"><em class="ni ni-money me-2"></em>My Assets</a>
-                                        </li>
+                                        </li>*/}
                                         
                                     </ul>
                                 </div>
