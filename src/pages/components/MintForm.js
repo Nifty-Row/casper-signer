@@ -87,8 +87,10 @@ const MintForm = (key) => {
           setUser(userData);
           if (userData.canMint) {
             setCanMint(true);
+            swal('Notice','Please ensure you have at least 100CSPR as your wallet balance before minting','warning');
           } else {
             await grantMinter(newKey);
+            swal('Notice','Please ensure you have at least 100CSPR as your wallet balance before minting','warning');
           }
         } catch (error) {
           console.error("Error:", error);
