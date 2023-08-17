@@ -315,8 +315,8 @@ const MintForm = (key) => {
                 if(data){
                   window.open(`/nftDetails/${nftData.tokenId}`);
                   swal({
-                    title: 'Minting Complete',
-                    text: `NFT Asset ${nftData.assetSymbol} Minted and Saved successfully. What would you like to do next?`,
+                    title: 'Minting in progress',
+                    text: `NFT Asset ${nftData.assetSymbol} has been deployed and Saved successfully. Please check your wallet for the status of the NFT in 3 minutes. What would you like to do next?`,
                     icon: 'success',
                     dangerMode: true,
                     buttons: {
