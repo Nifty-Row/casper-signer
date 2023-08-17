@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import {WalletService} from "../../utils/WalletServices";
 import {truncateKey, handleRefresh} from "../../utils/generalUtils";
 import swal from "sweetalert";
-import { Signer } from "casper-js-sdk";
 
 const Header = () => {
   const [publicKey, setPublicKey] = useState("");

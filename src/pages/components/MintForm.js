@@ -5,7 +5,6 @@ import crypto from "crypto";
 import { Some, None } from "ts-results";
 
 import {
-  Signer,
   DeployUtil,
   Contracts,
   CLPublicKey,
