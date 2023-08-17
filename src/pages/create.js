@@ -23,7 +23,7 @@ export default function WalletConnect() {
       
       if (!activeKey) {
         const router = require("next/router").default;
-        router.push("/walletConnect"); // Redirect to the wallet connect page if signer is not connected
+        router.push("/walletConnect"); // Redirect to the wallet connect page if wallet is not connected
       }else{
         if(!key) setKey(activeKey);
       }
