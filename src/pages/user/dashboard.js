@@ -167,10 +167,10 @@ export default function Home() {
                                 <div class="sidebar-widget">
                                     <ul class="user-nav">
                                         <li class="active">
-                                            <a href="#"><em class="ni ni-edit me-2"></em>Edit Profile</a>
+                                            <a href="../../user/profile"><em class="ni ni-edit me-2"></em>Edit Profile</a>
                                         </li>
                                         <li>
-                                            <a href="#"><em class="ni ni-money me-2"></em>My Assets</a>
+                                            <a href="../../profile"><em class="ni ni-money me-2"></em>My Assets</a>
                                         </li>
                                         
                                     </ul>

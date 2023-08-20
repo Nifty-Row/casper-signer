@@ -86,8 +86,10 @@ const MintForm = (key) => {
           setUser(userData);
           if (userData.canMint) {
             setCanMint(true);
+            swal('Notice','Please ensure you have at least 100CSPR as your wallet balance before minting','warning');
           } else {
             await grantMinter(newKey);
+            swal('Notice','Please ensure you have at least 100CSPR as your wallet balance before minting','warning');
           }
         } catch (error) {
           console.error("Error:", error);
@@ -312,8 +314,8 @@ const MintForm = (key) => {
                 if(data){
                   window.open(`/nftDetails/${nftData.tokenId}`);
                   swal({
-                    title: 'Minting Complete',
-                    text: `NFT Asset ${nftData.assetSymbol} Minted and Saved successfully. What would you like to do next?`,
+                    title: 'Minting in progress',
+                    text: `NFT Asset ${nftData.assetSymbol} has been deployed and Saved successfully. Please check your wallet for the status of the NFT in 3 minutes. What would you like to do next?`,
                     icon: 'success',
                     dangerMode: true,
                     buttons: {

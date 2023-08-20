@@ -177,7 +177,7 @@ export default function NFTDetails(){
             setCountdown('Auction has Ended');
             setAuctionEnded(true);
             clearInterval(interval);
-            // await closeAuction(auctionData.id); // Call the closeAuction function with auctionData.id as a parameter
+            await closeAuction(auctionData.id); // Call the closeAuction function with auctionData.id as a parameter
           }
         }
   
@@ -1127,7 +1127,7 @@ export default function NFTDetails(){
   async function closeAuction(auctionId){
     swal({
       title: "Closing the Auction",
-      text: "Please wait while we make your private auction open for bids.",
+      text: "Please wait while we make your private auction closed from bids.",
       icon: "info",
       buttons: false,
       closeOnClickOutside: true,
@@ -1135,7 +1135,7 @@ export default function NFTDetails(){
     });
     axios.put(`https://shark-app-9kl9z.ondigitalocean.app/api/auction/closeAuction/${auctionId}`).then(response => {
     console.log(response.data); // Process the response data
-    // swal("Success","Auction Has been opened Successfully","success");
+    // swal("Success","Auction Has been updated ned Successfully","success");
     handleRefresh();
     return response.data
   })
