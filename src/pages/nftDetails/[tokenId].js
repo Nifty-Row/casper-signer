@@ -193,6 +193,8 @@ export default function NFTDetails(){
     }
   }, [nft, auctionData]);
 
+  
+
   useEffect(() => {
     if(!nft.inAuction) return;
 
@@ -518,11 +520,11 @@ export default function NFTDetails(){
   };
 
   //verify and update auction details if the auction contract deploymnent was a succcess
-  const verifyAuction = async(e) => {
-    e.preventDefault();
+  const verifyAuction = async() => {
+    // e.preventDefault();
     swal({
       title: "Submitting...",
-      text: "Please wait while we verify your Auction.",
+      text: "Please wait while we verify your Auction on the blockchain.",
       icon: "info",
       buttons: false,
       closeOnClickOutside: true,
@@ -1260,6 +1262,30 @@ export default function NFTDetails(){
     );
   }
   
+  const verifyIfRequired = async () => {
+    if (
+      owner &&
+      auctionData.createdAt &&
+      auctionData.contractHash === null &&
+      new Date() - new Date(auctionData.createdAt) >= 5 * 60 * 1000 // 5 minutes in milliseconds
+    ) {
+      await verifyAuction();
+  };
+
+  // Call the function conditionally
+  verifyIfRequired();
+  
+  const shouldShowAuctionStatus = countdown !== "Auction has started" && countdown !== "This asset is not in auction";
+  const shouldShowCountdown = countdown === "Auction has started" && nft.inAuction && auctionData.contractHash && !isOwner && user.purse === null;
+  const shouldShowOpenAuction = nft.inAuction && auctionData.approve && auctionData.status === "pending" && isOwner;
+  const shouldShowVerifyAuctionButton = nft.inAuction && isOwner && !auctionData.contractHash && !auctionData.approve;
+  const shouldShowVerifyInExplorerButton = nft.inAuction && deployHash && isOwner;
+  const shouldShowConfirmBid = countdown === "Auction has started" && nft.inAuction && !isOwner && user.purse !== null;
+  const shouldShowCreateBidPurse = countdown === "Auction has started" && nft.inAuction && auctionData.contractHash && !isOwner && user.purse === null ;
+  const shouldShowCreateAuction = !nft.inAuction && auctionData.contractHash && isOwner;
+  const shouldShowFinalizeAuction = auctionData && isOwner  && auctionEnded;
+  const shouldShowAuctionNotVerified = !auctionData.contractHash && isOwner;
+  const shouldShowOpenAuctionStatus = nft.inAuction && auctionData.status === "open" && !auctionStarted;
 
   return (
     <>
@@ -1396,132 +1422,128 @@ export default function NFTDetails(){
                       </div>
                     </div>
                     <div class="col-xl-12">
-                      <div class="card-media card-media-s1">
-                        <div class="card-media-body">
-                            {countdown !== "Auction has started" &&  countdown !== "This asset is not in auction" ?(
-                              <div> 
-                                {!auctionData.contractHash && isOwner  ?(
-                                  <h4 class="text-danger">Auction not Verified</h4>
-                                ):(
-                                  null
-                                )}
-                                {nft.inAuction && auctionData.status === "open" && !auctionStarted ?(
-                                  <h4 class="text-info">Auction is Open For Bidding</h4>
-                                ):(
-                                  <><p class="d-flex">Auction Starts in :   &nbsp;<h3> {countdown} </h3></p></>
-                                )}
-                            </div>
-                            ):(
-                              <div> 
-                              <h4>{countdown}</h4>
-                            </div>
-                            )}
-                            
-                          <div class="item-detail-btns mt-4">
-                            <ul class="btns-group d-flex">
-                              <li class="flex-grow-1">
-                                {countdown === "Auction has started" && nft.inAuction && !isOwner && user.purse !== null && (
-                                  <>
-                                    {!user.purse || !user.purse.uref && (
-                                      <a
-                                        href="#"
-                                        onClick={confirmBidPurse}
-                                        class="btn btn-warning d-block mb-4"
-                                      >
-                                        Confirm Bid
-                                      </a>
-                                    )}
-                                    <a
-                                      href="#"
-                                      data-bs-toggle="modal"
-                                      data-bs-target="#bidPurseModal"
-                                      class="btn btn-dark d-block mb-0"
-                                    >
-                                      Place  Bid 
-                                    </a>
-                                  </>
-                                )}
+  <div class="card-media card-media-s1">
+    <div class="card-media-body">
+      {shouldShowAuctionStatus ? (
+        <div>
+          {shouldShowAuctionNotVerified && <h4 class="text-danger">Auction not Verified</h4>}
+          {shouldShowOpenAuctionStatus ? (
+            <h4 class="text-info">Auction is Open For Bidding</h4>
+          ) : (
+            <p class="d-flex">Auction Starts in :   &nbsp;<h3> {countdown} </h3></p>
+          )}
+        </div>
+      ) : (
+        <div>
+          <h4>{countdown}</h4>
+        </div>
+      )}
+      
+      <div class="item-detail-btns mt-4">
+        <ul class="btns-group d-flex">
+          <li class="flex-grow-1">
+            {shouldShowConfirmBid && (
+              <>
+                {!user.purse || !user.purse.uref && (
+                  <a
+                    href="#"
+                    onClick={confirmBidPurse}
+                    class="btn btn-warning d-block mb-4"
+                  >
+                    Confirm Bid
+                  </a>
+                )}
+                <a
+                  href="#"
+                  data-bs-toggle="modal"
+                  data-bs-target="#bidPurseModal"
+                  class="btn btn-dark d-block mb-0"
+                >
+                  Place  Bid 
+                </a>
+              </>
+            )}
 
-                                {countdown === "Auction has started" && nft.inAuction && !isOwner && user.purse === null && (
-                                  <a
-                                    href="#"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#bidPurseModal"
-                                    class="btn btn-dark d-block "
-                                  >
-                                    Create Bid Purse
-                                  </a>
-                                )}
-                                {!nft.inAuction && isOwner && (
-                                  <a
-                                    href="#"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#startAuctionModal"
-                                    class="btn btn-dark d-block"
-                                  >
-                                    Create Auction
-                                  </a>
-                                )}
-                                {nft.inAuction && isOwner && auctionData.approve  && auctionData.status === "pending" && (
-                                  <a
-                                    href="#"
-                                  onClick={startAuction}
-                                    class="btn btn-success text-white d-block"
-                                  >
-                                    Open Auction
-                                  </a>
-                                )}
-                                {auctionData && isOwner  && auctionEnded && (
-                                  <a
-                                    href="#"
-                                  onClick={endAuction}
-                                    class="btn btn-dark d-block"
-                                  >
-                                    Finalize Auction
-                                  </a>
-                                )}
-                                {nft.inAuction && isOwner && !auctionData.contractHash && !auctionData.approve && (
-                                  <div>
+            {shouldShowCreateBidPurse && (
+              <a
+                href="#"
+                data-bs-toggle="modal"
+                data-bs-target="#bidPurseModal"
+                class="btn btn-dark d-block "
+              >
+                Create Bid Purse
+              </a>
+            )}
+            
+            {shouldShowCreateAuction && (
+              <a
+                href="#"
+                data-bs-toggle="modal"
+                data-bs-target="#startAuctionModal"
+                class="btn btn-dark d-block"
+              >
+                Create Auction
+              </a>
+            )}
+            
+            {shouldShowOpenAuction && (
+              <a
+                href="#"
+                onClick={startAuction}
+                class="btn btn-success text-white d-block"
+              >
+                Open Auction
+              </a>
+            )}
+            
+            {shouldShowFinalizeAuction && (
+              <a
+                href="#"
+                onClick={endAuction}
+                class="btn btn-dark d-block"
+              >
+                Finalize Auction
+              </a>
+            )}
+            
+            {shouldShowVerifyAuctionButton && (
+              <div>
+                {verifiable ? (
+                  <><p>You can now verify private Auction Status.</p><a
+                    href="#"
+                    onClick={verifyAuction}
+                    class="btn btn-info bg-dark-dim d-block"
+                  >
+                    Verify Auction Status
+                  </a></>
+                ) : (
+                  <><p>Please come back in a few minutes to confirm private auction status.</p><a
+                  href="#"
+                  onClick={() => swal("Please come back in a few minutes to confirm private auction status.")}
+                  class="btn btn-primary text-white d-block"
+                  disabled="disabled"
+                >
+                  Verify Auction
+                </a></>
+                )}
+              </div>
+            )}
+          </li>
+          {shouldShowVerifyInExplorerButton && (
+            <li class="flex-grow-1">
+              <div class="dropdown">
+                <a href={`https://testnet.cspr.live/deploy/${deployHash}`} target="_blank" class="btn bg-dark-dim d-block">
+                  Verify on Explorer
+                </a>
+              </div>
+            </li>
+          )}
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
 
-                                    {verifiable ? (
-                                      <><p>You can now verify private Auction Status.</p><a
-                                        href="#"
-                                        onClick={verifyAuction}
-                                        class="btn btn-info bg-dark-dim d-block"
-                                      >
-                                        Verify Auction Status
-                                      </a></>
-                                    ) : (
-                                      <><p>Please come back in a few minutes to confirm private auction status.</p><a
-                                      href="#"
-                                      onClick={() => swal("Please come back in a few minutes to confirm private auction status.")}
-                                      class="btn btn-primary text-white d-block"
-                                      disabled="disabled"
-                                    >
-                                      Verify Auction
-                                    </a></>
-                                    )}
-                                  </div>
-                                )}
-                              </li>
-                              {nft.inAuction && deployHash && isOwner && (
-                              <li class="flex-grow-1">
-                                <div class="dropdown">
-                                  <a
-                                    href={`https://testnet.cspr.live/deploy/${deployHash}`}
-                                    target="_blank"
-                                    class="btn bg-dark-dim d-block"
-                                  >
-                                    Verify on Explorer
-                                  </a>
-                                  
-                                </div>
-                              </li>)}
-                            </ul>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
                   </div>
                 </div>
                 
