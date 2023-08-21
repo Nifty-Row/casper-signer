@@ -297,7 +297,7 @@ export default function NFTDetails(){
           if(signedDeployJSON){
             swal({
               title: "Signing Successful",
-              text: "Please wait while we deploy the NFT.",
+              text: "Please wait while we deploy the Auction contract.",
               icon: "../../../loading.gif",
               buttons: false,
               closeOnClickOutside: true,
@@ -561,7 +561,47 @@ export default function NFTDetails(){
     }
     
   }
-
+  const verifyNFT = async() => {
+    // e.preventDefault();
+    swal({
+      title: "Submitting...",
+      text: "Please wait while we verify your NFT mint status on the blockchain.",
+      icon: "info",
+      buttons: false,
+      closeOnClickOutside: true,
+      closeOnEsc: false,
+    });
+    try {
+      const response = await fetch(`https://shark-app-9kl9z.ondigitalocean.app/api/nft/confirmDeploy/${nft.tokenHash}`);
+      const data = await response.json();
+      return;
+      if(data.Success){
+        swal("Success","NFT was deployed successfully","success");
+        getHashes(deployHash).then(async (data) => {
+          console.log("Hashes",data);
+          if(data.hashes){
+            updateAuctionHashes(data.hashes).then((data)=> {
+              setAuctionData(data);
+            })
+          }
+        });
+      }else if(data.Failure){
+        swal("Verification Failed","NFT Deploy Failed => "+data.Failure.error_message,"error");
+        deleteAuction(auctionData.id).then(data =>{
+          setAuctionData("");
+          let newNFT = nft;
+          newNFT.inAuction=false;
+          setNFT(newNFT);
+          swal("Auction",data+"You can now redeploy another private auction","info");
+        })
+      }
+      return data;
+    } catch (error) {
+      console.error(error);
+      return null;
+    }
+    
+  }
   async function deleteAuction(auctionId) {
     try {
       const response = await axios.delete(`https://shark-app-9kl9z.ondigitalocean.app/api/auction/${auctionId}`);
@@ -1225,16 +1265,16 @@ export default function NFTDetails(){
     return (
       <>
         <Header />
-        <div class="hero-wrap sub-header">
-          <div class="container">
-            <div class="hero-content text-center py-0">
-              <h1 class="hero-title"> NFT</h1>
+        <div className="hero-wrap sub-header">
+          <div className="container">
+            <div className="hero-content text-center py-0">
+              <h1 className="hero-title"> NFT</h1>
               <nav aria-label="breadcrumb">
-                <ol class="breadcrumb breadcrumb-s1 justify-content-center mt-3 mb-0">
-                  <li class="breadcrumb-item">
+                <ol className="breadcrumb breadcrumb-s1 justify-content-center mt-3 mb-0">
+                  <li className="breadcrumb-item">
                     <a href="../../">Home</a>
                   </li>
-                  <li class="breadcrumb-item active" aria-current="page">
+                  <li className="breadcrumb-item active" aria-current="page">
                     Asset Details
                   </li>
                 </ol>
@@ -1242,15 +1282,15 @@ export default function NFTDetails(){
             </div>
           </div>
         </div>
-        <div class="container mb-4 section-space">
-          <div class="row mb-4 mt-2">
-            <div class="col-xl-10 mx-auto">
-            <div class="alert alert-danger d-flex mb-4" role="alert">
-              <svg class="flex-shrink-0 me-3" width="30" height="30" viewBox="0 0 24 24" fill="#ff6a8e">
+        <div className="container mb-4 section-space">
+          <div className="row mb-4 mt-2">
+            <div className="col-xl-10 mx-auto">
+            <div className="alert alert-danger d-flex mb-4" role="alert">
+              <svg className="flex-shrink-0 me-3" width="30" height="30" viewBox="0 0 24 24" fill="#ff6a8e">
                 <path d="M11,9H13V7H11M12,20C7.59,20 4,16.41 4,12C4,7.59 7.59,4 12,4C16.41,4 20,7.59 20, 12C20,16.41 16.41,20 12,20M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10, 10 0 0,0 12,2M11,17H13V11H11V17Z"></path>
               </svg>
-              <p class="fs-14">No Nft Was Found with details {tokenId} 
-                <Link href="/marketplace" class="btn-link"> Go to Marketplace.</Link>
+              <p className="fs-14">No Nft Was Found with details {tokenId} 
+                <Link href="/marketplace" className="btn-link"> Go to Marketplace.</Link>
               </p>
             </div>
             </div>
@@ -1262,50 +1302,25 @@ export default function NFTDetails(){
     );
   }
   
-  // const verifyIfRequired = async () => {
-  //   if (
-  //     owner &&
-  //     auctionData.createdAt &&
-  //     auctionData.contractHash === null &&
-  //     new Date() - new Date(auctionData.createdAt) >= 5 * 60 * 1000 // 5 minutes in milliseconds
-  //   ) {
-  //     await verifyAuction();
-  // };
-
-  // Call the function conditionally
-  // verifyIfRequired();
-  
-  const shouldShowAuctionStatus = countdown !== "Auction has started" && countdown !== "This asset is not in auction";
-  const shouldShowCountdown = countdown === "Auction has started" && nft.inAuction && auctionData.contractHash && !isOwner && user.purse === null;
-  const shouldShowOpenAuction = nft.inAuction && auctionData.approve && auctionData.status === "pending" && isOwner;
-  const shouldShowVerifyAuctionButton = nft.inAuction && isOwner && !auctionData.contractHash && !auctionData.approve;
-  const shouldShowVerifyInExplorerButton = nft.inAuction && deployHash && isOwner;
-  const shouldShowConfirmBid = countdown === "Auction has started" && nft.inAuction && !isOwner && user.purse !== null;
-  const shouldShowCreateBidPurse = countdown === "Auction has started" && nft.inAuction && auctionData.contractHash && !isOwner && user.purse === null ;
-  const shouldShowCreateAuction = !nft.inAuction && auctionData.contractHash && isOwner;
-  const shouldShowFinalizeAuction = auctionData && isOwner  && auctionEnded;
-  const shouldShowAuctionNotVerified = !auctionData.contractHash && isOwner;
-  const shouldShowOpenAuctionStatus = nft.inAuction && auctionData.status === "open" && !auctionStarted;
-
   return (
     <>
       <Header />
-            <div class="hero-wrap sub-header bg-image2">
-              <div class="container">
-                  <div class="hero-content py-0 d-flex align-items-center">
-                  <div class="avatar avatar-3 flex-shrink-0"><Image src="/img_405324.png" width={100} height={100} alt="avatar" /></div>
-                  <div class="author-hero-content-wrap d-flex flex-wrap justify-content-between ms-3 flex-grow-1">
-                      <div class="author-hero-content me-3">
-                          <h4 class="hero-author-title mb-1 text-white">{owner.fullName}</h4>
-                          <p class="hero-author-username mb-1 text-white">@{owner.username}</p>
+            <div className="hero-wrap sub-header bg-image2">
+              <div className="container">
+                  <div className="hero-content py-0 d-flex align-items-center">
+                  <div className="avatar avatar-3 flex-shrink-0"><Image src="/img_405324.png" width={100} height={100} alt="avatar" /></div>
+                  <div className="author-hero-content-wrap d-flex flex-wrap justify-content-between ms-3 flex-grow-1">
+                      <div className="author-hero-content me-3">
+                          <h4 className="hero-author-title mb-1 text-white">{owner.fullName}</h4>
+                          <p className="hero-author-username mb-1 text-white">@{owner.username}</p>
                           <Copier text={owner.publicKey} />
                       </div>
-                      <div class="hero-action-wrap d-flex align-items-center my-2">
-                          {/* <button type="button" class="btn btn-light">Follow</button>
-                          <div class="dropdown ms-3">
-                              <a class="icon-btn icon-btn-s1" href="#" data-bs-toggle="dropdown" id="reportDropdown"><em class="ni ni-more-h"></em></a>
-                              <ul class="dropdown-menu card-generic p-2 dropdown-menu-end mt-2 card-generic-sm" aria-labelledby="reportDropdown">
-                                  <li><a class="dropdown-item card-generic-item" href="#" data-bs-toggle="modal" data-bs-target="#reportModal">Report Page</a></li>
+                      <div className="hero-action-wrap d-flex align-items-center my-2">
+                          {/* <button type="button" className="btn btn-light">Follow</button>
+                          <div className="dropdown ms-3">
+                              <a className="icon-btn icon-btn-s1" href="#" data-bs-toggle="dropdown" id="reportDropdown"><em className="ni ni-more-h"></em></a>
+                              <ul className="dropdown-menu card-generic p-2 dropdown-menu-end mt-2 card-generic-sm" aria-labelledby="reportDropdown">
+                                  <li><a className="dropdown-item card-generic-item" href="#" data-bs-toggle="modal" data-bs-target="#reportModal">Report Page</a></li>
                               </ul>
                           </div> */}
                       </div>
@@ -1313,46 +1328,46 @@ export default function NFTDetails(){
               </div>
           </div>
         </div>
-      <section class="item-detail-section mb-4">
-        <div class="container">
-          <div class="row">
-            <div class="col-lg-6">
-              <div class="item-detail-content mb-5 mb-lg-0">
-                <h1 class="item-detail-title mb-2">{nft.mediaName}</h1>
-                <div class="item-detail-meta d-flex flex-wrap align-items-center mb-3">
-                  <span class="item-detail-text-meta">
+      <section className="item-detail-section mb-4">
+        <div className="container">
+          <div className="row">
+            <div className="col-lg-6">
+              <div className="item-detail-content mb-5 mb-lg-0">
+                <h1 className="item-detail-title mb-2">{nft.mediaName}</h1>
+                <div className="item-detail-meta d-flex flex-wrap align-items-center mb-3">
+                  <span className="item-detail-text-meta">
                     Media Type :{" "}
-                    <span class="text-primary fw-semibold">
+                    <span className="text-primary fw-semibold">
                       {nft.mediaType}
                     </span>
                   </span>
-                  <span class="dot-separeted"></span>
-                  <span class="item-detail-text-meta">
+                  <span className="dot-separeted"></span>
+                  <span className="item-detail-text-meta">
                     Asset Type : 
-                    <span class="text-primary fw-semibold">
+                    <span className="text-primary fw-semibold">
                       {nft.assetType}
                     </span>
                   </span>
-                  <span class="dot-separeted"></span>
-                  <span class="item-detail-text-meta">
+                  <span className="dot-separeted"></span>
+                  <span className="item-detail-text-meta">
                     Asset Symbol:
-                    <span class="text-primary fw-semibold">
+                    <span className="text-primary fw-semibold">
                       {" "}
                       {nft.assetSymbol}
                     </span>
                   </span>
                 </div>
-                <p class="item-detail-text mb-4">{decodeSpecialCharacters(nft.description)}</p>
-                <div class="item-credits mb-4">
-                  <div class="row g-4">
-                    <div class="col-xl-5">
-                      <div class="card-media card-media-s1">
+                <p className="item-detail-text mb-4">{decodeSpecialCharacters(nft.description)}</p>
+                <div className="item-credits mb-4">
+                  <div className="row g-4">
+                    <div className="col-xl-5">
+                      <div className="card-media card-media-s1">
                         
-                        <div class="card-media-body">
-                          <div class="d-flex">
+                        <div className="card-media-body">
+                          <div className="d-flex">
                             <a
                             href="#"
-                            class="card-media-img flex-shrink-0 d-block"
+                            className="card-media-img flex-shrink-0 d-block"
                             >
                             <img
                               src="/img_405324.png"
@@ -1362,30 +1377,30 @@ export default function NFTDetails(){
                           {owner && (
                               <>
                               <div>
-                              <a href={`/author/${owner.username}`} class="fw-semibold mr-4">
+                              <a href={`/author/${owner.username}`} className="fw-semibold mr-4">
                                 @{owner.username}
-                              </a><p class="fw-medium small">
+                              </a><p className="fw-medium small">
                                   {owner.category}
                                 </p>
                               </div></>
                             )}
                         </div>
                         {owner &&(
-                              <><p class="fw-medium small text-dark">
+                              <><p className="fw-medium small text-dark">
                                 {owner.about}
                               </p>
-                              <p class="fw-medium small text-dark">
+                              <p className="fw-medium small text-dark">
                                 Joined : {formatDate(owner.createdAt)}
                               </p>
-                              {/* <div class="dropdown-menu card-generic p-2 keep-open w-100 mt-1">
-                                <a href="#" class="dropdown-item card-generic-item">
-                                  <em class="ni ni-facebook-f me-2"></em> Facebook
+                              {/* <div className="dropdown-menu card-generic p-2 keep-open w-100 mt-1">
+                                <a href="#" className="dropdown-item card-generic-item">
+                                  <em className="ni ni-facebook-f me-2"></em> Facebook
                                 </a>
-                                <a href="#" class="dropdown-item card-generic-item">
-                                  <em class="ni ni-twitter me-2"></em> Twitter
+                                <a href="#" className="dropdown-item card-generic-item">
+                                  <em className="ni ni-twitter me-2"></em> Twitter
                                 </a>
-                                <a href="#" class="dropdown-item card-generic-item">
-                                  <em class="ni ni-instagram me-2"></em> Instagram
+                                <a href="#" className="dropdown-item card-generic-item">
+                                  <em className="ni ni-instagram me-2"></em> Instagram
                                 </a>
                               </div> */}
                               
@@ -1396,23 +1411,23 @@ export default function NFTDetails(){
                         
                       </div>
                     </div>
-                    <div class="col-xl-7">
-                      <div class="card-media card-media-s1">
+                    <div className="col-xl-7">
+                      <div className="card-media card-media-s1">
                         
-                        <div class="card-media-body">
+                        <div className="card-media-body">
                           {nft.inAuction && auctionData.status !== "close" &&(
                               <>
-                            <a href="#" class="badge fw-semibold">
-                              Auction Start :  <span class="fw-bold text-primary mt-2"> {auctionData ?( formatDate(auctionData.startDate)):(countdown)}</span>
+                            <a href="#" className="badge fw-semibold">
+                              Auction Start :  <span className="fw-bold text-primary mt-2"> {auctionData ?( formatDate(auctionData.startDate)):(countdown)}</span>
                             </a><hr></hr>
-                            <a href="#" class="badge fw-semibold">
-                              Auction End :  <span class="fw-bold text-danger"> {auctionData ?( formatDate(auctionData.endDate)):(countdown)}</span>
+                            <a href="#" className="badge fw-semibold">
+                              Auction End :  <span className="fw-bold text-danger"> {auctionData ?( formatDate(auctionData.endDate)):(countdown)}</span>
                             </a><hr></hr>
-                            <a href="#" class="badge fw-semibold">
-                              Minimum Price :  <span class="fw-bold text-info"> {auctionData ?( auctionData.minimumPrice.toLocaleString("en-Us")):(0)} CSPR </span>
+                            <a href="#" className="badge fw-semibold">
+                              Minimum Price :  <span className="fw-bold text-info"> {auctionData ?( auctionData.minimumPrice.toLocaleString("en-Us")):(0)} CSPR </span>
                             </a><hr></hr>
-                            <a href="#" class="badge fw-semibold">
-                              Highest Bid : <span class="fw-semibold text-info"> {highestBid} CSPR</span> 
+                            <a href="#" className="badge fw-semibold">
+                              Highest Bid : <span className="fw-semibold text-info"> {highestBid} CSPR</span> 
                             </a>
                               </>
                           )}
@@ -1422,127 +1437,255 @@ export default function NFTDetails(){
                       </div>
                     </div>
                     <div class="col-xl-12">
-  <div class="card-media card-media-s1">
-    <div class="card-media-body">
-      {shouldShowAuctionStatus ? (
-        <div>
-          {shouldShowAuctionNotVerified && <h4 class="text-danger">Auction not Verified</h4>}
-          {shouldShowOpenAuctionStatus ? (
-            <h4 class="text-info">Auction is Open For Bidding</h4>
-          ) : (
-            <p class="d-flex">Auction Starts in :   &nbsp;<h3> {countdown} </h3></p>
-          )}
-        </div>
-      ) : (
-        <div>
-          <h4>{countdown}</h4>
-        </div>
-      )}
-      
-      <div class="item-detail-btns mt-4">
-        <ul class="btns-group d-flex">
-          <li class="flex-grow-1">
-            {shouldShowConfirmBid && (
-              <>
-                {!user.purse || !user.purse.uref && (
-                  <a
-                    href="#"
-                    onClick={confirmBidPurse}
-                    class="btn btn-warning d-block mb-4"
-                  >
-                    Confirm Bid
-                  </a>
-                )}
-                <a
-                  href="#"
-                  data-bs-toggle="modal"
-                  data-bs-target="#bidPurseModal"
-                  class="btn btn-dark d-block mb-0"
-                >
-                  Place  Bid 
-                </a>
-              </>
-            )}
+                      <div class="card-media card-media-s1">
+                        <div class="card-media-body">
+                            {countdown !== "Auction has started" &&  countdown !== "This asset is not in auction" ?(
+                              <div> 
+                                {!auctionData.contractHash && isOwner  ?(
+                                  <h4 class="text-danger">Auction not Verified</h4>
+                                ):(
+                                  null
+                                )}
+                                {nft.inAuction && auctionData.status === "open" && !auctionStarted ?(
+                                  <h4 class="text-info">Auction is Open For Bidding</h4>
+                                ):(
+                                  <><p class="d-flex">Auction Starts in :   &nbsp;<h3> {countdown} </h3></p></>
+                                )}
+                            </div>
+                            ):(
+                              <div> 
+                              <h4>{countdown}</h4>
+                            </div>
+                            )}
+                            
+                          <div class="item-detail-btns mt-4">
+                            <ul class="btns-group d-flex">
+                              <li class="flex-grow-1">
+                                {countdown === "Auction has started" && nft.inAuction && !isOwner && user.purse !== null && (
+                                  <>
+                                    {!user.purse || !user.purse.uref && (
+                                      <a
+                                        href="#"
+                                        onClick={confirmBidPurse}
+                                        class="btn btn-warning d-block mb-4"
+                                      >
+                                        Confirm Bid
+                                      </a>
+                                    )}
+                                    <a
+                                      href="#"
+                                      data-bs-toggle="modal"
+                                      data-bs-target="#bidPurseModal"
+                                      class="btn btn-dark d-block mb-0"
+                                    >
+                                      Place  Bid 
+                                    </a>
+                                  </>
+                                )}
 
-            {shouldShowCreateBidPurse && (
-              <a
-                href="#"
-                data-bs-toggle="modal"
-                data-bs-target="#bidPurseModal"
-                class="btn btn-dark d-block "
-              >
-                Create Bid Purse
-              </a>
-            )}
-            
-            {shouldShowCreateAuction && (
-              <a
-                href="#"
-                data-bs-toggle="modal"
-                data-bs-target="#startAuctionModal"
-                class="btn btn-dark d-block"
-              >
-                Create Auction
-              </a>
-            )}
-            
-            {shouldShowOpenAuction && (
-              <a
-                href="#"
-                onClick={startAuction}
-                class="btn btn-success text-white d-block"
-              >
-                Open Auction
-              </a>
-            )}
-            
-            {shouldShowFinalizeAuction && (
-              <a
-                href="#"
-                onClick={endAuction}
-                class="btn btn-dark d-block"
-              >
-                Finalize Auction
-              </a>
-            )}
-            
-            {shouldShowVerifyAuctionButton && (
-              <div>
-                {verifiable ? (
-                  <><p>You can now verify private Auction Status.</p><a
-                    href="#"
-                    onClick={verifyAuction}
-                    class="btn btn-info bg-dark-dim d-block"
-                  >
-                    Verify Auction Status
-                  </a></>
-                ) : (
-                  <><p>Please come back in a few minutes to confirm private auction status.</p><a
-                  href="#"
-                  onClick={() => swal("Please come back in a few minutes to confirm private auction status.")}
-                  class="btn btn-primary text-white d-block"
-                  disabled="disabled"
-                >
-                  Verify Auction
-                </a></>
-                )}
-              </div>
-            )}
-          </li>
-          {shouldShowVerifyInExplorerButton && (
-            <li class="flex-grow-1">
-              <div class="dropdown">
-                <a href={`https://testnet.cspr.live/deploy/${deployHash}`} target="_blank" class="btn bg-dark-dim d-block">
-                  Verify on Explorer
-                </a>
-              </div>
-            </li>
-          )}
-        </ul>
-      </div>
-    </div>
-  </div>
-</div>
+                                {countdown === "Auction has started" && nft.inAuction && !isOwner && user.purse === null && (
+                                  <a
+                                    href="#"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#bidPurseModal"
+                                    class="btn btn-dark d-block "
+                                  >
+                                    Create Bid Purse
+                                  </a>
+                                )}
+                                {!nft.inAuction && isOwner && (
+                                  <a
+                                    href="#"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#startAuctionModal"
+                                    class="btn btn-dark d-block"
+                                  >
+                                    Create Auction
+                                  </a>
+                                )}
+                                {nft.inAuction && isOwner && auctionData.approve  && auctionData.status === "pending" && (
+                                  <a
+                                    href="#"
+                                  onClick={startAuction}
+                                    class="btn btn-success text-white d-block"
+                                  >
+                                    Open Auction
+                                  </a>
+                                )}
+                                {auctionData && isOwner  && auctionEnded && (
+                                  <a
+                                    href="#"
+                                  onClick={endAuction}
+                                    class="btn btn-dark d-block"
+                                  >
+                                    Finalize Auction
+                                  </a>
+                                )}
+                                {nft.inAuction && isOwner && !auctionData.contractHash && !auctionData.approve && (
+                                  <div>
+
+                                    {verifiable ? (
+                                      <><p>You can now verify private Auction Status.</p><a
+                                        href="#"
+                                        onClick={verifyAuction}
+                                        class="btn btn-info bg-dark-dim d-block"
+                                      >
+                                        Verify Auction Status
+                                      </a></>
+                                    ) : (
+                                      <><p>Please come back in a few minutes to confirm private auction status.</p><a
+                                      href="#"
+                                      onClick={() => swal("Please come back in a few minutes to confirm private auction status.")}
+                                      class="btn btn-primary text-white d-block"
+                                      disabled="disabled"
+                                    >
+                                      Verify Auction
+                                    </a></>
+                                    )}
+                                  </div>
+                                )}
+                              </li>
+                              {nft.inAuction && deployHash && isOwner && (
+                              <li class="flex-grow-1">
+                                <div class="dropdown">
+                                  <a
+                                    href={`https://testnet.cspr.live/deploy/${deployHash}`}
+                                    target="_blank"
+                                    class="btn bg-dark-dim d-block"
+                                  >
+                                    Verify on Explorer
+                                  </a>
+                                  
+                                </div>
+                              </li>)}
+                            </ul>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                 
+                    {/* <div className="col-xl-12">
+                      <div className="card-media card-media-s1">
+                        <div className="card-media-body">
+                          {shouldShowAuctionStatus ? (
+                            <div>
+                              {shouldShowAuctionNotVerified && <h4 className="text-danger">Auction not Verified</h4>}
+                              {shouldShowOpenAuctionStatus ? (
+                                <h4 className="text-info">Auction is Open For Bidding</h4>
+                              ) : (
+                                <p className="d-flex">Auction Starts in :   &nbsp;<h3> {countdown} </h3></p>
+                              )}
+                            </div>
+                          ) : (
+                            <div>
+                              <h4>{countdown}</h4>
+                            </div>
+                          )}
+                          
+                          <div className="item-detail-btns mt-4">
+                            <ul className="btns-group d-flex">
+                              <li className="flex-grow-1">
+                                {shouldShowConfirmBid && (
+                                  <>
+                                    {!user.purse || !user.purse.uref && (
+                                      <a
+                                        href="#"
+                                        onClick={confirmBidPurse}
+                                        className="btn btn-warning d-block mb-4"
+                                      >
+                                        Confirm Bid
+                                      </a>
+                                    )}
+                                    <a
+                                      href="#"
+                                      data-bs-toggle="modal"
+                                      data-bs-target="#bidPurseModal"
+                                      className="btn btn-dark d-block mb-0"
+                                    >
+                                      Place  Bid 
+                                    </a>
+                                  </>
+                                )}
+
+                                {shouldShowCreateBidPurse && (
+                                  <a
+                                    href="#"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#bidPurseModal"
+                                    className="btn btn-dark d-block "
+                                  >
+                                    Create Bid Purse
+                                  </a>
+                                )}
+                                
+                                {shouldShowCreateAuction && (
+                                  <a
+                                    href="#"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#startAuctionModal"
+                                    className="btn btn-dark d-block"
+                                  >
+                                    Create Auction
+                                  </a>
+                                )}
+                                
+                                {shouldShowOpenAuction && (
+                                  <a
+                                    href="#"
+                                    onClick={startAuction}
+                                    className="btn btn-success text-white d-block"
+                                  >
+                                    Open Auction
+                                  </a>
+                                )}
+                                
+                                {shouldShowFinalizeAuction && (
+                                  <a
+                                    href="#"
+                                    onClick={endAuction}
+                                    className="btn btn-dark d-block"
+                                  >
+                                    Finalize Auction
+                                  </a>
+                                )}
+                                
+                                {shouldShowVerifyAuctionButton && (
+                                  <div>
+                                    {verifiable ? (
+                                      <><p>You can now verify private Auction Status.</p><a
+                                        href="#"
+                                        onClick={verifyAuction}
+                                        className="btn btn-info bg-dark-dim d-block"
+                                      >
+                                        Verify Auction Status
+                                      </a></>
+                                    ) : (
+                                      <><p>Please come back in a few minutes to confirm private auction status.</p><a
+                                      href="#"
+                                      onClick={() => swal("Please come back in a few minutes to confirm private auction status.")}
+                                      className="btn btn-primary text-white d-block"
+                                      disabled="disabled"
+                                    >
+                                      Verify Auction
+                                    </a></>
+                                    )}
+                                  </div>
+                                )}
+                              </li>
+                              {shouldShowVerifyInExplorerButton && (
+                                <li className="flex-grow-1">
+                                  <div className="dropdown">
+                                    <a href={`https://testnet.cspr.live/deploy/${deployHash}`} target="_blank" className="btn bg-dark-dim d-block">
+                                      Verify on Explorer
+                                    </a>
+                                  </div>
+                                </li>
+                              )}
+                            </ul>
+                          </div>
+                        </div>
+                      </div>
+                    </div> */}
 
                   </div>
                 </div>
@@ -1551,10 +1694,10 @@ export default function NFTDetails(){
                 
               </div>
             </div>
-            <div class="col-lg-5 ms-auto">
-              <div class="item-detail-content">
-                <div class="item-detail-img-container item-detail-img-full">
-                  <img src={nft.artworkUrl} alt="" class="w-100 rounded-3" />
+            <div className="col-lg-5 ms-auto">
+              <div className="item-detail-content">
+                <div className="item-detail-img-container item-detail-img-full">
+                  <img src={nft.artworkUrl} alt="" className="w-100 rounded-3" />
                 </div>
               </div>
             </div>
@@ -1562,48 +1705,48 @@ export default function NFTDetails(){
         </div>
       </section>
       <div
-        class="modal fade"
+        className="modal "
         id="bidPurseModal"
-        tabindex="-1"
+        tabIndex="-1"
         aria-hidden="true"
       >
-        <div class="modal-dialog modal-dialog-centered">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h4 class="modal-title">Create Bid Purse</h4>
+        <div className="modal-dialog modal-dialog-centered">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h4 className="modal-title">Create Bid Purse</h4>
               <button
                 type="button"
-                class="btn-close icon-btn"
+                className="btn-close icon-btn"
                 data-bs-dismiss="modal"
                 aria-label="Close"
               >
-                <em class="ni ni-cross"></em>
+                <em className="ni ni-cross"></em>
               </button>
             </div>
-            <div class="modal-body">
+            <div className="modal-body">
               <form onSubmit={handleBidPurse}>
-              <p class="mb-3">
+              <p className="mb-3">
                   You are about to place a bid for
                   <strong> {nft.mediaName}</strong> 
                   {/* <strong>{nft.artistName}</strong> */}
                 </p>
-                <div class="mb-3">
-                  <label class="form-label">
+                <div className="mb-3">
+                  <label className="form-label">
                     Enter Amount 
                   </label>
                   <input
                     type="text"
-                    class="form-control form-control-s1"
+                    className="form-control form-control-s1"
                     // value={fundAmount}
                     onChange={handleFundAmountChange}
                   />
-                  <small class="text-danger">{currentBid}</small>
+                  <small className="text-danger">{currentBid}</small>
                 </div>
                 {/* ... */}
                 {canPlaceBid ?(
-                  <button type="submit" class="btn btn-dark d-block">Bid </button>
+                  <button type="submit" className="btn btn-dark d-block">Bid </button>
                 ):(
-                  <button type="submit" class="btn btn-dark d-block" disabled>Bid </button>
+                  <button type="submit" className="btn btn-dark d-block" disabled>Bid </button>
                 )}
                 
               </form>
@@ -1612,42 +1755,42 @@ export default function NFTDetails(){
         </div>
       </div>
       <div
-        class="modal fade"
+        className="modal fade"
         id="placeBidModal"
         tabindex="-1"
         aria-hidden="true"
       >
-        <div class="modal-dialog modal-dialog-centered">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h4 class="modal-title">Place a Bid</h4>
+        <div className="modal-dialog modal-dialog-centered">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h4 className="modal-title">Place a Bid</h4>
               <button
                 type="button"
-                class="btn-close icon-btn"
+                className="btn-close icon-btn"
                 data-bs-dismiss="modal"
                 aria-label="Close"
               >
-                <em class="ni ni-cross"></em>
+                <em className="ni ni-cross"></em>
               </button>
             </div>
-            <div class="modal-body">
+            <div className="modal-body">
               <form onSubmit={placeBid}>
-                <p class="mb-3">
+                <p className="mb-3">
                   You are about to place a bid for
                   <strong> {nft.mediaName}</strong> 
                   {/* <strong>{nft.artistName}</strong> */}
                 </p>
-                <div class="mb-3">
-                  <label class="form-label">Your bid (CSPR)</label>
+                <div className="mb-3">
+                  <label className="form-label">Your bid (CSPR)</label>
                   <input
                     type="text"
-                    class="form-control form-control-s1"
+                    className="form-control form-control-s1"
                     placeholder="Minimum bid = 20"
                     value={bidAmount}
                     onChange={handleBidAmountChange}
                   />
                 </div>
-                <button type="submit" class="btn btn-dark d-block">
+                <button type="submit" className="btn btn-dark d-block">
                   Place your Bid
                 </button>
               </form>
@@ -1656,67 +1799,67 @@ export default function NFTDetails(){
         </div>
       </div>
       <div
-        class="modal fade"
+        className="modal fade"
         id="startAuctionModal"
         tabindex="-1"
         aria-hidden="true"
       >
-        <div class="modal-dialog modal-dialog-centered">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h4 class="modal-title">Start Private Auction Contract</h4>
+        <div className="modal-dialog modal-dialog-centered">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h4 className="modal-title">Start Private Auction Contract</h4>
               <button
                 type="button"
-                class="btn-close icon-btn"
+                className="btn-close icon-btn"
                 data-bs-dismiss="modal"
                 aria-label="Close"
               >
-                <em class="ni ni-cross"></em>
+                <em className="ni ni-cross"></em>
               </button>
             </div>
-            <div class="modal-body">
+            <div className="modal-body">
               <form onSubmit={handleDeployAuctionContract}>
-                <p class="mb-3">
+                <p className="mb-3">
                   You are about to deploy an Auction contract for
                   <strong> {nft.mediaName}</strong>
                   <strong> ({nft.assetSymbol})</strong>
                 </p>
-                <div class="mb-3">
-                  <label class="form-label">Token Id</label>
+                <div className="mb-3">
+                  <label className="form-label">Token Id</label>
                   <input
                     type="text"
-                    class="form-control form-control-s1"
+                    className="form-control form-control-s1"
                     value={nft.tokenId}
                     disabled
                   />
                 </div>
-                <div class="mb-3">
-                  <label class="form-label">Auction Starts</label>
+                <div className="mb-3">
+                  <label className="form-label">Auction Starts</label>
                   <input
                     type="datetime-local"
-                    class="form-control form-control-s1"
+                    className="form-control form-control-s1"
                     onChange={handleStartTimeChange}
                   />
                 </div>
-                <div class="mb-3">
-                  <label class="form-label">Auction Ends</label>
+                <div className="mb-3">
+                  <label className="form-label">Auction Ends</label>
                   <input
                     type="datetime-local"
-                    class="form-control form-control-s1"
+                    className="form-control form-control-s1"
                     onChange={handleEndTimeChange}
                   />
                 </div>
-                <div class="mb-3">
-                  <label class="form-label">Enter Min Bid Price(CSPR)</label>
+                <div className="mb-3">
+                  <label className="form-label">Enter Min Bid Price(CSPR)</label>
                   <input
                     type="text"
-                    class="form-control form-control-s1"
+                    className="form-control form-control-s1"
                     value={minPrice}
                     onChange={handleMinPriceChange}
                   />
                 </div>
                 {/* ... */}
-                <button type="submit" class="btn btn-dark d-block float-right">
+                <button type="submit" className="btn btn-dark d-block float-right">
                   Deploy Auction Contract
                 </button>
               </form>
@@ -1726,17 +1869,17 @@ export default function NFTDetails(){
       </div>
       
       {nft.inAuction && bids.length > 0 && (
-        <div class="row mb-4">
-          <div class="col-10 mx-auto">
-            <div class="item-detail-tab">
-              <ul class="nav nav-tabs nav-tabs-s1" id="myTab" role="tablist">
-                <li class="nav-item" role="presentation">
-                  <button class="nav-link" id="bids-tab" data-bs-toggle="tab" data-bs-target="#bids" type="button" role="tab" aria-controls="bids" aria-selected="true">Bids</button>
+        <div className="row mb-4">
+          <div className="col-10 mx-auto">
+            <div className="item-detail-tab">
+              <ul className="nav nav-tabs nav-tabs-s1" id="myTab" role="tablist">
+                <li className="nav-item" role="presentation">
+                  <button className="nav-link" id="bids-tab" data-bs-toggle="tab" data-bs-target="#bids" type="button" role="tab" aria-controls="bids" aria-selected="true">Bids</button>
                 </li>
               </ul>
             </div>
-            <div class="table-responsive">
-              <table class="table mb-0 table-s1 fs-13 bg-gray">
+            <div className="table-responsive">
+              <table className="table mb-0 table-s1 fs-13 bg-gray">
                 <thead>
                   <tr>
                     <th scope="col">Bidder</th>

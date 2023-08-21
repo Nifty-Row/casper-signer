@@ -91,6 +91,7 @@ const MintForm = (key) => {
     token();
     generateTokenId();
   }, [newKey]);
+
   useEffect(() => {
     const grantMinterAsync = async () => {
       if (newKey && !canMint) {
@@ -685,12 +686,7 @@ const MintForm = (key) => {
       <section>
         <div class="container mt-4">
           <div class="row mt-4">
-            {!canMint ?(
-              <><div className="col-md-12" >
-                <h4 className="text-danger text-center">You do not have access to mint an NFT</h4>
-                <center><button onClick={() => grantMinter(publicKey)}  class="btn btn-primary btn-lg float-center mt-4 mb-4">Request Mint Access</button></center>
-              </div> </>
-            ) : (
+            {canMint ?(
               <>
               <div class="col-lg-12 mx-auto">
                 <form ref={formRef} class="vstack gap-4" onSubmit={handleSubmit}>
@@ -1002,6 +998,13 @@ const MintForm = (key) => {
                 </form>
               </div>
               <div class="col-lg-4">
+              </div>
+               </>
+            ) : (
+              <>
+              <div className="col-md-12" >
+                <h4 className="text-danger text-center">You do not have access to mint an NFT</h4>
+                <center><button onClick={() => grantMinter(publicKey)}  class="btn btn-primary btn-lg float-center mt-4 mb-4">Request Mint Access</button></center>
               </div></>
             )}
           </div>

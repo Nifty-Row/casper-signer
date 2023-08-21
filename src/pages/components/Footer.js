@@ -11,7 +11,7 @@ const Footer = () => {
             <div className="row">
               <div className="col-lg-3 col-md-9 me-auto">
                 <div className="footer-item mb-5 mb-lg-0">
-                  <a href="index.html" className="footer-logo-link logo-link">
+                  <a href="../../" className="footer-logo-link logo-link">
                     <img
                       className="logo-dark logo-img"
                       src="../NiftyRow-logo-dark.png"
@@ -58,13 +58,10 @@ const Footer = () => {
                       <h5 className="mb-4">Company</h5>
                       <ul className="list-item list-item-s1">
                         <li>
-                          <a href="https://www.niftyrow.io">About</a>
+                          <a href="https://app.niftyrow.io/about">About</a>
                         </li>
                         <li>
-                          <a href="#">Blog</a>
-                        </li>
-                        <li>
-                          <a href="#">Contact</a>
+                          <a href="https://app.niftyrow.io/contact">Contact</a>
                         </li>
                         <li>
                           <a href="#">Careers</a>
@@ -74,7 +71,7 @@ const Footer = () => {
                   </div>
                   <div className="col-lg-8 col-md-4 col-sm-4">
                     <div className="footer-item">
-                      <h5 className="mb-4">Marketplace</h5>
+                      <h5 className="mb-4">explore</h5>
                       <ul className="list-item list-item-s1">
                         <li>
                           <a href="../marketplace">All Assets</a>
@@ -113,8 +110,6 @@ const Footer = () => {
           </div>
         </div>
       </footer>
-      {/* <script src="../../assets/js/bundle.js" async></script> */}
-      {/* <script src="../../assets/js/scripts.js" async></script> */}
     </>
   );
 };
