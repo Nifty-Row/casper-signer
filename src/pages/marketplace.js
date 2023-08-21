@@ -20,6 +20,8 @@ export default function Home() {
       .then((data) => setNFTs(data))
       .catch((error) => console.error(error));
   };
+
+  console.info("nfts: ", nfts);
   return (
     <>
       <Header />
@@ -32,7 +34,10 @@ export default function Home() {
                 <li class="breadcrumb-item">
                   <a href="../../">Home</a>
                 </li>
-                <li class="breadcrumb-item active text-info" aria-current="page">
+                <li
+                  class="breadcrumb-item active text-info"
+                  aria-current="page"
+                >
                   Marketplace
                 </li>
               </ol>
@@ -45,26 +50,34 @@ export default function Home() {
           <div className="filter-box"></div>
           {/* <div className="gap-2x"></div> */}
           <div className="filter-container row g-gs mx-auto">
-            {nfts.map((nft) => (
-              <NFTCard key={nft.id} nftData={nft} />
-            ))}
+            {nfts
+              .filter((nft) => {
+                const endDate = new Date(nft.auction.endDate);
+                const today = new Date();
+                return endDate > today;
+                // return true;
+              })
+              .map((nft) => (
+                <NFTCard key={nft.id} nftData={nft} />
+              ))}
           </div>
         </div>
       </section>
       {nfts.length == 0 && (
-         <section className="explore-section pt-lg-4 mb-4">
-         <div className="container mb-4">
-           <div className="filter-box"></div>
-           {/* <div className="gap-2x"></div> */}
-           <div className="filter-container row g-gs mb-4">
-             <div className="col-md-12" >
-               <h4 className="text-danger text-center">No Assets available for Auction</h4>
-               {/* <center><a  href="../../walletConnect" class="btn btn-primary btn-lg float-center mt-4">Connect Wallet</a></center> */}
- 
-             </div>
-           </div>
-         </div>
-       </section>
+        <section className="explore-section pt-lg-4 mb-4">
+          <div className="container mb-4">
+            <div className="filter-box"></div>
+            {/* <div className="gap-2x"></div> */}
+            <div className="filter-container row g-gs mb-4">
+              <div className="col-md-12">
+                <h4 className="text-danger text-center">
+                  No Assets available for Auction
+                </h4>
+                {/* <center><a  href="../../walletConnect" class="btn btn-primary btn-lg float-center mt-4">Connect Wallet</a></center> */}
+              </div>
+            </div>
+          </div>
+        </section>
       )}
 
       <Footer />

@@ -1,18 +1,18 @@
 const {
-    DeployUtil,
-    CasperClient,
-    RuntimeArgs,
-    CLValueBuilder,
-    CLMap,
-    CLList,
-    CLKey,
-    CLPublicKey,
-    CLAccountHash,
-    CLString,
-    CLOption,
-  } = require("casper-js-sdk");
+  DeployUtil,
+  CasperClient,
+  RuntimeArgs,
+  CLValueBuilder,
+  CLMap,
+  CLList,
+  CLKey,
+  CLPublicKey,
+  CLAccountHash,
+  CLString,
+  CLOption,
+} = require("casper-js-sdk");
 
-  // Initialize Casper client
+// Initialize Casper client
 // const NODE_URL = "http://3.136.227.9:7777/rpc";
 // const NODE_URL = "http://65.21.134.245:35000/rpc";
 const NODE_URL = "http://178.63.75.44:7777/rpc";
@@ -21,7 +21,6 @@ const client = new CasperClient(NODE_URL);
 export function truncateKey(key) {
   return key ? `${key.slice(0, 5)}...${key.slice(key.length - 5)}` : "";
 }
-
 
 export async function deploySigned(signedDeployJSON) {
   // return await DeployUtil.deployToJson(signedDeployJSON);
@@ -40,7 +39,7 @@ export async function deploySigned(signedDeployJSON) {
   }
 }
 
-export function toHex(object){
+export function toHex(object) {
   const bytes = new Uint8Array(Object.values(object));
   // Create an ArrayBuffer from the Uint8Array
   const arrayBuffer = bytes.buffer;
@@ -48,13 +47,12 @@ export function toHex(object){
   const buffer = Buffer.from(arrayBuffer);
 
   // Convert the Buffer to a hex string
-  const hexString = buffer.toString('hex');
+  const hexString = buffer.toString("hex");
   return hexString;
-
 }
 
 export function encodeSpecialCharacters(text) {
-  return text.replace(/[^\w\s]/gi, function(match) {
+  return text.replace(/[^\w\s]/gi, function (match) {
     return `&#${match.charCodeAt(0)};`;
   });
 }
@@ -66,21 +64,21 @@ export function decodeSpecialCharacters(encodedText) {
 
 export function formatDate(dateString) {
   const date = new Date(dateString);
-  
+
   const options = {
-    hour: 'numeric',
-    minute: 'numeric',
+    hour: "numeric",
+    minute: "numeric",
     hour12: true,
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric'
+    day: "numeric",
+    month: "long",
+    year: "numeric",
   };
-  
-  return date.toLocaleString('en-US', options);
+
+  return date.toLocaleString("en-US", options);
 }
 
-export async function getDeploy(deployHash){
-  if(!deployHash) return;
+export async function getDeploy(deployHash) {
+  if (!deployHash) return;
   let result = await client.getDeploy(deployHash);
   return result;
 }
@@ -139,7 +137,7 @@ export async function getWalletBalance(key) {
     try {
       const response = await fetch(`/api/walletUtils?publicKey=${key}`);
       const data = await response.json();
-      
+
       // alert(data.returnValue);
       return data.returnValue;
     } catch (error) {
@@ -149,7 +147,16 @@ export async function getWalletBalance(key) {
   }
 }
 
-
-export function handleRefresh(){
+export function handleRefresh() {
   window.location.reload(); // Refresh the page
-};
+}
+
+export function convertToLocalUTC(localDate) {
+  // Get the local time zone offset in minutes
+  const localOffset = localDate.getTimezoneOffset();
+
+  // Create a new Date object with the UTC time adjusted using the offset
+  const utcDate = new Date(localDate.getTime() + localOffset * 60 * 1000);
+
+  return utcDate;
+}
