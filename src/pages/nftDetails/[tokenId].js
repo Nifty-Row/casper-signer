@@ -1773,5 +1773,5 @@ export default function NFTDetails(){
       <Footer />
     </>
   );
-}
+  }
 }
