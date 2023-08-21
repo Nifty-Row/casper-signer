@@ -1774,3 +1774,4 @@ export default function NFTDetails(){
     </>
   );
 }
+}
