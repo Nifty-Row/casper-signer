@@ -201,10 +201,10 @@ export default function NFTDetails(){
     const updatedTime = moment(auctionData.createdAt);
     const fiveMinutesLater = moment(updatedTime).add(5, 'minutes');
     const now = moment();
-    console.log(formatDate(updatedTime));
-    console.log(formatDate(fiveMinutesLater));
-    console.log(formatDate(now));
-    console.log(now.isAfter(fiveMinutesLater))
+    // console.log(formatDate(updatedTime));
+    // console.log(formatDate(fiveMinutesLater));
+    // console.log(formatDate(now));
+    // console.log(now.isAfter(fiveMinutesLater));
     if (now.isAfter(fiveMinutesLater)) {
       setVerifiable(true);
     }
@@ -1262,18 +1262,18 @@ export default function NFTDetails(){
     );
   }
   
-  const verifyIfRequired = async () => {
-    if (
-      owner &&
-      auctionData.createdAt &&
-      auctionData.contractHash === null &&
-      new Date() - new Date(auctionData.createdAt) >= 5 * 60 * 1000 // 5 minutes in milliseconds
-    ) {
-      await verifyAuction();
-  };
+  // const verifyIfRequired = async () => {
+  //   if (
+  //     owner &&
+  //     auctionData.createdAt &&
+  //     auctionData.contractHash === null &&
+  //     new Date() - new Date(auctionData.createdAt) >= 5 * 60 * 1000 // 5 minutes in milliseconds
+  //   ) {
+  //     await verifyAuction();
+  // };
 
   // Call the function conditionally
-  verifyIfRequired();
+  // verifyIfRequired();
   
   const shouldShowAuctionStatus = countdown !== "Auction has started" && countdown !== "This asset is not in auction";
   const shouldShowCountdown = countdown === "Auction has started" && nft.inAuction && auctionData.contractHash && !isOwner && user.purse === null;
@@ -1774,4 +1774,4 @@ export default function NFTDetails(){
     </>
   );
   }
-}
+

@@ -323,50 +323,50 @@ const MintForm = (key) => {
               setTokenHash(data);
               saveNFT(nftData).then(data =>{
                 if(data){
-                  window.open(`/nftDetails/${nftData.tokenId}`);
-                  swal({
-                    title: 'Minting in progress',
-                    text: `NFT Asset ${nftData.assetSymbol} has been deployed and Saved successfully. Please check your wallet for the status of the NFT in 3 minutes. What would you like to do next?`,
-                    icon: 'success',
-                    dangerMode: true,
-                    buttons: {
-                      mint: {
-                        text: "Mint",
-                        value: "mint",
-                      },
-                      check: {
-                        text: "View on Casper",
-                        className:"text-warning",
-                        value: "confirm",
-                      },
-                      view: {
-                        text: "View NFTs!",
-                        value: "catch",
-                      }
+                  window.location.href = `/nftDetails/${nftData.tokenId}`;
+                  // swal({
+                  //   title: 'Minting in progress',
+                  //   text: `NFT Asset ${nftData.assetSymbol} has been deployed and Saved successfully. Please check your wallet for the status of the NFT in 3 minutes. What would you like to do next?`,
+                  //   icon: 'success',
+                  //   dangerMode: true,
+                  //   buttons: {
+                  //     mint: {
+                  //       text: "Mint",
+                  //       value: "mint",
+                  //     },
+                  //     check: {
+                  //       text: "View on Casper",
+                  //       className:"text-warning",
+                  //       value: "confirm",
+                  //     },
+                  //     view: {
+                  //       text: "View NFTs!",
+                  //       value: "catch",
+                  //     }
                       
-                    },
+                  //   },
                    
-                  }).then((result) => {
-                    switch (result) {
+                  // }).then((result) => {
+                  //   switch (result) {
              
-                      case "confirm":
-                        // swal("View Deployment on the Blockchain Network");
-                        window.open(`https://testnet.cspr.live/deploy/${deployHash}`, '_blank');
-                        break;
+                  //     case "confirm":
+                  //       // swal("View Deployment on the Blockchain Network");
+                  //       window.open(`https://testnet.cspr.live/deploy/${deployHash}`, '_blank');
+                  //       break;
                    
-                      case "catch":
-                        // swal("Gotcha!", "View Your NFTs!", "success");
-                        window.open(`/profile`,);
-                        break;
+                  //     case "catch":
+                  //       // swal("Gotcha!", "View Your NFTs!", "success");
+                  //       window.open(`/profile`,);
+                  //       break;
             
-                      case "mint":
-                        resetForm();
-                        swal("Gotcha!", "Mint New NFTs!", "success");
-                        break;
+                  //     case "mint":
+                  //       resetForm();
+                  //       swal("Gotcha!", "Mint New NFTs!", "success");
+                  //       break;
     
-                    }
+                  //   }
                     
-                  });
+                  // });
                 }
               });
             })
