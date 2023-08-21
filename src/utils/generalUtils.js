@@ -127,6 +127,26 @@ export async function getDeployedHashes(deployHash) {
   }
 }
 
+export function totesToCSPR(totes) {
+  const totesPerCSPR = 1000000000; // 1 CSPR = 1,000,000,000 totes
+  return totes / totesPerCSPR;
+}
+
+export async function getWalletBalance(key) {
+  if (key) {
+    try {
+      const response = await fetch(`/api/walletUtils?publicKey=${key}`);
+      const data = await response.json();
+
+      // alert(data.returnValue);
+      return data.returnValue;
+    } catch (error) {
+      console.error("Error fetching wallet balance:", error);
+      return false;
+    }
+  }
+}
+
 export function handleRefresh() {
   window.location.reload(); // Refresh the page
 }

@@ -19,7 +19,7 @@ import {
   CLAccountHash,
 } from "casper-js-sdk";
 
-import { encodeSpecialCharacters } from "@/utils/generalUtils";
+import { getWalletBalance,totesToCSPR } from "@/utils/generalUtils";
 import { WalletService } from "@/utils/WalletServices";
 
 const MintForm = (key) => {
@@ -52,6 +52,19 @@ const MintForm = (key) => {
   const [canMint, setCanMint] = useState(false);
   const [user, setUser] = useState(null);
 
+  const [walletBalance, setWalletBalance]= useState("unchecked");
+
+  useEffect(() =>{
+    const checkBalance = async () =>{
+      if(!newKey) return;
+      const balance = await getWalletBalance(newKey);
+      setWalletBalance(balance);  
+    }
+    if(walletBalance !== "unchecked") return;
+    checkBalance();
+  },[newKey,walletBalance]);
+
+  
   useEffect(() => {
     const token = () => {
       const currentDate = new Date().toISOString();
@@ -86,10 +99,8 @@ const MintForm = (key) => {
           setUser(userData);
           if (userData.canMint) {
             setCanMint(true);
-            swal('Notice','Please ensure you have at least 100CSPR as your wallet balance before minting','warning');
           } else {
             await grantMinter(newKey);
-            swal('Notice','Please ensure you have at least 100CSPR as your wallet balance before minting','warning');
           }
         } catch (error) {
           console.error("Error:", error);
@@ -312,50 +323,50 @@ const MintForm = (key) => {
               setTokenHash(data);
               saveNFT(nftData).then(data =>{
                 if(data){
-                  window.open(`/nftDetails/${nftData.tokenId}`);
-                  swal({
-                    title: 'Minting in progress',
-                    text: `NFT Asset ${nftData.assetSymbol} has been deployed and Saved successfully. Please check your wallet for the status of the NFT in 3 minutes. What would you like to do next?`,
-                    icon: 'success',
-                    dangerMode: true,
-                    buttons: {
-                      mint: {
-                        text: "Mint",
-                        value: "mint",
-                      },
-                      check: {
-                        text: "View on Casper",
-                        className:"text-warning",
-                        value: "confirm",
-                      },
-                      view: {
-                        text: "View NFTs!",
-                        value: "catch",
-                      }
+                  window.location.href = `/nftDetails/${nftData.tokenId}`;
+                  // swal({
+                  //   title: 'Minting in progress',
+                  //   text: `NFT Asset ${nftData.assetSymbol} has been deployed and Saved successfully. Please check your wallet for the status of the NFT in 3 minutes. What would you like to do next?`,
+                  //   icon: 'success',
+                  //   dangerMode: true,
+                  //   buttons: {
+                  //     mint: {
+                  //       text: "Mint",
+                  //       value: "mint",
+                  //     },
+                  //     check: {
+                  //       text: "View on Casper",
+                  //       className:"text-warning",
+                  //       value: "confirm",
+                  //     },
+                  //     view: {
+                  //       text: "View NFTs!",
+                  //       value: "catch",
+                  //     }
                       
-                    },
+                  //   },
                    
-                  }).then((result) => {
-                    switch (result) {
+                  // }).then((result) => {
+                  //   switch (result) {
              
-                      case "confirm":
-                        // swal("View Deployment on the Blockchain Network");
-                        window.open(`https://testnet.cspr.live/deploy/${deployHash}`, '_blank');
-                        break;
+                  //     case "confirm":
+                  //       // swal("View Deployment on the Blockchain Network");
+                  //       window.open(`https://testnet.cspr.live/deploy/${deployHash}`, '_blank');
+                  //       break;
                    
-                      case "catch":
-                        // swal("Gotcha!", "View Your NFTs!", "success");
-                        window.open(`/profile`,);
-                        break;
+                  //     case "catch":
+                  //       // swal("Gotcha!", "View Your NFTs!", "success");
+                  //       window.open(`/profile`,);
+                  //       break;
             
-                      case "mint":
-                        resetForm();
-                        swal("Gotcha!", "Mint New NFTs!", "success");
-                        break;
+                  //     case "mint":
+                  //       resetForm();
+                  //       swal("Gotcha!", "Mint New NFTs!", "success");
+                  //       break;
     
-                    }
+                  //   }
                     
-                  });
+                  // });
                 }
               });
             })
@@ -627,7 +638,12 @@ const MintForm = (key) => {
 
     const token_metas = new CLList([tempOptions]);
     const token_commissions = new CLList([token_commission]);
-
+    const gas = "10000000000";
+    let userWalBal = await userWalletBalance(publicKey);
+    if(userWalBal <= parseInt(gas)){
+      swal("Warning",'Your wallet Balance of '+totesToCSPR(walletBalance)+"CSPR will not be enough for this transaction. Please fund your wallet")
+      return;
+    }
     const deploy = contract.callEntrypoint(
       "mint",
       RuntimeArgs.fromMap({
@@ -643,6 +659,17 @@ const MintForm = (key) => {
     return deploy;
     
 
+  }
+
+  async function userWalletBalance(publicKey){
+    const balance = await getWalletBalance(publicKey);
+
+    if (balance !== false) {
+      console.log("Wallet balance:", balance);
+      return balance;
+    } else {
+      console.log("Failed to fetch wallet balance.");
+    }
   }
 
   const resetForm = () => {
