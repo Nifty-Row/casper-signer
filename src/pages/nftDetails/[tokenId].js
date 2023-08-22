@@ -62,6 +62,7 @@ export default function NFTDetails(){
   const [verifiable, setVerifiable] = useState(false);
   const [currentBid, setCurrentBid] = useState("Your Bid must be greater than the the minimum price and the Higest Bid");
   const [canPlaceBid, setCanPlaceBid] = useState(false);
+  const [walletBalance, setWalletBalance]= useState("checking balance"); 
   //load page data
   useEffect(() => {
     const url = window.location.href;
@@ -193,6 +194,11 @@ export default function NFTDetails(){
     }
   }, [nft, auctionData]);
 
+  useEffect(() => {
+    if (!user) {
+      router.push('/walletConnect');
+    }
+  }, [user]);
   
 
   useEffect(() => {
@@ -209,6 +215,62 @@ export default function NFTDetails(){
       setVerifiable(true);
     }
   }, [nft,auctionData]);
+
+  useEffect(() => {
+    const verifyMint = async () => {
+      if (!nft) return;
+  
+      const createdAtDate = new Date(nft.createdAt);
+      const currentTime = new Date();
+  
+      if (!nft.minted && currentTime - createdAtDate >= 5 * 60 * 1000) {
+        try {
+          const verificationResult = await verifyNFT(nft.tokenHash);
+  
+          if (verificationResult === "success") {
+            // Call updateStatus endpoint
+            try {
+              const response = await axios.put('https://shark-app-9kl9z.ondigitalocean.app/api/nft/updateStatus', { tokenId: nft.tokenId });
+              console.log("Update Status Response:", response.data);
+            } catch (updateError) {
+              console.error("Update Status Error:", updateError);
+            }
+  
+            // Show success message
+            swal("Success", "NFT Mint Verified", "success");
+            handleRefresh();
+          } else {
+            // Show warning message
+            swal("Warning", "NFT Minted Not Verified", "warning");
+          }
+        } catch (error) {
+          // Show error message
+          swal("Error", "NFT Mint Verification Failed", "error");
+        }
+      }
+    };
+  
+    verifyMint();
+  }, [nft]);
+  
+  useEffect(() => {
+    const checkBalance = async () => {
+      if (!key) return;
+      try {
+        const balance = await getWalletBalance(key);
+        console.log("wallet Balance", totesToCSPR(balance));
+        setWalletBalance(totesToCSPR(balance || 0)); // Set to 0 if balance is undefined
+      } catch (error) {
+        console.error("Error fetching wallet balance:", error);
+        setWalletBalance(0); // Set to 0 in case of error
+      }
+    };
+    
+    if (walletBalance === "checking balance") {
+      checkBalance();
+    }
+  }, [key, walletBalance]);
+  
   
   //handle page inputs
   const handleBidAmountChange = (e) => {
@@ -561,8 +623,7 @@ export default function NFTDetails(){
     }
     
   }
-  const verifyNFT = async() => {
-    // e.preventDefault();
+  const verifyNFT = async (tokenHash) => {
     swal({
       title: "Submitting...",
       text: "Please wait while we verify your NFT mint status on the blockchain.",
@@ -571,37 +632,16 @@ export default function NFTDetails(){
       closeOnClickOutside: true,
       closeOnEsc: false,
     });
+  
     try {
-      const response = await fetch(`https://shark-app-9kl9z.ondigitalocean.app/api/nft/confirmDeploy/${nft.tokenHash}`);
-      const data = await response.json();
-      return;
-      if(data.Success){
-        swal("Success","NFT was deployed successfully","success");
-        getHashes(deployHash).then(async (data) => {
-          console.log("Hashes",data);
-          if(data.hashes){
-            updateAuctionHashes(data.hashes).then((data)=> {
-              setAuctionData(data);
-            })
-          }
-        });
-      }else if(data.Failure){
-        swal("Verification Failed","NFT Deploy Failed => "+data.Failure.error_message,"error");
-        deleteAuction(auctionData.id).then(data =>{
-          setAuctionData("");
-          let newNFT = nft;
-          newNFT.inAuction=false;
-          setNFT(newNFT);
-          swal("Auction",data+"You can now redeploy another private auction","info");
-        })
-      }
-      return data;
+      const response = await axios.get(`https://shark-app-9kl9z.ondigitalocean.app/api/nft/confirmDeploy/${tokenHash}`);
+      const data = response.data;
+      return data.status;
     } catch (error) {
       console.error(error);
       return null;
     }
-    
-  }
+  };
   async function deleteAuction(auctionId) {
     try {
       const response = await axios.delete(`https://shark-app-9kl9z.ondigitalocean.app/api/auction/${auctionId}`);
@@ -1436,20 +1476,20 @@ export default function NFTDetails(){
                         
                       </div>
                     </div>
-                    <div class="col-xl-12">
-                      <div class="card-media card-media-s1">
-                        <div class="card-media-body">
+                    <div className="col-xl-12">
+                      <div className="card-media card-media-s1">
+                        <div className="card-media-body">
                             {countdown !== "Auction has started" &&  countdown !== "This asset is not in auction" ?(
                               <div> 
                                 {!auctionData.contractHash && isOwner  ?(
-                                  <h4 class="text-danger">Auction not Verified</h4>
+                                  <h4 className="text-danger">Auction not Verified</h4>
                                 ):(
                                   null
                                 )}
                                 {nft.inAuction && auctionData.status === "open" && !auctionStarted ?(
-                                  <h4 class="text-info">Auction is Open For Bidding</h4>
+                                  <h4 className="text-info">Auction is Open For Bidding</h4>
                                 ):(
-                                  <><p class="d-flex">Auction Starts in :   &nbsp;<h3> {countdown} </h3></p></>
+                                  <><p className="d-flex">Auction Starts in :   &nbsp;<h3> {countdown} </h3></p></>
                                 )}
                             </div>
                             ):(
@@ -1458,16 +1498,16 @@ export default function NFTDetails(){
                             </div>
                             )}
                             
-                          <div class="item-detail-btns mt-4">
-                            <ul class="btns-group d-flex">
-                              <li class="flex-grow-1">
+                          <div className="item-detail-btns mt-4">
+                            <ul className="btns-group d-flex">
+                              <li className="flex-grow-1">
                                 {countdown === "Auction has started" && nft.inAuction && !isOwner && user.purse !== null && (
                                   <>
                                     {!user.purse || !user.purse.uref && (
                                       <a
                                         href="#"
                                         onClick={confirmBidPurse}
-                                        class="btn btn-warning d-block mb-4"
+                                        className="btn btn-warning d-block mb-4"
                                       >
                                         Confirm Bid
                                       </a>
@@ -1476,7 +1516,7 @@ export default function NFTDetails(){
                                       href="#"
                                       data-bs-toggle="modal"
                                       data-bs-target="#bidPurseModal"
-                                      class="btn btn-dark d-block mb-0"
+                                      className="btn btn-dark d-block mb-0"
                                     >
                                       Place  Bid 
                                     </a>
@@ -1488,17 +1528,17 @@ export default function NFTDetails(){
                                     href="#"
                                     data-bs-toggle="modal"
                                     data-bs-target="#bidPurseModal"
-                                    class="btn btn-dark d-block "
+                                    className="btn btn-dark d-block "
                                   >
                                     Create Bid Purse
                                   </a>
                                 )}
-                                {!nft.inAuction && isOwner && (
+                                {nft.minted && !nft.inAuction && isOwner && (
                                   <a
                                     href="#"
                                     data-bs-toggle="modal"
                                     data-bs-target="#startAuctionModal"
-                                    class="btn btn-dark d-block"
+                                    className="btn btn-dark d-block"
                                   >
                                     Create Auction
                                   </a>
@@ -1507,7 +1547,7 @@ export default function NFTDetails(){
                                   <a
                                     href="#"
                                   onClick={startAuction}
-                                    class="btn btn-success text-white d-block"
+                                    className="btn btn-success text-white d-block"
                                   >
                                     Open Auction
                                   </a>
@@ -1516,7 +1556,7 @@ export default function NFTDetails(){
                                   <a
                                     href="#"
                                   onClick={endAuction}
-                                    class="btn btn-dark d-block"
+                                    className="btn btn-dark d-block"
                                   >
                                     Finalize Auction
                                   </a>
@@ -1528,7 +1568,7 @@ export default function NFTDetails(){
                                       <><p>You can now verify private Auction Status.</p><a
                                         href="#"
                                         onClick={verifyAuction}
-                                        class="btn btn-info bg-dark-dim d-block"
+                                        className="btn btn-info bg-dark-dim d-block"
                                       >
                                         Verify Auction Status
                                       </a></>
@@ -1536,7 +1576,7 @@ export default function NFTDetails(){
                                       <><p>Please come back in a few minutes to confirm private auction status.</p><a
                                       href="#"
                                       onClick={() => swal("Please come back in a few minutes to confirm private auction status.")}
-                                      class="btn btn-primary text-white d-block"
+                                      className="btn btn-primary text-white d-block"
                                       disabled="disabled"
                                     >
                                       Verify Auction
@@ -1546,14 +1586,27 @@ export default function NFTDetails(){
                                 )}
                               </li>
                               {nft.inAuction && deployHash && isOwner && (
-                              <li class="flex-grow-1">
-                                <div class="dropdown">
+                              <li className="flex-grow-1">
+                                <div className="dropdown">
                                   <a
                                     href={`https://testnet.cspr.live/deploy/${deployHash}`}
                                     target="_blank"
-                                    class="btn bg-dark-dim d-block"
+                                    className="btn bg-dark-dim d-block"
                                   >
                                     Verify on Explorer
+                                  </a>
+                                  
+                                </div>
+                              </li>)}
+                              {!nft.minted && isOwner && (
+                              <li className="flex-grow-1">
+                                <div className="dropdown">
+                                  <a
+                                    href={`https://testnet.cspr.live/deploy/${nft.tokenHash}`}
+                                    target="_blank"
+                                    className="btn bg-dark-dim d-block"
+                                  >
+                                    View NFT on Explorer
                                   </a>
                                   
                                 </div>
@@ -1697,10 +1750,16 @@ export default function NFTDetails(){
             <div className="col-lg-5 ms-auto">
               <div className="item-detail-content">
                 <div className="item-detail-img-container item-detail-img-full">
-                  <img src={nft.artworkUrl} alt="" className="w-100 rounded-3" />
+                  <img
+                    src={nft.artworkUrl}
+                    alt=""
+                    style={nft.minted ? {} : { filter: "grayscale(100%)" }}
+                    className="w-100 rounded-3"
+                  />
                 </div>
               </div>
             </div>
+
           </div>
         </div>
       </section>
@@ -1757,7 +1816,7 @@ export default function NFTDetails(){
       <div
         className="modal fade"
         id="placeBidModal"
-        tabindex="-1"
+        tabIndex="-1"
         aria-hidden="true"
       >
         <div className="modal-dialog modal-dialog-centered">
@@ -1801,7 +1860,7 @@ export default function NFTDetails(){
       <div
         className="modal fade"
         id="startAuctionModal"
-        tabindex="-1"
+        tabIndex="-1"
         aria-hidden="true"
       >
         <div className="modal-dialog modal-dialog-centered">

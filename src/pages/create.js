@@ -31,32 +31,40 @@ export default function WalletConnect() {
     });
   }, [key]);
 
-  const [walletBalance, setWalletBalance]= useState("unchecked"); 
+  const [walletBalance, setWalletBalance]= useState("checking balance"); 
   
-   useEffect(() =>{ 
-     const checkBalance = async () =>{ 
-       if(!key) return; 
-       const balance = await getWalletBalance(key); 
-       setWalletBalance(balance);   
-     } 
-     if(walletBalance !== "unchecked") return; 
-     checkBalance(); 
-   },[key,walletBalance]); 
- 
+  useEffect(() => {
+    const checkBalance = async () => {
+      if (!key) return;
+      try {
+        const balance = await getWalletBalance(key);
+        console.log("wallet Balance", totesToCSPR(balance));
+        setWalletBalance(totesToCSPR(balance || 0)); // Set to 0 if balance is undefined
+      } catch (error) {
+        console.error("Error fetching wallet balance:", error);
+        setWalletBalance(0); // Set to 0 in case of error
+      }
+    };
+    
+    if (walletBalance === "checking balance") {
+      checkBalance();
+    }
+  }, [key, walletBalance]);
+  
 
   return (
     <>
       <Header />
-      <div class="hero-wrap sub-header">
-        <div class="container">
-          <div class="hero-content text-center py-0">
-            <h1 class="hero-title">Mint NFT</h1>
+      <div className="hero-wrap sub-header">
+        <div className="container">
+          <div className="hero-content text-center py-0">
+            <h1 className="hero-title">Mint NFT</h1>
             <nav aria-label="breadcrumb">
-              <ol class="breadcrumb breadcrumb-s1 justify-content-center mt-3 mb-0">
-                <li class="breadcrumb-item">
+              <ol className="breadcrumb breadcrumb-s1 justify-content-center mt-3 mb-0">
+                <li className="breadcrumb-item">
                   <a href="../../">Home</a>
                 </li>
-                <li class="breadcrumb-item active" aria-current="page">
+                <li className="breadcrumb-item active" aria-current="page">
                   Create
                 </li>
               </ol>
@@ -64,12 +72,12 @@ export default function WalletConnect() {
           </div>
         </div>
       </div>
-     {parseInt(walletBalance) > 1000000000 ?(
-      <MintForm publicKeyProp={key} />):(
+     {walletBalance > 100 ?(
+      <MintForm publicKeyProp={key} balance={walletBalance} />):(
        <>
            <div className="col-md-12" >
               <h4 className="text-danger text-center">Please ensure your wallet is well funded to mint an NFT</h4>
-             <p>Your wallet balance is {totesToCSPR(walletBalance)}CSPR. You need at least 100CSPR to mint.</p>
+             <center><p className="text-primary text-center">Your wallet balance is <b>{walletBalance}</b>CSPR. You need at least 100CSPR to mint.</p></center>
             </div>
        </>
        )};
@@ -81,16 +89,16 @@ export default function WalletConnect() {
     return (
       <>
       <Header />
-      <div class="hero-wrap sub-header">
-        <div class="container">
-          <div class="hero-content text-center py-0">
-            <h1 class="hero-title">Nifty Marketplace</h1>
+      <div className="hero-wrap sub-header">
+        <div className="container">
+          <div className="hero-content text-center py-0">
+            <h1 className="hero-title">Nifty Marketplace</h1>
             <nav aria-label="breadcrumb">
-              <ol class="breadcrumb breadcrumb-s1 justify-content-center mt-3 mb-0">
-                <li class="breadcrumb-item">
+              <ol className="breadcrumb breadcrumb-s1 justify-content-center mt-3 mb-0">
+                <li className="breadcrumb-item">
                   <a href="../../">Home</a>
                 </li>
-                <li class="breadcrumb-item active" aria-current="page">
+                <li className="breadcrumb-item active" aria-current="page">
                   Create
                 </li>
               </ol>
@@ -105,7 +113,7 @@ export default function WalletConnect() {
           <div className="filter-container row g-gs">
             <div className="col-md-12" >
               <h4 className="text-danger text-center">Please ensure your wallet is connected to mint an NFT</h4>
-              <center><a  href="../../walletConnect" class="btn btn-primary btn-lg float-center mt-4">Connect Wallet</a></center>
+              <center><a  href="../../walletConnect" className="btn btn-primary btn-lg float-center mt-4">Connect Wallet</a></center>
 
             </div>
           </div>

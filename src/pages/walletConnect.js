@@ -94,6 +94,21 @@ export default function walletConnect() {
     return false;
   }
 
+  useEffect(() => {
+    const fetchUserByKey = async () => {
+      try {
+        const response = await axios.get(`https://shark-app-9kl9z.ondigitalocean.app/api/user/userByKey/${publicKey}`); // Call the API route
+        console.log(response);
+        setUser(response.data); // Update the user state with the API response
+      } catch (error) {
+        console.error('Error fetching user by key:', error);
+      }
+    };
+
+    fetchUserByKey();
+  }, [publicKey]);
+
+
   return (
     <>
       <Header />
