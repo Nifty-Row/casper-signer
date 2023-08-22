@@ -64,8 +64,15 @@ export default function WalletConnect() {
           </div>
         </div>
       </div>
-
-      <MintForm publicKeyProp={key} />
+     {parseInt(walletBalance) > 1000000000 ?(
+      <MintForm publicKeyProp={key} />):(
+       <>
+           <div className="col-md-12" >
+              <h4 className="text-danger text-center">Please ensure your wallet is well funded to mint an NFT</h4>
+             <p>Your wallet balance is {totesToCSPR(walletBalance)}CSPR. You need at least 100CSPR to mint.</p>
+            </div>
+       </>
+       )};
       <Footer />
     </>
   );
