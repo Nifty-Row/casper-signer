@@ -10,6 +10,7 @@ import Footer from "./components/Footer";
 import MintForm from "./components/MintForm";
 import { useEffect, useState } from "react";
 import { WalletService } from "../utils/WalletServices";
+import { getWalletBalance,totesToCSPR} from "../utils/generalUtils";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -29,6 +30,19 @@ export default function WalletConnect() {
       }
     });
   }, [key]);
+
+  const [walletBalance, setWalletBalance]= useState("unchecked"); 
+  
+   useEffect(() =>{ 
+     const checkBalance = async () =>{ 
+       if(!key) return; 
+       const balance = await getWalletBalance(key); 
+       setWalletBalance(balance);   
+     } 
+     if(walletBalance !== "unchecked") return; 
+     checkBalance(); 
+   },[key,walletBalance]); 
+ 
 
   return (
     <>
