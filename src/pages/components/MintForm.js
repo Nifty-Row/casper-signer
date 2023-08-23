@@ -55,15 +55,12 @@ const MintForm = ({keyprop,balance}) => {
   const [walletBalance, setWalletBalance]= useState(balance);
 
   useEffect(() =>{
-    
     const checkBalance = async () =>{
       if(!newKey) return;
-      const balance = await getWalletBalance(newKey);
-      //alert(balance);
-      console.log("bal",balance);
+      const balance = await getWalletBalance(newKey);      
       setWalletBalance(totesToCSPR(walletBalance || 0));  
     }
-    //if(walletBalance == "unchecked") return;
+    if(walletBalance !== "unchecked") return;
     checkBalance();
   },[newKey,walletBalance]);
 

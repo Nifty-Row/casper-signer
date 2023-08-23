@@ -78,6 +78,7 @@ export default function NFTDetails(){
             .then((response) => response.json())
             .then(async (data) => {
               // alert("Fetched NFT DATA");
+              console.log(data);
               setNFT(data);
               if(data.user) setOwner(data.user);
               if(data.auction) setAuctionData(data.auction);
@@ -196,7 +197,7 @@ export default function NFTDetails(){
 
   useEffect(() => {
     if (!user) {
-      router.push('/walletConnect');
+      // router.push('/walletConnect');
     }
   }, [user]);
   
@@ -1301,6 +1302,20 @@ export default function NFTDetails(){
     }
   }
   
+  const renderMediaImage = () => {
+    const defaultImg = "../../default.gif";
+
+    if (nft.mediaType === "artwork") {
+      return <img src={nft.artworkUrl || defaultImg} style={nft.minted ? {} : { filter: "grayscale(100%)" }} className="w-100 rounded-3" alt="art image" />;
+    }
+    if (nft.mediaType === "movie") {
+      return <img src={nft.movieThumbnailUrl || defaultImg} style={nft.minted ? {} : { filter: "grayscale(100%)" }} className="w-100 rounded-3" alt="Movie Thumbnail" />;
+    }
+    if (nft.mediaType === "music") {
+      return <img src={nft.musicThumbnailUrl || defaultImg} style={nft.minted ? {} : { filter: "grayscale(100%)" }} className="w-100 rounded-3" alt="Music Thumbnail" />;
+    }
+    return null;
+  };
   if (typeof nft !== "object" || Object.keys(nft).length === 0) {
     return (
       <>
@@ -1345,7 +1360,7 @@ export default function NFTDetails(){
   return (
     <>
       <Header />
-            <div className="hero-wrap sub-header bg-image2">
+            <div className="hero-wrap sub-header bg-image" style={{minHeight:"200px",maxHeight:"200px"}}>
               <div className="container">
                   <div className="hero-content py-0 d-flex align-items-center">
                   <div className="avatar avatar-3 flex-shrink-0"><Image src="/img_405324.png" width={100} height={100} alt="avatar" /></div>
@@ -1750,12 +1765,7 @@ export default function NFTDetails(){
             <div className="col-lg-5 ms-auto">
               <div className="item-detail-content">
                 <div className="item-detail-img-container item-detail-img-full">
-                  <img
-                    src={nft.artworkUrl}
-                    alt=""
-                    style={nft.minted ? {} : { filter: "grayscale(100%)" }}
-                    className="w-100 rounded-3"
-                  />
+                {renderMediaImage()}
                 </div>
               </div>
             </div>

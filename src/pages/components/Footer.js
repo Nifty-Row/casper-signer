@@ -74,16 +74,16 @@ const Footer = () => {
                       <h5 className="mb-4">explore</h5>
                       <ul className="list-item list-item-s1">
                         <li>
-                          <a href="../marketplace">All Assets</a>
+                          <a href="../assets/">All Assets</a>
                         </li>
                         <li>
-                          <a href="../marketplace">Artwork</a>
+                          <a href="../assets/artworks">Artwork</a>
                         </li>
                         <li>
-                          <a href="../marketplace">Music</a>
+                          <a href="../assets/music">Music</a>
                         </li>
                         <li>
-                          <a href="../marketplace">Videos</a>
+                          <a href="../assets/movies">Videos</a>
                         </li>
                       </ul>
                     </div>

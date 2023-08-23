@@ -125,15 +125,29 @@ const Header = () => {
             </div>
             <nav className="header-menu menu nav">
               <ul className="menu-list ms-lg-auto">
-                <li className="menu-item ">
-                  <a href="../../" className="menu-link text-light">
-                    Home
+                <li className="menu-item has-sub">
+                  <a href="../../" className="menu-link menu-toggle text-light">
+                    Assets
                   </a>
+                  <div class="menu-sub">
+                    <ul class="menu-list">
+                      <li class="menu-item">
+                        <a href="../../assets/artworks" class="menu-link">Artworks</a>
+                      </li>
+                      <li class="menu-item">
+                        <a href="../../assets/music" class="menu-link">Music</a>
+                      </li>
+                      <li class="menu-item">
+                        <a href="../../assets/movies" class="menu-link">Movies</a>
+                      </li>
+                    </ul>
+                  </div>
                 </li>
                 <li className="menu-item">
                   <a href="../../marketplace" className="menu-link text-light">
                     Marketplace
                   </a>
+                 
                 </li>
                 <li className="menu-item has-sub">
                   {/* <a href="#" className="menu-link menu-toggle">
