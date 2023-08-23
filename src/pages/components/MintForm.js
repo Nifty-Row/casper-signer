@@ -59,11 +59,11 @@ const MintForm = ({key,balance}) => {
     const checkBalance = async () =>{
       if(!newKey) return;
       const balance = await getWalletBalance(newKey);
-      alert(balance);
+      //alert(balance);
       console.log("bal",balance);
       setWalletBalance(totesToCSPR(walletBalance || 0));  
     }
-    if(walletBalance !== "unchecked" || walletBalance !== undefined) return;
+    //if(walletBalance == "unchecked") return;
     checkBalance();
   },[newKey,walletBalance]);
 
@@ -132,10 +132,10 @@ const MintForm = ({key,balance}) => {
     }
   }
   
-  async function grantMinter(publicKey) {
+  async function grantMinter(userKey) {
     if(canMint) return ;
-    if(!publicKey){
-       swal("Notice","Please ensure your wallet is properly connected","warning");
+    if(!userKey){
+       swal("Notice","Please ensure your wallet is properly connected :"+userKey,"warning");
     return;
     }
 
@@ -151,7 +151,7 @@ const MintForm = ({key,balance}) => {
     try {
       const url = "https://shark-app-9kl9z.ondigitalocean.app/api/nft/grantMinter";
   
-      const response = await axios.post(url, { publicKey });
+      const response = await axios.post(url, { publicKey:userKey });
   
       if (response.status === 200) {
         const deployHash = response.data;
