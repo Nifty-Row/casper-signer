@@ -172,12 +172,12 @@ const MintForm = ({keyprop,balance}) => {
   const handleSubmit = async (event) => {
     event.preventDefault();
     // Display the confirmation dialog and perform an action based on the response
-    if(walletBalance <= 100){
+    if(parseInt(walletBalance) < 50){
       swal("Warning",`Wallet Balance of ${walletBalance}CSPR is too low for this mint, please fund your wallet and try again`,"warning");
       return false;
     }
     console.log("balance",walletBalance);
-    swal("Warning",`Wallet Balance of ${walletBalance}CSPR is too low for this mint, please fund your wallet and try again`,"warning");
+    //swal("Warning",`Wallet Balance of ${walletBalance}CSPR is too low for this mint, please fund your wallet and try again`,"warning");
 
     return;
     swal({
