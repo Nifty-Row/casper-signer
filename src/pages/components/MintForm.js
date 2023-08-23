@@ -179,7 +179,7 @@ const MintForm = ({keyprop,balance}) => {
     console.log("balance",walletBalance);
     //swal("Warning",`Wallet Balance of ${walletBalance}CSPR is too low for this mint, please fund your wallet and try again`,"warning");
 
-    return;
+    //return;
     swal({
       title: "Are you sure you want to submit?",
       text: "This action cannot be undone.",
