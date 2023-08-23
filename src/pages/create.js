@@ -73,7 +73,7 @@ export default function WalletConnect() {
         </div>
       </div>
      {walletBalance > 100 ?(
-      <MintForm key={key} balance={walletBalance} />):(
+      <MintForm keyprop={key} balance={walletBalance} />):(
        <>
            <div className="col-md-12" >
               <h4 className="text-danger text-center">Please ensure your wallet is well funded to mint an NFT</h4>

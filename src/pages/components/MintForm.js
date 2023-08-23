@@ -22,8 +22,8 @@ import {
 import { getWalletBalance,totesToCSPR } from "@/utils/generalUtils";
 import { WalletService } from "@/utils/WalletServices";
 
-const MintForm = ({key,balance}) => {
-  let newKey = key;
+const MintForm = ({keyprop,balance}) => {
+  let newKey = keyprop;
   const formRef = useRef(null);
   const [publicKey, setPublicKey] = useState(null);
 
