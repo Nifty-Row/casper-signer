@@ -134,6 +134,11 @@ const MintForm = ({key,balance}) => {
   
   async function grantMinter(publicKey) {
     if(canMint) return ;
+    if(!publicKey){
+       swal("Notice","Please ensure your wallet is properly connected","warning");
+    return;
+    }
+
     swal({
       title: "Submitting...",
       text: "Please wait while we grant you access to mint NFTs.",
@@ -1015,7 +1020,7 @@ const MintForm = ({key,balance}) => {
               <>
               <div className="col-md-12" >
                 <h4 className="text-danger text-center">You do not have access to mint an NFT</h4>
-                <center><button onClick={() => grantMinter(publicKey)}  className="btn btn-primary btn-lg float-center mt-4 mb-4">Request Mint Access</button></center>
+                <center><button onClick={() => grantMinter(newKey)}  className="btn btn-primary btn-lg float-center mt-4 mb-4">Request Mint Access</button></center>
               </div></>
             )}
           </div>
