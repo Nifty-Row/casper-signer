@@ -15,7 +15,7 @@ import moment from "moment";
 import {
   WalletService
 } from "@/utils/WalletServices";
-import { formatDate, decodeSpecialCharacters, handleRefresh, truncateKey} from "@/utils/generalUtils";
+import { formatDate, decodeSpecialCharacters, handleRefresh, truncateKey,getWalletBalance,totesToCSPR} from "@/utils/generalUtils";
 import {
   DeployUtil,
   Contracts,
@@ -152,14 +152,14 @@ export default function NFTDetails(){
   
         if (distance <= 0 && distancee >= 0) {
           clearInterval(interval);
-          if(owner && auctionData.status == "pending"){
+          if(isOwner && auctionData.status == "pending"){
             setCountdown('Auction is ready to be initialized');
             setAuctionStatus("initialize");
-          }else if(!owner && auctionData.status == "open"){
+          }else if(!isOwner && auctionData.status == "open"){
             setCountdown('Auction is open for bidding.');
             setAuctionStatus("open");
           }
-          else if(owner && auctionData.status == "open"){
+          else if(isOwner && auctionData.status == "open"){
             setCountdown('Auction is open for bidding.');
             setAuctionStatus("open");
           }
@@ -201,8 +201,8 @@ export default function NFTDetails(){
       return () => {
         clearInterval(interval);
       };
-    } else {
-      console.log(auctionData.startDate);
+    } else if(nft.inAuction === false) {
+      alert(nft.inAuction);
       setCountdown('This asset is not yet in auction');
       setAuctionStarted(false);
     }
@@ -232,13 +232,14 @@ export default function NFTDetails(){
 
   useEffect(() => {
     const verifyMint = async () => {
-      if (!nft) return;
+      if (!nft.tokenHash) return;
   
       const createdAtDate = new Date(nft.createdAt);
       const currentTime = new Date();
-  
+      
       if (!nft.minted && currentTime - createdAtDate >= 5 * 60 * 1000) {
         try {
+          
           const verificationResult = await verifyNFT(nft.tokenHash);
   
           if (verificationResult === "success") {
@@ -255,7 +256,8 @@ export default function NFTDetails(){
             handleRefresh();
           } else {
             // Show warning message
-            swal("Warning", "NFT Minted Not Verified", "warning");
+            console.log(verificationResult);
+            swal("Warning", "NFT Mint Not Verified", "warning");
           }
         } catch (error) {
           // Show error message
@@ -331,6 +333,11 @@ export default function NFTDetails(){
 
   const handleDeployAuctionContract = async (e) => {
     e.preventDefault();
+    if(parseInt(walletBalance) < 200){
+      swal("Warning",`Wallet Balance of ${walletBalance}CSPR is too low for this mint, please fund your wallet and try again`,"warning");
+      return false;
+    }
+    console.log("balance",walletBalance); 
     swal({
       title: "Submitting...",
       text: "Please wait while we start your Auction.",
@@ -471,11 +478,6 @@ export default function NFTDetails(){
     // Calculate the cancellation timestamp by adding a duration to the current timestamp
     const cancellationDuration = 15 * 60 * 1000; // 15 mins after start time
     const cancellationTimestamp = +startTimestamp + +cancellationDuration;
-
-    console.log("Time Stamp",startTimestamp.toString());
-    console.log("Cancellation Time",cancellationTimestamp,formatDate(cancellationTimestamp));
-    console.log("End Time", endTimestamp);
-    console.log("End Time", endTime);
     // Create CLU64 objects using the calculated timestamps
     const start_time = new CLU64(startTimestamp); // Unix timestamp based on user-provided start time
     const cancellation_time = new CLU64(cancellationTimestamp.toString()); // Unix timestamp based on calculated cancellation time
@@ -697,6 +699,11 @@ export default function NFTDetails(){
 
   const handleBidPurse = async (e) => {
     e.preventDefault();
+    if(parseInt(walletBalance) < 200){
+      swal("Warning",`Wallet Balance of ${walletBalance}CSPR is too low for this mint, please fund your wallet and try again`,"warning");
+      return false;
+    }
+    console.log("balance",walletBalance); 
     console.log("Fund Amount:", fundAmount);
     let deploy, deployJSON;
 
@@ -859,6 +866,11 @@ export default function NFTDetails(){
 
   const placeBid = async(e)=>{
     e.preventDefault();
+    if(parseInt(walletBalance) < 50){
+      swal("Warning",`Wallet Balance of ${walletBalance}CSPR is too low for this mint, please fund your wallet and try again`,"warning");
+      return false;
+    }
+    console.log("balance",walletBalance); 
     let deploy,deployJson;
     deploy = await prepareBid(key);
     swal({
@@ -1006,6 +1018,11 @@ export default function NFTDetails(){
 
   const startAuction = async(e) => {
     e.preventDefault();
+    if(parseInt(walletBalance) < 50){
+      swal("Warning",`Wallet Balance of ${walletBalance}CSPR is too low for this mint, please fund your wallet and try again`,"warning");
+      return false;
+    }
+    console.log("balance",walletBalance); 
     swal({
       title: "Submitting...",
       text: "Please wait while we start your Auction.",
@@ -1073,6 +1090,11 @@ export default function NFTDetails(){
   }
   const endAuction = async (e) => {
     e.preventDefault();
+    if(parseInt(walletBalance) < 50){
+      swal("Warning",`Wallet Balance of ${walletBalance}CSPR is too low for this mint, please fund your wallet and try again`,"warning");
+      return false;
+    }
+    console.log("balance",walletBalance); 
     // let { highestBidd, highestBidder } = getHighestBid(bids);
     const msg = (bids.length > 0)
     ? "NFT (" + nft.mediaName + ") has been successfully transferred to its new owner."
@@ -1543,9 +1565,10 @@ export default function NFTDetails(){
                                 ):(
                                   null
                                 )}
-                                {auctionStatus === "open" && !auctionStarted ?(
+                                {auctionStatus === "open" && !isOwner &&(
                                   <h4 className="text-info">Auction is Open For Bidding</h4>
-                                ):(
+                                )}
+                                {auctionStatus === "open" &&(
                                   <><p className="d-flex">Auction Status :  {auctionStatus != "open" && auctionStatus != "initialize" &&("Starts in => ")}   &nbsp;<b> {countdown} </b></p></>
                                 )}
                             </div>
@@ -1558,7 +1581,7 @@ export default function NFTDetails(){
                           <div className="item-detail-btns mt-4">
                             <ul className="btns-group d-flex">
                               <li className="flex-grow-1">
-                                {countdown === "Auction has started" && nft.inAuction && !isOwner && user.purse !== null && (
+                                {auctionStatus === "open" && nft.inAuction && !isOwner && user.purse !== null && (
                                   <>
                                     {!user.purse || !user.purse.uref && (
                                       <a
