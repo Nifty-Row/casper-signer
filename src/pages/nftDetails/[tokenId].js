@@ -141,6 +141,17 @@ export default function NFTDetails(){
       // auctionStartDate.setHours(auctionStartDate.getHours() - 1);//.getTime();
       let auctionEndDate = new Date(auctionData.endDate);
       // auctionEndDate.setHours(auctionEndDate.getHours() - 1);
+
+      const formatter = new Intl.DateTimeFormat('en-US', {
+      timeZone: 'UTC',
+      hour: 'numeric',
+      minute: 'numeric',
+      hour12: true,
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+    });
+
       
       const interval = setInterval(() => {
         const now = new Date().getTime();
@@ -169,7 +180,10 @@ export default function NFTDetails(){
           const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
           const seconds = Math.floor((distance % (1000 * 60)) / 1000);
   
-          setCountdown(`${days}d ${hours}h ${minutes}m ${seconds}s`);
+         // setCountdown(`${days}d ${hours}h ${minutes}m ${seconds}s`);
+           
+        const formattedTime = formatter.format(auctionStartDate);
+        setCountdown(`${days}d ${formattedTime}`);
           
         }
   
