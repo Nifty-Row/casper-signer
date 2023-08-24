@@ -62,19 +62,20 @@ export function decodeSpecialCharacters(encodedText) {
   return doc.documentElement.textContent;
 }
 
-export function formatDate(dateString) {
-  const date = new Date(dateString);
-
-  const options = {
-    hour: "numeric",
-    minute: "numeric",
-    hour12: true,
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  };
-
-  return date.toLocaleString("en-US", options);
+export function formatDate(dateString) { 
+   const date = new Date(dateString); 
+  
+   const options = { 
+     hour: "numeric", 
+     minute: "numeric", 
+     hour12: true, 
+     day: "numeric", 
+     month: "long", 
+     year: "numeric", 
+     timeZone: "UTC" // Set time zone to UTC
+   }; 
+  
+   return date.toLocaleString("en-US", options); 
 }
 
 export async function getDeploy(deployHash) {
