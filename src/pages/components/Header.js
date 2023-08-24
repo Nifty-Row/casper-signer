@@ -129,16 +129,16 @@ const Header = () => {
                   <a href="../../" className="menu-link menu-toggle text-light">
                     Assets
                   </a>
-                  <div class="menu-sub">
-                    <ul class="menu-list">
-                      <li class="menu-item">
-                        <a href="../../assets/artworks" class="menu-link">Artworks</a>
+                  <div className="menu-sub">
+                    <ul className="menu-list">
+                      <li className="menu-item">
+                        <a href="../../assets/artworks" className="menu-link">Artworks</a>
                       </li>
-                      <li class="menu-item">
-                        <a href="../../assets/music" class="menu-link">Music</a>
+                      <li className="menu-item">
+                        <a href="../../assets/music" className="menu-link">Music</a>
                       </li>
-                      <li class="menu-item">
-                        <a href="../../assets/movies" class="menu-link">Movies</a>
+                      <li className="menu-item">
+                        <a href="../../assets/movies" className="menu-link">Movies</a>
                       </li>
                     </ul>
                   </div>

@@ -63,6 +63,7 @@ export default function NFTDetails(){
   const [currentBid, setCurrentBid] = useState("Your Bid must be greater than the the minimum price and the Higest Bid");
   const [canPlaceBid, setCanPlaceBid] = useState(false);
   const [walletBalance, setWalletBalance]= useState("checking balance"); 
+  const [auctionStatus, setAuctionStatus] = useState("");
   //load page data
   useEffect(() => {
     const url = window.location.href;
@@ -85,6 +86,7 @@ export default function NFTDetails(){
               let isOwner = data.ownerKey === key;
               setIsOwner(isOwner);
               if(data.auction){
+                setAuctionStatus(data.auction.status)
                 setMinPrice(data.auction.minimumPrice);
                 if(data.auction.deployHash !== null) setDeployHash(data.auction.deployHash);
                 if(data.auction.bids) setBids(data.auction.bids);
@@ -135,38 +137,38 @@ export default function NFTDetails(){
 
   // set auction countdown if auction has not started
   useLayoutEffect(() => {
-    if (auctionData.startDate) {
-
-      let auctionStartDate = new Date(auctionData.startDate);
-      // auctionStartDate.setHours(auctionStartDate.getHours() - 1);//.getTime();
-      let auctionEndDate = new Date(auctionData.endDate);
-      // auctionEndDate.setHours(auctionEndDate.getHours() - 1);
-
-      const formatter = new Intl.DateTimeFormat('en-US', {
-      timeZone: 'UTC',
-      hour: 'numeric',
-      minute: 'numeric',
-      hour12: true,
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric',
-    });
-
-      
+    
+    if (nft.inAuction && auctionData.startDate) {
+      const utcStartDateString = auctionData.startDate;
+      const utcStartDate = new Date(utcStartDateString);
+      const localStartDate = new Date(utcStartDate.getTime() + (utcStartDate.getTimezoneOffset() * 60 * 1000));
+  
+      const auctionEndDate = new Date(auctionData.endDate);
+  
       const interval = setInterval(() => {
-        const now = new Date().getTime();
-        const distance = auctionStartDate - now;
+        const now = new Date();
+        const distance = localStartDate - now;
         const distancee = auctionEndDate - now;
   
         if (distance <= 0 && distancee >= 0) {
           clearInterval(interval);
-          setCountdown('Auction has started');
+          if(owner && auctionData.status == "pending"){
+            setCountdown('Auction is ready to be initialized');
+            setAuctionStatus("initialize");
+          }else if(!owner && auctionData.status == "open"){
+            setCountdown('Auction is open for bidding.');
+            setAuctionStatus("open");
+          }
+          else if(owner && auctionData.status == "open"){
+            setCountdown('Auction is open for bidding.');
+            setAuctionStatus("open");
+          }
+          
+          
           setFundAmount(auctionData.minimumPrice);
           setAuctionStarted(true);
-        } else if (distancee <= 0  && nft.inAuction) {
-          // alert(nft.inAuction);
+        } else if (distancee <= 0 && nft.inAuction) {
           setAuctionStarted(false);
-          // setAuctionClosed(true);
           setCountdown('Auction has Ended for this Asset');
           setAuctionEnded(true);
           clearInterval(interval);
@@ -180,17 +182,13 @@ export default function NFTDetails(){
           const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
           const seconds = Math.floor((distance % (1000 * 60)) / 1000);
   
-         // setCountdown(`${days}d ${hours}h ${minutes}m ${seconds}s`);
-           
-        const formattedTime = formatter.format(auctionStartDate);
-        setCountdown(`${days}d ${formattedTime}`);
-          
+          setCountdown(`${days}d ${hours}h ${minutes}m ${seconds}s`);
         }
   
         const closeTheAuction = async () => {
-          //check if auction satrt date is exhausted and if there are no bids
+          //check if auction start date is exhausted and if there are no bids
           if (nft.inAuction && distancee < 0 && auctionData.status === "open" && auctionData.bids.length >= 0) {
-            setCountdown('Auction has Ended');
+            setCountdown('Auction is Closed');
             setAuctionEnded(true);
             clearInterval(interval);
             await closeAuction(auctionData.id); // Call the closeAuction function with auctionData.id as a parameter
@@ -204,11 +202,12 @@ export default function NFTDetails(){
         clearInterval(interval);
       };
     } else {
-      setCountdown('This asset is not in auction');
+      console.log(auctionData.startDate);
+      setCountdown('This asset is not yet in auction');
       setAuctionStarted(false);
     }
   }, [nft, auctionData]);
-
+  
   useEffect(() => {
     if (!user) {
       // router.push('/walletConnect');
@@ -611,7 +610,7 @@ export default function NFTDetails(){
       const response = await fetch(`https://shark-app-9kl9z.ondigitalocean.app/api/nft/confirmDeploy/${deployHash}`);
       const data = await response.json();
       
-      if(data.Success){
+      if(data.status === "success"){
         swal("Success","Private Auction Contract was deployed successfully","success");
         getHashes(deployHash).then(async (data) => {
           console.log("Hashes",data);
@@ -621,7 +620,7 @@ export default function NFTDetails(){
             })
           }
         });
-      }else if(data.Failure){
+      }else if(data.status === "failure"){
         swal("Verification Failed","Auction Deploy Failed => "+data.Failure.error_message,"error");
         deleteAuction(auctionData.id).then(data =>{
           setAuctionData("");
@@ -630,6 +629,8 @@ export default function NFTDetails(){
           setNFT(newNFT);
           swal("Auction",data+"You can now redeploy another private auction","info");
         })
+      }else if(data.status == "pending"){
+        swal("Success","Private Auction Contract still deploying","success");
       }
       return data;
     } catch (error) {
@@ -1318,18 +1319,43 @@ export default function NFTDetails(){
   
   const renderMediaImage = () => {
     const defaultImg = "../../default.gif";
-
+  
     if (nft.mediaType === "artwork") {
-      return <img src={nft.artworkUrl || defaultImg} style={nft.minted ? {} : { filter: "grayscale(100%)" }} className="w-100 rounded-3" alt="art image" />;
+      return (
+        <img
+          src={nft.artworkUrl || defaultImg}
+          style={nft.minted ? {} : { filter: "grayscale(100%)" }}
+          className="w-100 rounded-3"
+          alt="art image"
+          title={nft.minted ? "" : "nft mint status not yet verified on the blockchain"}
+        />
+      );
     }
     if (nft.mediaType === "movie") {
-      return <img src={nft.movieThumbnailUrl || defaultImg} style={nft.minted ? {} : { filter: "grayscale(100%)" }} className="w-100 rounded-3" alt="Movie Thumbnail" />;
+      return (
+        <img
+          src={nft.movieThumbnailUrl || defaultImg}
+          style={nft.minted ? {} : { filter: "grayscale(100%)" }}
+          className="w-100 rounded-3"
+          alt="Movie Thumbnail"
+          title={nft.minted ? "" : "nft mint status not yet verified on the blockchain"}
+        />
+      );
     }
     if (nft.mediaType === "music") {
-      return <img src={nft.musicThumbnailUrl || defaultImg} style={nft.minted ? {} : { filter: "grayscale(100%)" }} className="w-100 rounded-3" alt="Music Thumbnail" />;
+      return (
+        <img
+          src={nft.musicThumbnailUrl || defaultImg}
+          style={nft.minted ? {} : { filter: "grayscale(100%)" }}
+          className="w-100 rounded-3"
+          alt="Music Thumbnail"
+          title={nft.minted ? "" : "nft mint status not yet verified on the blockchain"}
+        />
+      );
     }
     return null;
   };
+  
   if (typeof nft !== "object" || Object.keys(nft).length === 0) {
     return (
       <>
@@ -1508,17 +1534,19 @@ export default function NFTDetails(){
                     <div className="col-xl-12">
                       <div className="card-media card-media-s1">
                         <div className="card-media-body">
-                            {countdown !== "Auction has started" &&  countdown !== "This asset is not in auction" ?(
+                            {/* if nft is in auction */}
+                            {nft.inAuction && auctionData ?(
                               <div> 
+                                {/* if auction not verified and is owner */}
                                 {!auctionData.contractHash && isOwner  ?(
                                   <h4 className="text-danger">Auction not Verified</h4>
                                 ):(
                                   null
                                 )}
-                                {nft.inAuction && auctionData.status === "open" && !auctionStarted ?(
+                                {auctionStatus === "open" && !auctionStarted ?(
                                   <h4 className="text-info">Auction is Open For Bidding</h4>
                                 ):(
-                                  <><p className="d-flex">Auction Starts in :   &nbsp;<h3> {countdown} </h3></p></>
+                                  <><p className="d-flex">Auction Status :  {auctionStatus != "open" && auctionStatus != "initialize" &&("Starts in => ")}   &nbsp;<b> {countdown} </b></p></>
                                 )}
                             </div>
                             ):(
@@ -1572,7 +1600,7 @@ export default function NFTDetails(){
                                     Create Auction
                                   </a>
                                 )}
-                                {nft.inAuction && isOwner && auctionData.approve  && auctionData.status === "pending" && (
+                                {nft.inAuction && isOwner  && auctionStatus === "initialize" && (
                                   <a
                                     href="#"
                                   onClick={startAuction}
@@ -1622,7 +1650,7 @@ export default function NFTDetails(){
                                     target="_blank"
                                     className="btn bg-dark-dim d-block"
                                   >
-                                    Verify on Explorer
+                                    View on Explorer
                                   </a>
                                   
                                 </div>
@@ -1758,7 +1786,7 @@ export default function NFTDetails(){
                                 <li className="flex-grow-1">
                                   <div className="dropdown">
                                     <a href={`https://testnet.cspr.live/deploy/${deployHash}`} target="_blank" className="btn bg-dark-dim d-block">
-                                      Verify on Explorer
+                                      View on Explorer
                                     </a>
                                   </div>
                                 </li>
