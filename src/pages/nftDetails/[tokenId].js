@@ -1565,8 +1565,8 @@ export default function NFTDetails(){
                                 ):(
                                   null
                                 )}
-                                {auctionStatus === "open" && !isOwner &&(
-                                  <h4 className="text-info">Auction is Open For Bidding</h4>
+                                {auctionStatus === "open" &&(
+                                  <h4 className="text-success">Auction is Open For Bidding <em className="ni ni-check"></em></h4>
                                 )}
                                 {auctionStatus !== "open" &&(
                                   <><p className="d-flex">Auction Status :  {auctionStatus != "open" && auctionStatus != "initialize" &&("Starts in => ")}   &nbsp;<b> {countdown} </b></p></>
