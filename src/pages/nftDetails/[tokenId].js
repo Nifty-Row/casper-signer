@@ -221,10 +221,10 @@ export default function NFTDetails(){
     const updatedTime = moment(auctionData.createdAt);
     const fiveMinutesLater = moment(updatedTime).add(5, 'minutes');
     const now = moment();
-    // console.log(formatDate(updatedTime));
-    // console.log(formatDate(fiveMinutesLater));
-    // console.log(formatDate(now));
-    // console.log(now.isAfter(fiveMinutesLater));
+    console.log(formatDate(updatedTime));
+    console.log(formatDate(fiveMinutesLater));
+    console.log(formatDate(now));
+    console.log(now.isAfter(fiveMinutesLater));
     if (now.isAfter(fiveMinutesLater)) {
       setVerifiable(true);
     }
@@ -340,7 +340,7 @@ export default function NFTDetails(){
     console.log("balance",walletBalance); 
     swal({
       title: "Submitting...",
-      text: "Please wait while we start your Auction.",
+      text: "Please wait while we Deploy your Auction.",
       icon: "info",
       buttons: false,
       closeOnClickOutside: false,
@@ -1568,7 +1568,7 @@ export default function NFTDetails(){
                                 {auctionStatus === "open" && !isOwner &&(
                                   <h4 className="text-info">Auction is Open For Bidding</h4>
                                 )}
-                                {auctionStatus === "open" &&(
+                                {auctionStatus !== "open" &&(
                                   <><p className="d-flex">Auction Status :  {auctionStatus != "open" && auctionStatus != "initialize" &&("Starts in => ")}   &nbsp;<b> {countdown} </b></p></>
                                 )}
                             </div>
@@ -1627,9 +1627,9 @@ export default function NFTDetails(){
                                   <a
                                     href="#"
                                   onClick={startAuction}
-                                    className="btn btn-success text-white d-block"
+                                    className="btn btn-dark text-white d-block"
                                   >
-                                    Open Auction
+                                    Start Auction
                                   </a>
                                 )}
                                 {auctionData && isOwner  && auctionEnded && (
