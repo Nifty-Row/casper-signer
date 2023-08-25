@@ -1623,7 +1623,7 @@ export default function NFTDetails(){
                                     Create Auction
                                   </a>
                                 )}
-                                {nft.inAuction && isOwner  && auctionStatus === "initialize" && (
+                                {nft.inAuction && isOwner  && auctionStatus === "initialize" && !auctionEnded && (
                                   <a
                                     href="#"
                                   onClick={startAuction}
