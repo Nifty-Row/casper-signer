@@ -51,15 +51,15 @@ export default function Home() {
           {/* <div className="gap-2x"></div> */}
           <div className="filter-container row g-gs mx-auto">
             {nfts
-              .filter((nft) => {
-                const endDate = new Date(nft.auction.endDate);
-                const today = new Date();
-                return endDate > today;
-                // return true;
-              })
-              .map((nft) => (
-                <NFTCard key={nft.id} nftData={nft} />
-              ))}
+  .filter((nft) => {
+    const endDate = new Date(nft.auction.endDate);
+    const today = new Date();
+    return nft.auction.status === "open" && endDate > today;
+  })
+  .map((nft) => (
+    <NFTCard key={nft.id} nftData={nft} />
+  ))}
+
           </div>
         </div>
       </section>
