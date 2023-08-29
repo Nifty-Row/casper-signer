@@ -15,9 +15,9 @@ const inter = Inter({ subsets: ["latin"] });
 
 export default function walletConnect() {
 
-  const [signerConnected, setSignerConnected] = useState(false);
+  const [walletConnected, setWalletConnected] = useState(false);
   const [publicKey, setPublicKey] = useState(null);
-  const [signerLocked, setSignerLocked] = useState(true);
+  const [walletLocked, setWalletLocked] = useState(true);
   const [activeKey, setActiveKey] = useState("");
   const [error, setError] = useState(null);
 
@@ -56,24 +56,24 @@ export default function walletConnect() {
       try {
         const connected = await WalletService.isSiteConnected();
         // swal("Info","Casper Wallet Connection ?"+connected,"info");
-        setSignerConnected(connected);
+        setWalletConnected(connected);
       } catch (err) {
         swal("Info","Casper Wallet Connection Error "+err.message,"info");
         console.log(err);
       }
     }, 100);
 
-    const checkSignerConnection = async () => {
+    const checkWalletConnection = async () => {
       try {
-        if (signerConnected) setPublicKey(await WalletService.getActivePublicKey());
+        if (walletConnected) setPublicKey(await WalletService.getActivePublicKey());
       } catch (error) {
         setError(
-          "There was an error connecting to the Casper Signer. Please make sure you have the Signer installed and refresh the page before trying again."
+          "There was an error connecting to the Casper Wallet. Please make sure you have the Wallet installed and refresh the page before trying again."
         );
       }
     };
-    checkSignerConnection();
-  }, [signerConnected]);
+    checkWalletConnection();
+  }, [walletConnected]);
 
   async function  walletToUser(key) {
     try {
@@ -93,6 +93,21 @@ export default function walletConnect() {
     }
     return false;
   }
+
+  useEffect(() => {
+    const fetchUserByKey = async () => {
+      try {
+        const response = await axios.get(`https://shark-app-9kl9z.ondigitalocean.app/api/user/userByKey/${publicKey}`); // Call the API route
+        console.log(response);
+        setUser(response.data); // Update the user state with the API response
+      } catch (error) {
+        console.error('Error fetching user by key:', error);
+      }
+    };
+
+    fetchUserByKey();
+  }, [publicKey]);
+
 
   return (
     <>

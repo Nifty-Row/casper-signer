@@ -5,7 +5,6 @@ import crypto from "crypto";
 import { Some, None } from "ts-results";
 
 import {
-  Signer,
   DeployUtil,
   Contracts,
   CLPublicKey,
@@ -20,11 +19,11 @@ import {
   CLAccountHash,
 } from "casper-js-sdk";
 
-import { encodeSpecialCharacters } from "@/utils/generalUtils";
+import { getWalletBalance,totesToCSPR } from "@/utils/generalUtils";
 import { WalletService } from "@/utils/WalletServices";
 
-const MintForm = (key) => {
-  let newKey = key.publicKeyProp;
+const MintForm = ({keyprop,balance}) => {
+  let newKey = keyprop;
   const formRef = useRef(null);
   const [publicKey, setPublicKey] = useState(null);
 
@@ -53,6 +52,19 @@ const MintForm = (key) => {
   const [canMint, setCanMint] = useState(false);
   const [user, setUser] = useState(null);
 
+  const [walletBalance, setWalletBalance]= useState(balance);
+
+  useEffect(() =>{
+    const checkBalance = async () =>{
+      if(!newKey) return;
+      const balance = await getWalletBalance(newKey);      
+      setWalletBalance(totesToCSPR(walletBalance || 0));  
+    }
+    if(walletBalance !== "unchecked") return;
+    checkBalance();
+  },[newKey,walletBalance]);
+
+  
   useEffect(() => {
     const token = () => {
       const currentDate = new Date().toISOString();
@@ -79,6 +91,7 @@ const MintForm = (key) => {
     token();
     generateTokenId();
   }, [newKey]);
+
   useEffect(() => {
     const grantMinterAsync = async () => {
       if (newKey && !canMint) {
@@ -116,8 +129,13 @@ const MintForm = (key) => {
     }
   }
   
-  async function grantMinter(publicKey) {
+  async function grantMinter(userKey) {
     if(canMint) return ;
+    if(!userKey){
+       swal("Notice","Please ensure your wallet is properly connected :"+userKey,"warning");
+    return;
+    }
+
     swal({
       title: "Submitting...",
       text: "Please wait while we grant you access to mint NFTs.",
@@ -130,7 +148,7 @@ const MintForm = (key) => {
     try {
       const url = "https://shark-app-9kl9z.ondigitalocean.app/api/nft/grantMinter";
   
-      const response = await axios.post(url, { publicKey });
+      const response = await axios.post(url, { publicKey:userKey });
   
       if (response.status === 200) {
         const deployHash = response.data;
@@ -154,6 +172,12 @@ const MintForm = (key) => {
   const handleSubmit = async (event) => {
     event.preventDefault();
     // Display the confirmation dialog and perform an action based on the response
+    if(parseInt(walletBalance) < 50){
+      swal("Warning",`Wallet Balance of ${walletBalance}CSPR is too low for this mint, please fund your wallet and try again`,"warning");
+      return false;
+    }
+    console.log("balance",walletBalance);
+    //return;
     swal({
       title: "Are you sure you want to submit?",
       text: "This action cannot be undone.",
@@ -311,50 +335,50 @@ const MintForm = (key) => {
               setTokenHash(data);
               saveNFT(nftData).then(data =>{
                 if(data){
-                  window.open(`/nftDetails/${nftData.tokenId}`);
-                  swal({
-                    title: 'Minting Complete',
-                    text: `NFT Asset ${nftData.assetSymbol} Minted and Saved successfully. What would you like to do next?`,
-                    icon: 'success',
-                    dangerMode: true,
-                    buttons: {
-                      mint: {
-                        text: "Mint",
-                        value: "mint",
-                      },
-                      check: {
-                        text: "View on Casper",
-                        className:"text-warning",
-                        value: "confirm",
-                      },
-                      view: {
-                        text: "View NFTs!",
-                        value: "catch",
-                      }
+                  window.location.href = `/nftDetails/${nftData.tokenId}`;
+                  // swal({
+                  //   title: 'Minting in progress',
+                  //   text: `NFT Asset ${nftData.assetSymbol} has been deployed and Saved successfully. Please check your wallet for the status of the NFT in 3 minutes. What would you like to do next?`,
+                  //   icon: 'success',
+                  //   dangerMode: true,
+                  //   buttons: {
+                  //     mint: {
+                  //       text: "Mint",
+                  //       value: "mint",
+                  //     },
+                  //     check: {
+                  //       text: "View on Casper",
+                  //       className:"text-warning",
+                  //       value: "confirm",
+                  //     },
+                  //     view: {
+                  //       text: "View NFTs!",
+                  //       value: "catch",
+                  //     }
                       
-                    },
+                  //   },
                    
-                  }).then((result) => {
-                    switch (result) {
+                  // }).then((result) => {
+                  //   switch (result) {
              
-                      case "confirm":
-                        // swal("View Deployment on the Blockchain Network");
-                        window.open(`https://testnet.cspr.live/deploy/${deployHash}`, '_blank');
-                        break;
+                  //     case "confirm":
+                  //       // swal("View Deployment on the Blockchain Network");
+                  //       window.open(`https://testnet.cspr.live/deploy/${deployHash}`, '_blank');
+                  //       break;
                    
-                      case "catch":
-                        // swal("Gotcha!", "View Your NFTs!", "success");
-                        window.open(`/profile`,);
-                        break;
+                  //     case "catch":
+                  //       // swal("Gotcha!", "View Your NFTs!", "success");
+                  //       window.open(`/profile`,);
+                  //       break;
             
-                      case "mint":
-                        resetForm();
-                        swal("Gotcha!", "Mint New NFTs!", "success");
-                        break;
+                  //     case "mint":
+                  //       resetForm();
+                  //       swal("Gotcha!", "Mint New NFTs!", "success");
+                  //       break;
     
-                    }
+                  //   }
                     
-                  });
+                  // });
                 }
               });
             })
@@ -626,7 +650,12 @@ const MintForm = (key) => {
 
     const token_metas = new CLList([tempOptions]);
     const token_commissions = new CLList([token_commission]);
-
+    const gas = "10000000000";
+    let userWalBal = await userWalletBalance(publicKey);
+    if(userWalBal <= parseInt(gas)){
+      swal("Warning",'Your wallet Balance of '+totesToCSPR(parseInt(walletBalance))+"CSPR will not be enough for this transaction. Please fund your wallet")
+      return;
+    }
     const deploy = contract.callEntrypoint(
       "mint",
       RuntimeArgs.fromMap({
@@ -644,6 +673,17 @@ const MintForm = (key) => {
 
   }
 
+  async function userWalletBalance(publicKey){
+    const balance = await getWalletBalance(publicKey);
+
+    if (balance !== false) {
+      console.log("Wallet balance:", balance);
+      return balance;
+    } else {
+      console.log("Failed to fetch wallet balance.");
+    }
+  }
+
   const resetForm = () => {
     const form = formRef.current;
     if (form) {
@@ -653,34 +693,29 @@ const MintForm = (key) => {
 
   return (
     <>
-      <div class="row"></div>
+      <div className="row"></div>
       <section>
-        <div class="container mt-4">
-          <div class="row mt-4">
-            {!canMint ?(
-              <><div className="col-md-12" >
-                <h4 className="text-danger text-center">You do not have access to mint an NFT</h4>
-                <center><button onClick={() => grantMinter(publicKey)}  class="btn btn-primary btn-lg float-center mt-4 mb-4">Request Mint Access</button></center>
-              </div> </>
-            ) : (
+        <div className="container mt-4">
+          <div className="row mt-4">
+            {canMint ?(
               <>
-              <div class="col-lg-12 mx-auto">
-                <form ref={formRef} class="vstack gap-4" onSubmit={handleSubmit}>
-                  <div class="card ">
-                    <div class="card-header">
-                      <h3 class="mb-4"><center>NFT Details</center></h3>
+              <div className="col-lg-12 mx-auto">
+                <form ref={formRef} className="vstack gap-4" onSubmit={handleSubmit}>
+                  <div className="card ">
+                    <div className="card-header">
+                      <h3 className="mb-4"><center>NFT Details</center></h3>
                     </div>
                   </div>
-                  <div class="card-body shadow mb-4">
-                    <div class="row g-3 mb-4 p-12">
-                      <div class="col-md-6">
-                        <label class="form-label text-dark text-bold">
+                  <div className="card-body shadow mb-4">
+                    <div className="row g-3 mb-4 p-12">
+                      <div className="col-md-6">
+                        <label className="form-label text-dark text-bold">
                           Asset Category *
                         </label>
-                        <div class="d-sm-flex">
-                          <div class="form-check radio-bg-light me-4">
+                        <div className="d-sm-flex">
+                          <div className="form-check radio-bg-light me-4">
                             <input
-                              class="form-check-input"
+                              className="form-check-input"
                               name="category"
                               value="Artwork"
                               type="radio"
@@ -688,13 +723,13 @@ const MintForm = (key) => {
                               checked={category === "Artwork"}
                               onChange={(e) => setCategory(e.target.value)}
                             />
-                            <label class="form-check-label" for="category1">
+                            <label className="form-check-label" htmlFor="category1">
                               Artwork
                             </label>
                           </div>
-                          <div class="form-check radio-bg-light me-4">
+                          <div className="form-check radio-bg-light me-4">
                             <input
-                              class="form-check-input"
+                              className="form-check-input"
                               type="radio"
                               name="category"
                               value="Music"
@@ -702,13 +737,13 @@ const MintForm = (key) => {
                               checked={category === "Music"}
                               onChange={(e) => setCategory(e.target.value)}
                             />
-                            <label class="form-check-label" for="category2">
+                            <label className="form-check-label" htmlFor="category2">
                               Music
                             </label>
                           </div>
-                          <div class="form-check radio-bg-light me-4">
+                          <div className="form-check radio-bg-light me-4">
                             <input
-                              class="form-check-input"
+                              className="form-check-input"
                               type="radio"
                               name="category"
                               value="Movie"
@@ -716,20 +751,20 @@ const MintForm = (key) => {
                               checked={category === "Movie & Animation"}
                               onChange={(e) => setCategory(e.target.value)}
                             />
-                            <label class="form-check-label" for="category3">
+                            <label className="form-check-label" htmlFor="category3">
                               Movies & Animations
                             </label>
                           </div>
                         </div>
                       </div>
-                      <div class="col-md-6">
-                        <label class="form-label text-dark text-bold">
+                      <div className="col-md-6">
+                        <label className="form-label text-dark text-bold">
                           Asset Type *
                         </label>
-                        <div class="d-sm-flex">
-                          <div class="form-check radio-bg-light me-4">
+                        <div className="d-sm-flex">
+                          <div className="form-check radio-bg-light me-4">
                             <input
-                              class="form-check-input"
+                              className="form-check-input"
                               type="radio"
                               name="assetType"
                               id="assetType1"
@@ -737,13 +772,13 @@ const MintForm = (key) => {
                               checked={assetType === "Digital"}
                               onChange={(e) => setAssetType(e.target.value)}
                             />
-                            <label class="form-check-label" for="assetType1">
+                            <label className="form-check-label" htmlFor="assetType1">
                               Digital Asset
                             </label>
                           </div>
-                          <div class="form-check radio-bg-light me-4">
+                          <div className="form-check radio-bg-light me-4">
                             <input
-                              class="form-check-input"
+                              className="form-check-input"
                               type="radio"
                               name="assetType"
                               id="assetType2"
@@ -751,26 +786,26 @@ const MintForm = (key) => {
                               checked={assetType === "Physical"}
                               onChange={(e) => setAssetType(e.target.value)}
                             />
-                            <label class="form-check-label" for="assetType2">
+                            <label className="form-check-label" htmlFor="assetType2">
                               Physical Asset
                             </label>
                           </div>
                         </div>
                       </div>
-                      <div class="col-md-6">
-                        <div class="card ">
-                          {/* <div class="card-header border-bottom">
-                                              <h5 class="mb-0">Upload Files</h5>
+                      <div className="col-md-6">
+                        <div className="card ">
+                          {/* <div className="card-header border-bottom">
+                                              <h5 className="mb-0">Upload Files</h5>
                                           </div> */}
-                          <div class="card-body">
-                            <div class="row g-3">
+                          <div className="card-body">
+                            <div className="row g-3">
                               {category === "Artwork" && (
-                                <div class="col-12">
-                                  <label class="form-label">
+                                <div className="col-12">
+                                  <label className="form-label">
                                     Image upload for artwork:
                                   </label>
                                   <input
-                                    class="form-control"
+                                    className="form-control"
                                     type="file"
                                     id="artwork-image"
                                     onChange={(e) =>
@@ -778,17 +813,17 @@ const MintForm = (key) => {
                                     }
                                     accept="image/gif, image/jpeg, image/png"
                                   />
-                                  {/* <p class="small mb-0 mt-2"><b>Note:</b> Only JPG, JPEG, and PNG. Our suggested dimensions are 600px * 450px. The larger image will be cropped to 4:3 to fit our thumbnails/previews.</p> */}
+                                  {/* <p className="small mb-0 mt-2"><b>Note:</b> Only JPG, JPEG, and PNG. Our suggested dimensions are 600px * 450px. The larger image will be cropped to 4:3 to fit our thumbnails/previews.</p> */}
                                 </div>
                               )}
                               {category === "Music" && (
                                 <>
-                                  <div class="col-12">
-                                    <label class="form-label">
+                                  <div className="col-12">
+                                    <label className="form-label">
                                       Audio Thumbnail Image:
                                     </label>
                                     <input
-                                      class="form-control"
+                                      className="form-control"
                                       type="file"
                                       id="thumbnail-image"
                                       onChange={(e) =>
@@ -796,14 +831,14 @@ const MintForm = (key) => {
                                       }
                                       accept="image/gif, image/jpeg, image/png"
                                     />
-                                    {/* <p class="small mb-0 mt-2"><b>Note:</b> Only JPG, JPEG, and PNG. Our suggested dimensions are 600px * 450px. The larger image will be cropped to 4:3 to fit our thumbnails/previews.</p> */}
+                                    {/* <p className="small mb-0 mt-2"><b>Note:</b> Only JPG, JPEG, and PNG. Our suggested dimensions are 600px * 450px. The larger image will be cropped to 4:3 to fit our thumbnails/previews.</p> */}
                                   </div>
-                                  <div class="col-12">
-                                    <label class="form-label">
+                                  <div className="col-12">
+                                    <label className="form-label">
                                       Sample audio file:
                                     </label>
                                     <input
-                                      class="form-control"
+                                      className="form-control"
                                       type="file"
                                       id="sample-audio"
                                       onChange={(e) =>
@@ -811,7 +846,7 @@ const MintForm = (key) => {
                                       }
                                       accept="audio/wav, audio/mp3"
                                     />
-                                    <p class="small mb-0 mt-2">
+                                    <p className="small mb-0 mt-2">
                                       <b>Note:</b> Only .MP3, .WAV, and .MP4
                                       accepted.{" "}
                                     </p>
@@ -820,12 +855,12 @@ const MintForm = (key) => {
                               )}
                               {category === "Movie & Animation" && (
                                 <>
-                                  <div class="col-12">
-                                    <label class="form-label">
+                                  <div className="col-12">
+                                    <label className="form-label">
                                       Video Thumbnail Image:
                                     </label>
                                     <input
-                                      class="form-control"
+                                      className="form-control"
                                       type="file"
                                       id="movie-thumbnail-image"
                                       onChange={(e) =>
@@ -833,14 +868,14 @@ const MintForm = (key) => {
                                       }
                                       accept="image/gif, image/jpeg, image/png"
                                     />
-                                    {/* <p class="small mb-0 mt-2"><b>Note:</b> Only JPG, JPEG, and PNG. Our suggested dimensions are 600px * 450px. The larger image will be cropped to 4:3 to fit our thumbnails/previews.</p> */}
+                                    {/* <p className="small mb-0 mt-2"><b>Note:</b> Only JPG, JPEG, and PNG. Our suggested dimensions are 600px * 450px. The larger image will be cropped to 4:3 to fit our thumbnails/previews.</p> */}
                                   </div>
-                                  <div class="col-12">
-                                    <label class="form-label">
+                                  <div className="col-12">
+                                    <label className="form-label">
                                       Sample Video file:
                                     </label>
                                     <input
-                                      class="form-control"
+                                      className="form-control"
                                       type="file"
                                       name="my-image"
                                       id="artwork-image"
@@ -849,7 +884,7 @@ const MintForm = (key) => {
                                       }
                                       accept="video/mp4, video/mov, video/webm"
                                     />
-                                    <p class="small mb-0 mt-2">
+                                    <p className="small mb-0 mt-2">
                                       <b>Note:</b> Only .MP4, .MOV, and .WEBM
                                       accepted.{" "}
                                     </p>
@@ -860,19 +895,19 @@ const MintForm = (key) => {
                           </div>
                         </div>
                       </div>
-                      <div class="col-md-6">
-                        <div class="card ">
-                          <div class="card-body">
-                            <div class="row g-3">
+                      <div className="col-md-6">
+                        <div className="card ">
+                          <div className="card-body">
+                            <div className="row g-3">
                               {assetType === "Digital" && (
-                                <div class="col-12"></div>
+                                <div className="col-12"></div>
                               )}
                               {assetType === "Physical" && (
                                 <>
-                                  <div class="col-6">
-                                    <label class="form-label">Artist Name:</label>
+                                  <div className="col-6">
+                                    <label className="form-label">Artist Name:</label>
                                     <input
-                                      class="form-control"
+                                      className="form-control"
                                       type="text"
                                       id="thumbnail-image"
                                       onChange={(e) =>
@@ -880,32 +915,32 @@ const MintForm = (key) => {
                                       }
                                       accept="image/gif, image/jpeg, image/png"
                                     />
-                                    {/* <p class="small mb-0 mt-2"><b>Note:</b> Only JPG, JPEG, and PNG. Our suggested dimensions are 600px * 450px. The larger image will be cropped to 4:3 to fit our thumbnails/previews.</p> */}
+                                    {/* <p className="small mb-0 mt-2"><b>Note:</b> Only JPG, JPEG, and PNG. Our suggested dimensions are 600px * 450px. The larger image will be cropped to 4:3 to fit our thumbnails/previews.</p> */}
                                   </div>
-                                  <div class="col-6">
-                                    <label class="form-label">Medium:</label>
+                                  <div className="col-6">
+                                    <label className="form-label">Medium:</label>
                                     <input
-                                      class="form-control"
+                                      className="form-control"
                                       type="text"
                                       value={medium}
                                       onChange={(e) => setMedium(e.target.value)}
                                     />
                                   </div>
-                                  <div class="col-6">
-                                    <label class="form-label">
+                                  <div className="col-6">
+                                    <label className="form-label">
                                       Production Year:
                                     </label>
                                     <input
-                                      class="form-control"
+                                      className="form-control"
                                       type="text"
                                       value={year}
                                       onChange={(e) => setYear(e.target.value)}
                                     />
                                   </div>
-                                  <div class="col-6">
-                                    <label class="form-label">Asset Size:</label>
+                                  <div className="col-6">
+                                    <label className="form-label">Asset Size:</label>
                                     <input
-                                      class="form-control"
+                                      className="form-control"
                                       type="text"
                                       value={size}
                                       onChange={(e) => setSize(e.target.value)}
@@ -918,48 +953,48 @@ const MintForm = (key) => {
                         </div>
                       </div>
 
-                      <div class="col-md-6">
-                        <label class="form-label text-dark text-bold">
+                      <div className="col-md-6">
+                        <label className="form-label text-dark text-bold">
                           Asset Name/Title
                         </label>
                         <input
-                          class="form-control"
+                          className="form-control"
                           type="text"
                           placeholder="Enter Asset name"
                           value={nftName}
                           onChange={(e) => setNftName(e.target.value)}
                         />
                       </div>
-                      <div class="col-md-6">
-                        <label class="form-label text-dark text-bold">
+                      <div className="col-md-6">
+                        <label className="form-label text-dark text-bold">
                           Asset Symbol
                         </label>
                         <input
-                          class="form-control"
+                          className="form-control"
                           type="text"
                           placeholder="Enter Asset Symbol E.g NGH"
                           value={assetSymbol}
                           onChange={(e) => setAssetSymbol(e.target.value)}
                         />
                       </div>
-                      <div class="col-md-12">
-                        <label class="form-label text-dark text-bold">
+                      <div className="col-md-12">
+                        <label className="form-label text-dark text-bold">
                           Asset Description
                         </label>
                         <textarea
-                          class="form-control"
+                          className="form-control"
                           rows="6"
                           placeholder="Enter Asset Description"
                           value={nftDescription}
                           onChange={(e) => setNftDescription(e.target.value)}
                         ></textarea>
                       </div>
-                      <div class="col-md-6">
-                        <label class="form-label text-dark text-bold">
+                      <div className="col-md-6">
+                        <label className="form-label text-dark text-bold">
                           Asset Social Link
                         </label>
                         <input
-                          class="form-control"
+                          className="form-control"
                           type="text"
                           placeholder="Enter Social Link"
                           value={socialMediaLink}
@@ -968,18 +1003,25 @@ const MintForm = (key) => {
                       </div>
                     </div>
                   </div>
-                  <div class="text-end mb-4">
-                    <button class="btn btn-success mb-4 text-white" >Proceed</button>
+                  <div className="text-end mb-4">
+                    <button className="btn btn-success mb-4 text-white" >Proceed</button>
                   </div>
                 </form>
               </div>
-              <div class="col-lg-4">
+              <div className="col-lg-4">
+              </div>
+               </>
+            ) : (
+              <>
+              <div className="col-md-12" >
+                <h4 className="text-danger text-center">You do not have access to mint an NFT</h4>
+                <center><button onClick={() => grantMinter(newKey)}  className="btn btn-primary btn-lg float-center mt-4 mb-4">Request Mint Access</button></center>
               </div></>
             )}
           </div>
         </div>
       </section>
-      <div class=""></div>
+      <div className=""></div>
     </>
   );
 };

@@ -121,14 +121,27 @@ export default function Home() {
                                         <a href="#"><span class="ni ni-globe icon"></span>frenchmontana.com</a>
                                         </li> */}
                                       <li>
-                                          <a href={user.facebook} target="_blank"><span class="ni ni-facebook-f icon"></span>Facebook</a>
+                                        {user.facebook && (
+                                          <a href={user.facebook} target="_blank">
+                                            <span className="ni ni-facebook-f icon"></span>Facebook
+                                          </a>
+                                        )}
                                       </li>
                                       <li>
-                                          <a href={user.twitter} target="_blank"><span class="ni ni-twitter icon"></span>Twitter</a>
+                                        {user.twitter && (
+                                          <a href={user.twitter} target="_blank">
+                                            <span className="ni ni-twitter icon"></span>Twitter
+                                          </a>
+                                        )}
                                       </li>
                                       <li>
-                                          <a href={user.instagram} target="_blank"><span class="ni ni-instagram icon"></span>Instagram</a>
+                                        {user.instagram && (
+                                          <a href={user.instagram} target="_blank">
+                                            <span className="ni ni-instagram icon"></span>Instagram
+                                          </a>
+                                        )}
                                       </li>
+
                                   </ul>
                               </div>
                               <div class="col-md-6 col-lg-6 col-xl-12 sidebar-widget">

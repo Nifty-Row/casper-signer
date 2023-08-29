@@ -4,27 +4,26 @@ import { useEffect, useState } from "react";
 import {WalletService} from "../../utils/WalletServices";
 import {truncateKey, handleRefresh} from "../../utils/generalUtils";
 import swal from "sweetalert";
-import { Signer } from "casper-js-sdk";
 
 const Header = () => {
   const [publicKey, setPublicKey] = useState("");
-  const [signerConnected, setSignerConnected] = useState("");
+  const [walletConnected, setWalletConnected] = useState("");
   const [error, setError] = useState("");
 
   useEffect(() => {
     setTimeout(async () => {
       try {
         const connected = await WalletService.isSiteConnected();
-        setSignerConnected(connected);
+        setWalletConnected(connected);
       } catch (err) {
         swal("Attention",err.message,"warning");
         console.log(err);
       }
     }, 100);
 
-    const checkSignerConnection = async () => {
+    const checkWalletConnection = async () => {
       try {
-        if (signerConnected) setActiveKey(await WalletService.getActivePublicKey());
+        if (walletConnected) setActiveKey(await WalletService.getActivePublicKey());
         const publicKeyHex = await WalletService.getActivePublicKey();
         setPublicKey(publicKeyHex);
       } catch (error) {
@@ -33,8 +32,8 @@ const Header = () => {
         );
       }
     };
-    checkSignerConnection();
-  }, [signerConnected]);
+    checkWalletConnection();
+  }, [walletConnected]);
 
   const handleDisconnect = async () => {
     swal({
@@ -126,15 +125,29 @@ const Header = () => {
             </div>
             <nav className="header-menu menu nav">
               <ul className="menu-list ms-lg-auto">
-                <li className="menu-item ">
-                  <a href="../../" className="menu-link text-light">
-                    Home
+                <li className="menu-item has-sub">
+                  <a href="../../" className="menu-link menu-toggle text-light">
+                    Assets
                   </a>
+                  <div className="menu-sub">
+                    <ul className="menu-list">
+                      <li className="menu-item">
+                        <a href="../../assets/artworks" className="menu-link">Artworks</a>
+                      </li>
+                      <li className="menu-item">
+                        <a href="../../assets/music" className="menu-link">Music</a>
+                      </li>
+                      <li className="menu-item">
+                        <a href="../../assets/movies" className="menu-link">Movies</a>
+                      </li>
+                    </ul>
+                  </div>
                 </li>
                 <li className="menu-item">
                   <a href="../../marketplace" className="menu-link text-light">
                     Marketplace
                   </a>
+                 
                 </li>
                 <li className="menu-item has-sub">
                   {/* <a href="#" className="menu-link menu-toggle">

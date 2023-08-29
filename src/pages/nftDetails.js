@@ -6,12 +6,6 @@ import { useRouter } from "next/router";
 import { Inter } from "next/font/google";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
-import { Signer } from "casper-js-sdk";
-import {
-  checkConnection,
-  getActiveKeyFromSigner,
-  connectCasperSigner,
-} from "../utils/CasperUtils";
 
 export default function nftDetails() {
   const router = useRouter();

@@ -19,11 +19,26 @@ const NFTCard = ({ nftData }) => {
   } = nftData;
 
   const fullName = user ? user.fullName : '';
+  const defaultImg = "../../default.gif";
+  const placeBidLink = `../../../nftDetails/${tokenId}`;
 
-  const placeBidLink = `nftDetails/${tokenId}`;
+  const renderMediaImage = () => {
+    if (mediaType === "artwork") {
+      return <img src={artworkUrl || defaultImg} className="card-img nftcard-img" alt="art image" />;
+    }
+    if (mediaType === "movie") {
+      return <img src={movieThumbnailUrl || defaultImg} className="card-img nftcard-img" alt="Movie Thumbnail" />;
+    }
+    if (mediaType === "music") {
+      return <img src={musicThumbnailUrl || defaultImg} className="card-img nftcard-img" alt="Music Thumbnail" />;
+    }
+    return null;
+  };
+
+
   return (
     <div className="col-xl-3 col-lg-3 col-sm-6">
-      <div className="card card-full card-s3">
+      <div className="card card-full card-s3 mt-4">
         <div className="card-author d-flex align-items-center justify-content-between pb-3">
           <div className="d-flex align-items-center">
             <a href="../../author/" className="avatar me-1">
@@ -41,27 +56,11 @@ const NFTCard = ({ nftData }) => {
           </div>
         </div>
         <div className="card-image">
-          {mediaType === "artwork" && (
-            <img src={artworkUrl} className="card-img nftcard-img" alt="art image" />
-          )}
-          {mediaType === "movie" && (
-            <img
-              src={movieThumbnailUrl}
-              className="card-img nftcard-img"
-              alt="Movie Thumbnail"
-            />
-          )}
-          {mediaType === "music" && (
-            <img
-              src={musicThumbnailUrl}
-              className="card-img nftcard-img"
-              alt="Music Thumbnail"
-            />
-          )}
+          {renderMediaImage()}
         </div>
         <div className="card-body px-0 pb-0">
           <h5 className="card-title text-truncate">
-            <a href="product-details-v1.html">{mediaName}</a>
+            <a href={placeBidLink}>{mediaName}</a>
           </h5>
           <div className="card-price-wrap d-flex align-items-center justify-content-sm-between pb-3">
             <div className="me-5 me-sm-2">
