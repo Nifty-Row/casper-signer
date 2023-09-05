@@ -32,9 +32,9 @@
     background-size: cover;
   }
   .casper{
-    width: 30px !important;
+    width: auto !important;
     margin: 8px !important;
-    height: 20px !important;
+    max-height: 44px;
   }
 
   .nftcard-img{

@@ -75,7 +75,6 @@ const Header = () => {
                   src="../../casperlabslogo.png"
                   alt="logo"
                   className="card-media-img flex-shrink-2 casper me-0 mb-3"
-                  style={{max height:"44px", width:"auto"}}
                 />
                 <img
                   className="logo-light logo-img"
