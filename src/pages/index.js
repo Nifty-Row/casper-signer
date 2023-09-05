@@ -1,5 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
 /* eslint-disable react/no-unescaped-entities */
+/* eslint-disable @next/next/no-html-link-for-pages */
 import Head from "next/head";
 import Image from "next/image";
 import { Inter } from "next/font/google";
@@ -146,7 +147,7 @@ export default function Home() {
           </section>
           <section class="subscibe-section section-space-sm">
               <div class="container">
-                  <div class="join-form-wrap">
+                  {/* <div class="join-form-wrap">
                       <div class="row g-gs align-items-center">
                           <div class="col-lg-3"><h3 class="form-title">Join Our Newsletter</h3>
                           </div>
@@ -160,10 +161,10 @@ export default function Home() {
                               <a href="#" class="btn btn-dark d-md-block">Subscribe Now</a>
                           </div>
                       </div>
-                  </div>
+                  </div> */}
               </div>
           </section>
-                  </div>
+        </div>
       </div>
       {/* <Mint /> */}
       <Footer />

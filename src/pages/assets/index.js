@@ -1,3 +1,6 @@
+/* eslint-disable @next/next/no-img-element */
+/* eslint-disable react/no-unescaped-entities */
+/* eslint-disable @next/next/no-html-link-for-pages */
 import Head from "next/head";
 import { Inter } from "next/font/google";
 import React, { useEffect, useState } from "react";
