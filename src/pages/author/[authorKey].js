@@ -20,8 +20,6 @@ export default function Home() {
   const [userNfts, setUserNfts] = useState([]);
   const [userOwnedNfts, setUserOwnedNfts] = useState([]);
   const [userNftsInAuction, setUserNftsInAuction] = useState([]);
-  let background = "../../public/assets/images/banner.png";
-
   useLayoutEffect(() => {
     const getUserDataByKey = async () => {
       if (authorKey) {

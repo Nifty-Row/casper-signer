@@ -72,7 +72,6 @@ export function formatDate(dateString) {
      day: "numeric", 
      month: "long", 
      year: "numeric", 
-     timeZone: "UTC" // Set time zone to UTC
    }; 
   
    return date.toLocaleString("en-US", options); 
