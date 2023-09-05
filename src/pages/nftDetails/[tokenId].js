@@ -61,6 +61,7 @@ export default function NFTDetails() {
   const [bids, setBids] = useState("");
   const [countdown, setCountdown] = useState("");
   const [timeNote, setTimeNote] = useState("");
+  const [timeZone,setTimeZone] =useState("");
   const [auctionStarted, setAuctionStarted] = useState(false);
   const [auctionEnded, setAuctionEnded] = useState(false);
   const [auctionStartDate, setAuctionStartDate] = useState("");
@@ -74,6 +75,8 @@ export default function NFTDetails() {
   const [auctionStatus, setAuctionStatus] = useState("");
   //load page data
   useEffect(() => {
+    const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    setTimeZone(userTimezone);
     const url = window.location.href;
     const id = url.split("/").pop();
     WalletService.getActivePublicKey()
@@ -152,12 +155,11 @@ export default function NFTDetails() {
 
       const interval = setInterval(() => {
         const now = new Date();
-        const distance = localStartDate - now;
-        const distancee = auctionEndDate - now;
-
+        const distance = localStartDate.getTime() - now.getTime();
+        const distancee = auctionEndDate.getTime() - now.getTime();
         if (distance <= 0 && distancee >= 0) {
           clearInterval(interval);
-          if (isOwner && auctionData.status == "pending") {
+          if (isOwner && auctionData.status == "pending" && verifiable) {
             setCountdown("Auction is ready to be initialized");
             setAuctionStatus("initialize");
           } else if (!isOwner && auctionData.status == "open") {
@@ -242,19 +244,37 @@ export default function NFTDetails() {
   }, [user]);
 
   useEffect(() => {
-    if (!nft.inAuction) return;
-
-    const updatedTime = moment(auctionData.createdAt);
-    const fiveMinutesLater = moment(updatedTime).add(5, "minutes");
-    const now = moment();
-    console.log(formatDate(updatedTime));
-    console.log(formatDate(fiveMinutesLater));
-    console.log(formatDate(now));
-    console.log(now.isAfter(fiveMinutesLater));
-    if (now.isAfter(fiveMinutesLater)) {
-      setVerifiable(true);
-    }
-  }, [nft, auctionData]);
+    if (!nft.inAuction || verifiable) return;
+  
+    // Create a function to check the time and setVerifiable
+    const checkTimeAndUpdate = () => {
+      const updatedTime = moment(auctionData.createdAt);
+      const fiveMinutesLater = moment(updatedTime).add(3, "minutes");
+      const now = moment();
+      console.log(formatDate(updatedTime));
+      console.log(formatDate(fiveMinutesLater));
+      console.log(formatDate(now));
+      console.log("After 3 minutes", now.isAfter(fiveMinutesLater));
+      if (now.isAfter(fiveMinutesLater)) {
+        setVerifiable(true);
+      }
+    };
+  
+    // Initially, run the check
+    checkTimeAndUpdate();
+  
+    // Use setInterval to run the check every 10 seconds
+    const intervalId = setInterval(() => {
+      checkTimeAndUpdate();
+      if (verifiable) {
+        clearInterval(intervalId); // Stop the interval when verifiable is true
+      }
+    }, 10000); // 10000 milliseconds = 10 seconds
+  
+    // Clean up the interval when the component unmounts
+    return () => clearInterval(intervalId);
+  }, [nft, auctionData, verifiable]);
+  
 
   useEffect(() => {
     const verifyMint = async () => {
@@ -347,11 +367,18 @@ export default function NFTDetails() {
   };
 
   const handleStartTimeChange = (e) => {
-    setStartTime(e.target.value);
+    const localStartTime = new Date(e.target.value);
+    const utcStartTime = localStartTime.toISOString(); // Convert to UTC
+    // const startTimeInUserTimezone = new Date(e.target.value).toLocaleString("en-US", {
+    //   timeZone: timeZone,
+    // });    
+    setStartTime(utcStartTime);
   };
 
   const handleEndTimeChange = (e) => {
-    setEndTime(e.target.value);
+    const localEndTime = new Date(e.target.value);
+    const utcEndTime = localEndTime.toISOString(); // Convert to UTC
+    setEndTime(utcEndTime);
   };
   const handleMinPriceChange = (e) => {
     setMinPrice(e.target.value);
@@ -367,17 +394,19 @@ export default function NFTDetails() {
       );
       return false;
     }
-    console.log("balance", walletBalance);
     swal({
       title: "Submitting...",
       text: "Please wait while we Deploy your Auction.",
       icon: "info",
       buttons: false,
-      closeOnClickOutside: false,
-      closeOnEsc: false,
+      closeOnClickOutside: true,
+      closeOnEsc: true,
     });
     const deploy = await prepareAuctionDeploy(key);
-    if (!deploy) return;
+    if (!deploy) {
+      return;
+    }
+
     const deployJSON = DeployUtil.deployToJson(deploy);
     try {
       const res = await WalletService.sign(JSON.stringify(deployJSON), key);
@@ -503,27 +532,20 @@ export default function NFTDetails() {
     const token_id = new CLString(tokenId);
 
     const currentTimestamp = Date.now(); // Get the current timestamp in milliseconds
-
+    
     // Convert user-provided start and end times to timestamps
-    const startTimestamp = moment
-      .utc(startTime, "YYYY-MM-DDTHH:mm")
-      .valueOf()
-      .toString();
-    const endTimestamp = moment
-      .utc(endTime, "YYYY-MM-DDTHH:mm")
-      .valueOf()
-      .toString();
-
+    const startTimestamp = new Date(startTime).getTime();
+    const endTimestamp = new Date(endTime).getTime();
     // Calculate the cancellation timestamp by adding a duration to the current timestamp
-    const cancellationDuration = 15 * 60 * 1000; // 15 mins after start time
+    const cancellationDuration = 10 * 60 * 1000; // 15 mins after start time
     const cancellationTimestamp = +startTimestamp + +cancellationDuration;
     // Create CLU64 objects using the calculated timestamps
     const start_time = new CLU64(startTimestamp); // Unix timestamp based on user-provided start time
     const cancellation_time = new CLU64(cancellationTimestamp.toString()); // Unix timestamp based on calculated cancellation time
     const end_time = new CLU64(endTimestamp); // Unix timestamp based on user-provided end time
-
+    let isGreater = startTimestamp <= currentTimestamp;
     // Check if the conditions are met
-    if (startTimestamp <= currentTimestamp) {
+    if (isGreater) {
       swal(
         "Warning!",
         "Start time " + formatDate(startTime) + " should be in the future.",
@@ -538,7 +560,7 @@ export default function NFTDetails() {
         "Warning!",
         "Start time should be earlier than cancellation time " +
           formatDate(cancellationTimestamp) +
-          ", at least 15 minutes from now at " +
+          ", at least 10 minutes from now start " +
           formatDate(cancellationTimestamp),
         "warning"
       );
@@ -549,10 +571,7 @@ export default function NFTDetails() {
     if (cancellationTimestamp >= endTimestamp) {
       swal(
         "Warning!",
-        "Cancellation time " +
-          formatDate(cancellationTimestamp) +
-          " should be earlier than end time." +
-          formatDate(endTime),
+        "End time should be at least 1 hour after than start time ",
         "warning"
       );
       console.error("Cancellation time should be earlier than end time.");
@@ -645,9 +664,6 @@ export default function NFTDetails() {
       marketplace_commission: marketplace_commission,
       has_enhanced_nft: has_enhanced_nft,
     });
-
-    // console.log("args",args);
-    // alert(JSON.stringify(Object.entries(args)));
     let lock_cspr_moduleBytes;
     await fetch("/casper-private-auction-installer.wasm")
       .then((response) => response.arrayBuffer())
@@ -659,16 +675,12 @@ export default function NFTDetails() {
       args
     );
 
-    // console.log("session",session);
-    // return;
     try {
       let ddeploy = DeployUtil.makeDeploy(
         deployParams,
         session,
         DeployUtil.standardPayment(200000000000)
       );
-      // console.log("deploy",ddeploy);
-      // return;
       return ddeploy;
     } catch (e) {
       console.log(e);
@@ -1593,7 +1605,7 @@ export default function NFTDetails() {
         <div className="container">
           <div className="hero-content py-0 d-flex align-items-center">
             <div className="avatar avatar-3 flex-shrink-0">
-              <Image
+              <img
                 src="/img_405324.png"
                 width={100}
                 height={100}
@@ -1603,10 +1615,10 @@ export default function NFTDetails() {
             <div className="author-hero-content-wrap d-flex flex-wrap justify-content-between ms-3 flex-grow-1">
               <div className="author-hero-content me-3">
                 <h4 className="hero-author-title mb-1 text-white">
-                  {owner.fullName}
+                  {owner?.fullName}
                 </h4>
                 <p className="hero-author-username mb-1 text-white">
-                  @{owner.username}
+                  @{owner?.username}
                 </p>
                 <Copier text={owner.publicKey} />
               </div>
@@ -1665,7 +1677,7 @@ export default function NFTDetails() {
                               href="#"
                               className="card-media-img flex-shrink-0 d-block"
                             >
-                              <img src="/img_405324.png" alt="avatar" />
+                              <img src="../../img_405324.png" alt={nft.mediaName} />
                             </a>
                             {owner && (
                               <>
@@ -2217,7 +2229,9 @@ export default function NFTDetails() {
                     type="datetime-local"
                     className="form-control form-control-s1"
                     onChange={handleStartTimeChange}
+                    timeZone="UTC"
                   />
+
                 </div>
                 <div className="mb-3">
                   <label className="form-label">Auction Ends</label>
