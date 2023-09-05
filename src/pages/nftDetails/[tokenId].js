@@ -920,7 +920,8 @@ export default function NFTDetails(){
             const data = JSON.stringify(response.data);
             swal("Success","Bid has been placed Successfully","success");
             console.log("Sever Response",response);
-            await addBid();
+            let resul = await addBid();
+            if(resul == "Bid added successfully") handleRefresh();
             return response.data;
           }
         }catch (error) {
