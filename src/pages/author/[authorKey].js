@@ -3,17 +3,18 @@ import Image from "next/image";
 import axios from "axios";
 import { Inter } from "next/font/google";
 import React, { useLayoutEffect, useState } from "react";
-import Header from "./components/Header";
-import Footer from "./components/Footer";
-import NFTCard from "./components/NFTCard";
-
-import { WalletService } from "@/utils/WalletServices";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
+import NFTCard from "@/components/NFTCard";
+import { useRouter } from "next/router";
 import { truncateKey } from "@/utils/generalUtils";
-import Copier from "./components/Copier";
+import Copier from "@/components/Copier";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export default function Home() {
+    const router = useRouter();
+    const { authorKey } = router.query;
   const [activeKey, setActiveKey] = useState();
   const [user, setUserData] = useState([]);
   const [userNfts, setUserNfts] = useState([]);
@@ -23,55 +24,22 @@ export default function Home() {
 
   useLayoutEffect(() => {
     const getUserDataByKey = async () => {
-      if (activeKey) {
+      if (authorKey) {
         try {
-          const url = `https://shark-app-9kl9z.ondigitalocean.app/api/user/userByKey/${activeKey}`;
+          const url = `https://shark-app-9kl9z.ondigitalocean.app/api/user/userByKey/${authorKey}`;
           const response = await axios.get(url);
-          console.log(response.data);
+          const userData = response.data;
+          setActiveKey(userData.publicKey); // Set the activeKey from user data
+          setUserData(userData);
+          getUserNFTs(userData.publicKey);
         } catch (error) {
           console.error("Error:", error);
         }
-      } else {
-        if (WalletService.isSiteConnected()) {
-          try {
-            const key = await WalletService.getActivePublicKey();
-            setActiveKey(key);
-            const data = await fetch(
-              `https://shark-app-9kl9z.ondigitalocean.app/api/user/userByKey/${key}`
-            ).then((response) => response.json());
-            setUserData(data);
-            getUserNFTs(key);
-            console.log("2", data);
-          } catch (error) {
-            console.error(error);
-          }
-        }
       }
     };
-  
-    const getUserNFTs = async (key) => {
-      if (key) {
-        try {
-          const response = await fetch(
-            `https://shark-app-9kl9z.ondigitalocean.app/api/nft/nftsByOwner/${key}`
-          );
-          const data = await response.json();
-          setUserNfts(data);
-          let res = data.filter((nft) => nft.ownerKey === key && nft.ownerKey!== nft.deployerKey);
-          setUserOwnedNfts(res);
-          let res2 = data.filter((nft) => nft.ownerKey === key && nft.inAuction);
-          setUserNftsInAuction(res2);
-      } catch (error) {
-          console.error(error);
-        }
-        
-      }
-    };
-  
+
     getUserDataByKey();
-    getUserNFTs(activeKey);
-  }, [activeKey]);
-  
+  }, [authorKey]);
   
   return (
     <><><>

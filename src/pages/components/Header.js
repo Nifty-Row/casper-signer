@@ -167,8 +167,8 @@ const Header = () => {
                 )}
                 {publicKey !== "" && (
                   <li>
-                    <a href="../../profile" className="btn btn-primary">
-                     Profile {truncateKey(publicKey)}
+                    <a href="../../user/assets" className="btn btn-primary">
+                     Assets {truncateKey(publicKey)}
                     </a>
                   </li>
                 )}

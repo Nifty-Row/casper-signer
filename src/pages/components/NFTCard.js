@@ -15,13 +15,14 @@ const NFTCard = ({ nftData }) => {
     mediaType,
     assetSymbol,
     artistName,
+    ownerKey,
     user = {},
   } = nftData;
 
   const fullName = user ? user.fullName : '';
   const defaultImg = "../../default.gif";
   const placeBidLink = `../../../nftDetails/${tokenId}`;
-
+  const authorLink = `../../author/${ownerKey}`
   const renderMediaImage = () => {
     if (mediaType === "artwork") {
       return <img src={artworkUrl || defaultImg} className="card-img nftcard-img" alt="art image" />;
@@ -41,7 +42,7 @@ const NFTCard = ({ nftData }) => {
       <div className="card card-full card-s3 mt-4">
         <div className="card-author d-flex align-items-center justify-content-between pb-3">
           <div className="d-flex align-items-center">
-            <a href="../../author/" className="avatar me-1">
+            <a href={authorLink} className="avatar me-1">
               <img
                 src="https://cdn.onlinewebfonts.com/svg/img_405324.png"
                 alt="avatar"
