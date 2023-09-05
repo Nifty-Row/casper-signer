@@ -14,9 +14,13 @@ export default function Artworks() {
     const [nfts, setNFTs] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [loading, setLoading] = useState(true); // Add loading state
-    const itemsPerPage = 8; // Number of items to show per page
+    const itemsPerPage = 12; // Number of items to show per page
     const [totalNFTs, setTotalNFTs] = useState(0); // Total number of NFTs
 
+    const scrollToTop = () => {
+      // Scroll to the top of the page
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    };
 
     const fetchNFTs = () => {
         const startIndex = (currentPage - 1) * itemsPerPage;
@@ -28,6 +32,7 @@ export default function Artworks() {
             setNFTs(data.slice(startIndex, endIndex));
             setTotalNFTs(data.length); // Set the total number of NFTs
             setLoading(false); // Set loading to false when data is fetched
+            scrollToTop(); // Scroll to the top when new data is loaded
           })
           .catch((error) => {
             console.error(error);
@@ -65,7 +70,7 @@ export default function Artworks() {
       <div class="hero-wrap sub-header bg-image1">
         <div class="container">
           <div class="hero-content text-center py-0">
-            <h1 class="hero-title text-white">Nifty Artworks</h1>
+            <h1 class="hero-title text-primary">Nifty Assets</h1>
             <nav aria-label="breadcrumb">
               <ol class="breadcrumb breadcrumb-s1 justify-content-center mt-3 mb-0">
                 <li class="breadcrumb-item">

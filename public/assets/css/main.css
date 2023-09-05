@@ -6,9 +6,9 @@
   }
 .bg-image1{
     background : url("../../nifty_slider1.jpg");
-    height: 400px;
+    height: 220px;
     background-size:cover;
-    object-fit:fill;
+    object-fit:contain;
     width:100%;
   }
 .bg-image2{
