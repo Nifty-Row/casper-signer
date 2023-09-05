@@ -51,7 +51,7 @@ export default function Home() {
                 </p>
                 <ul className="btns-group hero-btns">
                   <li>
-                    <a href="../marketplace" className="btn btn-lg btn-dark">
+                    <a href="../assets" className="btn btn-lg btn-dark">
                       Explore
                     </a>
                   </li>

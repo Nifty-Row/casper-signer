@@ -53,7 +53,7 @@ const Header = () => {
         WalletService.disconnect().then(() => {
           swal("Disconnected!", "Wallet Disconnected", "success");
           // const router = require("next/router").default;
-          // router.push("/");
+          // router.push("/walletConnect");
           handleRefresh();
         });
       }
