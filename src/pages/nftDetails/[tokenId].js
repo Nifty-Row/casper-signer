@@ -1603,7 +1603,7 @@ export default function NFTDetails(){
                                   </>
                                 )}
 
-                                {countdown === "Auction has started" && nft.inAuction && !isOwner && user.purse === null && (
+                                {auctionStatus== "open" && nft.inAuction && !isOwner && user.purse === null && (
                                   <a
                                     href="#"
                                     data-bs-toggle="modal"
