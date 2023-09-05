@@ -74,23 +74,23 @@ const ProfileForm = ({activekey, userData }) => {
   return (
     <div className="profile-setting-panel">
       <h5 className="mb-4">Edit Profile</h5>
-      <div className="d-flex align-items-center">
+      {/* <div className="d-flex align-items-center">
         <div className="image-result-area avatar avatar-3">
           <Image id="image-result" width={100} height={100} src={linkedin} alt="Profile Image" />
         </div>
-        {/* <input className="upload-image" disabled data-target="image-result" id="upload-image-file" type="file" hidden /> */}
+        <input className="upload-image" disabled data-target="image-result" id="upload-image-file" type="file" hidden />
         <label htmlFor="upload-image-file" className="upload-image-label btn btn-dark">Update Photo</label>
-      </div>
+      </div> */}
       <div className="row mt-4">
-        <div className="col-lg-6 mb-3">
+        <div className="col-lg-4 mb-3">
           <label htmlFor="userCategory" className="form-label"> User Category</label>
           <input type="text" id="userCategory" className="form-control form-control-s1" value={category} disabled />
         </div>
-        <div className="col-lg-6 mb-3">
+        <div className="col-lg-4 mb-3">
           <label htmlFor="displayName" className="form-label">Display Name</label>
           <input type="text" id="displayName" className="form-control form-control-s1" value={displayName} onChange={(e) => setDisplayName(e.target.value)} />
         </div>
-        <div className="col-lg-6 mb-3">
+        <div className="col-lg-4 mb-3">
           <label htmlFor="displayUserName" className="form-label">Username</label>
           <input type="text" id="displayUserName" className="form-control form-control-s1" value={username} onChange={(e) => setUsername(e.target.value)} />
         </div>

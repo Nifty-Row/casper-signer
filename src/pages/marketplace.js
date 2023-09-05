@@ -48,26 +48,27 @@ export default function Home() {
       <section className="explore-section pt-lg-4 mb-4">
         <div className="container">
           <div className="filter-box"></div>
-          {/* <div className="gap-2x"></div> */}
           <div className="filter-container row g-gs mx-auto">
             {nfts
-  .filter((nft) => {
-    const endDate = new Date(nft.auction.endDate);
-    const today = new Date();
-    return nft.auction.status === "open" && endDate > today;
-  })
-  .map((nft) => (
-    <NFTCard key={nft.id} nftData={nft} />
-  ))}
-
+              .filter((nft) => {
+                const endDate = new Date(nft.auction.endDate);
+                const today = new Date();
+                return nft.auction.status === "open" && endDate > today;
+              })
+              .map((nft) => (
+                <NFTCard key={nft.id} nftData={nft} />
+              ))}
           </div>
         </div>
       </section>
-      {nfts.length == 0 && (
+      {!nfts.some((nft) => {
+        const endDate = new Date(nft.auction.endDate);
+        const today = new Date();
+        return nft.auction.status === "open" && endDate > today;
+      }) && (
         <section className="explore-section pt-lg-4 mb-4">
           <div className="container mb-4">
             <div className="filter-box"></div>
-            {/* <div className="gap-2x"></div> */}
             <div className="filter-container row g-gs mb-4">
               <div className="col-md-12">
                 <h4 className="text-danger text-center">
@@ -78,6 +79,7 @@ export default function Home() {
           </div>
         </section>
       )}
+
 
       <Footer />
     </>

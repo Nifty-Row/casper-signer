@@ -26,7 +26,7 @@ export default function Artworks() {
         const startIndex = (currentPage - 1) * itemsPerPage;
         const endIndex = startIndex + itemsPerPage;
     
-        fetch("https://shark-app-9kl9z.ondigitalocean.app/api/nft/media/music")
+        fetch("https://shark-app-9kl9z.ondigitalocean.app/api/nft/allNFts")
           .then((response) => response.json())
           .then((data) => {
             setNFTs(data.slice(startIndex, endIndex));

@@ -1,14 +1,14 @@
 .bg-image{
     background : url("../../slider3.png");
     background-size:cover;
-    height: 400px;
+    height: 200px;
     object-fit:contain;
   }
 .bg-image1{
     background : url("../../nifty_slider1.jpg");
-    height: 400px;
+    height: 220px;
     background-size:cover;
-    object-fit:fill;
+    object-fit:contain;
     width:100%;
   }
 .bg-image2{
@@ -32,9 +32,9 @@
     background-size: cover;
   }
   .casper{
-    width: 30px !important;
+    width: auto !important;
     margin: 8px !important;
-    height: 20px !important;
+    max-height: 44px;
   }
 
   .nftcard-img{

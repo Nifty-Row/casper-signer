@@ -1,5 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
 /* eslint-disable react/no-unescaped-entities */
+/* eslint-disable @next/next/no-html-link-for-pages */
 import Head from "next/head";
 import Image from "next/image";
 import { Inter } from "next/font/google";
@@ -50,7 +51,7 @@ export default function Home() {
                 </p>
                 <ul className="btns-group hero-btns">
                   <li>
-                    <a href="../marketplace" className="btn btn-lg btn-dark">
+                    <a href="../assets" className="btn btn-lg btn-dark">
                       Explore
                     </a>
                   </li>
@@ -109,44 +110,44 @@ export default function Home() {
                       {/* <p>This is just a simple text made for this unique and awesome template, you can replace it with any text. It is a long established fact.</p> */}
                   </div>
                   <div class="row g-gs">
-                      <div class="col-lg-3 col-6 col-md-4">
-                          <a href="#" class="card card-cat h-100 text-center text-purple ">
+                      <div class="col-lg-4 col-6 col-md-4">
+                          <a href="/assets/artworks" class="card card-cat h-100 text-center text-purple ">
                               <div class="card-body card-body-s1">
                                   <span class="icon ni ni-camera mb-3 mx-auto icon-circle icon-wbg icon-lg"></span>
                                   <h5 class="card-cat-title">Artwork</h5>
                               </div>
                           </a>
                       </div>
-                      <div class="col-lg-3 col-6 col-md-4">
-                          <a href="#" class="card card-cat h-100 text-center text-blue">
+                      <div class="col-lg-4 col-6 col-md-4">
+                          <a href="/assets/music" class="card card-cat h-100 text-center text-blue">
                               <div class="card-body card-body-s1">
                                   <span class="icon ni ni-music mb-3 mx-auto icon-circle icon-wbg icon-lg"></span>
                                   <h5 class="card-cat-title">Music</h5>
                               </div>
                           </a>
                       </div>
-                      <div class="col-lg-3 col-6 col-md-4">
-                          <a href="#" class="card card-cat h-100 text-center text-yellow">
+                      <div class="col-lg-4 col-6 col-md-4">
+                          <a href="assets/movies" class="card card-cat h-100 text-center text-yellow">
                               <div class="card-body card-body-s1">
                                   <span class="icon ni ni-video mb-3 mx-auto icon-circle icon-wbg icon-lg"></span>
                                   <h5 class="card-cat-title">Movies</h5>
                               </div>
                           </a>
                       </div>
-                      <div class="col-lg-3 col-6 col-md-4">
+                      {/* <div class="col-lg-3 col-6 col-md-4">
                           <a href="#" class="card card-cat h-100 text-center text-cyan">
                               <div class="card-body card-body-s1">
                                   <span class="icon ni ni-setting mb-3 mx-auto icon-circle icon-wbg icon-lg"></span>
                                   <h5 class="card-cat-title">Utility</h5>
                               </div>
                           </a>
-                      </div>
+                      </div> */}
                   </div>
               </div>
           </section>
           <section class="subscibe-section section-space-sm">
               <div class="container">
-                  <div class="join-form-wrap">
+                  {/* <div class="join-form-wrap">
                       <div class="row g-gs align-items-center">
                           <div class="col-lg-3"><h3 class="form-title">Join Our Newsletter</h3>
                           </div>
@@ -160,10 +161,10 @@ export default function Home() {
                               <a href="#" class="btn btn-dark d-md-block">Subscribe Now</a>
                           </div>
                       </div>
-                  </div>
+                  </div> */}
               </div>
           </section>
-                  </div>
+        </div>
       </div>
       {/* <Mint /> */}
       <Footer />

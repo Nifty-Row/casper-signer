@@ -1,5 +1,7 @@
 /* eslint-disable @next/next/no-html-link-for-pages */
 /* eslint-disable @next/next/no-img-element */
+/* eslint-disable @next/next/no-html-link-for-pages */
+
 import { useEffect, useState } from "react";
 import {WalletService} from "../../utils/WalletServices";
 import {truncateKey, handleRefresh} from "../../utils/generalUtils";
@@ -51,7 +53,7 @@ const Header = () => {
         WalletService.disconnect().then(() => {
           swal("Disconnected!", "Wallet Disconnected", "success");
           // const router = require("next/router").default;
-          // router.push("/");
+          // router.push("/walletConnect");
           handleRefresh();
         });
       }
@@ -108,7 +110,7 @@ const Header = () => {
                         </li>
                         <li><hr className="dropdown-divider" /></li>
                         <li>
-                            <a className="dropdown-item card-generic-item" href="index.html"><em className="ni ni-power me-2"></em> Logout</a>
+                            <a className="dropdown-item card-generic-item" href="#"><em className="ni ni-power me-2"></em> Logout</a>
                         </li>
                     </ul>
                 </div>
@@ -165,8 +167,8 @@ const Header = () => {
                 )}
                 {publicKey !== "" && (
                   <li>
-                    <a href="../../profile" className="btn btn-primary">
-                     Profile {truncateKey(publicKey)}
+                    <a href="../../user/assets" className="btn btn-primary">
+                     Assets {truncateKey(publicKey)}
                     </a>
                   </li>
                 )}
