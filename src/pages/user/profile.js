@@ -1,3 +1,5 @@
+/* eslint-disable @next/next/no-img-element */
+/* eslint-disable react-hooks/rules-of-hooks */
 import Head from "next/head";
 import Image from "next/image";
 import axios from "axios";
@@ -51,12 +53,13 @@ export default function Home() {
       {userData &&(<><div class="hero-wrap sub-header bg-image" >
         <div class="container">
             <div class="hero-content py-0 d-flex align-items-center">
-                <div class="avatar avatar-3 flex-shrink-0"><Image src="/img_405324.png" width={100} height={100} alt="avatar" /></div>
+                <div class="avatar avatar-3 flex-shrink-0">
+                  <img src="/img_405324.png" width={100} height={100} alt={userData?.fullName} loading="lazy" /></div>
                 <div class="author-hero-content-wrap d-flex flex-wrap justify-content-between ms-3 flex-grow-1">
                     <div class="author-hero-content me-3">
-                        <h4 class="hero-author-title mb-1 text-white">{userData.fullName}</h4>
-                        <p class="hero-author-username mb-1 text-white">@{userData.username}</p>
-                        <Copier text={userData.publicKey} />
+                        <h4 class="hero-author-title mb-1 text-white">{userData?.fullName}</h4>
+                        <p class="hero-author-username mb-1 text-white">@{userData?.username}</p>
+                        <Copier text={userData?.publicKey} />
                     </div>
                     <div class="hero-action-wrap d-flex align-items-center my-2">
                         {/* <button type="button" class="btn btn-light">Follow</button>
@@ -87,12 +90,15 @@ export default function Home() {
                         <a href="#" class="icon-btn menu-toggler-user-close"><em class="ni ni-cross"></em></a>
                         <div class="sidebar-widget">
                             <ul class="user-nav">
-                                <li class="active">
-                                    <a href="#"><em class="ni ni-edit me-2"></em>Edit Profile</a>
+                                <li>
+                                    <a href="../../user/dashboard"><em class="ni ni-home-fill me-2"></em>DashBoard</a>
                                 </li>
-                                {/* <li>
-                                    <a href="#"><em class="ni ni-money me-2"></em>My Assets</a>
-                                </li>*/}
+                                <li class="active">
+                                    <a href="#" className="text-primary"><em class="ni ni-edit me-2"></em>Edit Profile</a>
+                                </li>
+                                <li>
+                                    <a href="../../user/assets"><em class="ni ni-money me-2"></em>My Assets</a>
+                                </li>
                                 
                             </ul>
                         </div>

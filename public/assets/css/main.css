@@ -1,7 +1,7 @@
 .bg-image{
     background : url("../../slider3.png");
     background-size:cover;
-    height: 400px;
+    height: 200px;
     object-fit:contain;
   }
 .bg-image1{
