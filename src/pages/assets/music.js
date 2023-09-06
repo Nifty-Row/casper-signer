@@ -80,7 +80,7 @@ export default function Artworks() {
                   class="breadcrumb-item active text-info"
                   aria-current="page"
                 >
-                  Artworks
+                  Music
                 </li>
               </ol>
             </nav>

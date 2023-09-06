@@ -749,7 +749,7 @@ const MintForm = ({keyprop,balance}) => {
                               name="category"
                               value="Movie"
                               id="category3"
-                              checked={category === "Movie & Animation"}
+                              checked={category === "Movie"}
                               onChange={(e) => setCategory(e.target.value)}
                             />
                             <label className="form-check-label" htmlFor="category3">
@@ -854,7 +854,7 @@ const MintForm = ({keyprop,balance}) => {
                                   </div>
                                 </>
                               )}
-                              {category === "Movie & Animation" && (
+                              {category === "Movie" && (
                                 <>
                                   <div className="col-12">
                                     <label className="form-label">
