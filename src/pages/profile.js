@@ -149,7 +149,7 @@ export default function Home() {
                               </div>
                               <div class="col-md-6 col-lg-6 col-xl-12 sidebar-widget">
                                   <h3 class="mb-2">Joined</h3>
-                                  <p class="sidebar-text">{formatDate(owner.createdAt)}</p>
+                                  <p class="sidebar-text">{formatDate(user.createdAt)}</p>
                               </div>
                           </div>
                       </div>
