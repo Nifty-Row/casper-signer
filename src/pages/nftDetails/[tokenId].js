@@ -505,13 +505,11 @@ export default function NFTDetails() {
     const currentTimestamp = Date.now(); // Get the current timestamp in milliseconds
 
     // Convert user-provided start and end times to timestamps
-    const startTimestamp = moment
-      .utc(startTime, "YYYY-MM-DDTHH:mm")
-      .valueOf()
+    const startTimestamp = new moment(startTime, "YYYY-MM-DDTHH:mm")
+      .utc()
       .toString();
-    const endTimestamp = moment
-      .utc(endTime, "YYYY-MM-DDTHH:mm")
-      .valueOf()
+    const endTimestamp = new moment(endTime, "YYYY-MM-DDTHH:mm")
+      .utc()
       .toString();
 
     // Calculate the cancellation timestamp by adding a duration to the current timestamp
