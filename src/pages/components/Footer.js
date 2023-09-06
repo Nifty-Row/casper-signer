@@ -29,23 +29,23 @@ const Footer = () => {
                   </p>
                   <ul className="styled-icon">
                     <li>
-                      <a href="#">
+                      <a href="https://twitter.com/NiftyRow">
                         <em className="icon ni ni-twitter"></em>
                       </a>
                     </li>
                     <li>
-                      <a href="#">
+                      <a href="https://web.facebook.com/profile.php?id=100068493288180&sk=about&_rdc=1&_rdr">
                         <em className="icon ni ni-facebook-f"></em>
                       </a>
                     </li>
                     <li>
-                      <a href="#">
+                      <a href="https://instagram.com/niftyrowarts">
                         <em className="icon ni ni-instagram"></em>
                       </a>
                     </li>
                     <li>
-                      <a href="#">
-                        <em className="icon ni ni-pinterest"></em>
+                      <a href="https://t.me/niftyrow">
+                        <em className="icon ni ni-telegram"></em>
                       </a>
                     </li>
                   </ul>

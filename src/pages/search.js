@@ -129,7 +129,7 @@ export default function Search() {
   return (
     <>
       <Header />
-      <div className="hero-wrap sub-header bg-image1">
+      <div className="hero-wrap sub-header bg-image1 h-100">
         <div className="container">
           <div className="hero-content text-center py-0">
             <h1 className="hero-title text-primary">Nifty Assets</h1>
@@ -250,7 +250,7 @@ export default function Search() {
             <div className="filter-container row g-gs mb-4">
               <div className="col-md-12">
                 <h4 className="text-danger text-center">
-                  No Assets available for This Category
+                  No Assets available for your search and category
                 </h4>
               </div>
             </div>

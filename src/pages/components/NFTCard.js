@@ -50,7 +50,7 @@ const NFTCard = ({ nftData }) => {
             </a>
             <div className="custom-tooltip-wrap card-author-by-wrap">
               <span className="card-author-by card-author-by-2">Owned by</span>
-              <a href="#" className="custom-tooltip author-link">
+              <a href={authorLink} className="custom-tooltip author-link">
                 {fullName ?(fullName):('Anonymous ')}
               </a>
             </div>
