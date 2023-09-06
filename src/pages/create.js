@@ -17,6 +17,7 @@ const inter = Inter({ subsets: ["latin"] });
 export default function WalletConnect() {
   // const router = useRouter();
   const [key, setKey] = useState("");
+  const [isloading,setIsloading] = useState(true);
 
   useEffect(() => {
     WalletService.isSiteConnected().then(async (data) => {
@@ -51,41 +52,7 @@ export default function WalletConnect() {
     }
   }, [key, walletBalance]);
   
-
-  return (
-    <>
-      <Header />
-      <div className="hero-wrap sub-header">
-        <div className="container">
-          <div className="hero-content text-center py-0">
-            <h1 className="hero-title">Mint NFT</h1>
-            <nav aria-label="breadcrumb">
-              <ol className="breadcrumb breadcrumb-s1 justify-content-center mt-3 mb-0">
-                <li className="breadcrumb-item">
-                  <a href="../../">Home</a>
-                </li>
-                <li className="breadcrumb-item active" aria-current="page">
-                  Create
-                </li>
-              </ol>
-            </nav>
-          </div>
-        </div>
-      </div>
-     {walletBalance > 100 ?(
-      <MintForm keyprop={key} balance={walletBalance} />):(
-       <>
-           <div className="col-md-12" >
-              <h4 className="text-danger text-center">Please ensure your wallet is well funded to mint an NFT</h4>
-             <center><p className="text-primary text-center">Your wallet balance is <b>{walletBalance}</b>CSPR. You need at least 100CSPR to mint.</p></center>
-            </div>
-       </>
-       )};
-      <Footer />
-    </>
-  );
-
-  if(!key){
+  if(key=="" && isloading ){
     return (
       <>
       <Header />
@@ -120,9 +87,42 @@ export default function WalletConnect() {
         </div>
       </section>
         
-      {/* <Footer /> */}
+      <Footer />
     </>
     );
   }
+
+  return (
+    <>
+      <Header />
+      <div className="hero-wrap sub-header">
+        <div className="container">
+          <div className="hero-content text-center py-0">
+            <h1 className="hero-title">Mint NFT</h1>
+            <nav aria-label="breadcrumb">
+              <ol className="breadcrumb breadcrumb-s1 justify-content-center mt-3 mb-0">
+                <li className="breadcrumb-item">
+                  <a href="../../">Home</a>
+                </li>
+                <li className="breadcrumb-item active" aria-current="page">
+                  Create
+                </li>
+              </ol>
+            </nav>
+          </div>
+        </div>
+      </div>
+     {walletBalance > 100 ?(
+      <MintForm keyprop={key} balance={walletBalance} />):(
+       <>
+           <div className="col-md-12" >
+              <h4 className="text-danger text-center">Please ensure your wallet is well funded to mint an NFT</h4>
+             <center><p className="text-primary text-center">Your wallet balance is <b>{walletBalance}</b>CSPR. You need at least 100CSPR to mint.</p></center>
+            </div>
+       </>
+       )};
+      <Footer />
+    </>
+  );
  
 }

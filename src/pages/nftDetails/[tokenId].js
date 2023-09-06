@@ -159,14 +159,19 @@ export default function NFTDetails() {
         const distancee = auctionEndDate.getTime() - now.getTime();
         if (distance <= 0 && distancee >= 0) {
           clearInterval(interval);
-          if (isOwner && auctionData.status == "pending" && verifiable) {
+          let canInitialize = isOwner && auctionData.packageHash != null && auctionData.status == "pending" && verifiable;
+          console.log("Status", canInitialize);
+          if (canInitialize) {
             setCountdown("Auction is ready to be initialized");
             setAuctionStatus("initialize");
           } else if (!isOwner && auctionData.status == "open") {
             setCountdown("Auction is open for bidding.");
             setAuctionStatus("open");
-          } else if (isOwner && auctionData.status == "open") {
+          } else if (isOwner && auctionData.packageHash != null && auctionData.status == "open") {
             setCountdown("Auction is open for bidding.");
+            setAuctionStatus("open");
+          } else if (isOwner && auctionData.packageHash == null) {
+            setCountdown("Please verify auction before you can start the auction.");
             setAuctionStatus("open");
           }
 
@@ -703,8 +708,8 @@ export default function NFTDetails() {
         `https://shark-app-9kl9z.ondigitalocean.app/api/nft/confirmDeploy/${deployHash}`
       );
       const data = await response.json();
-
-      if (data.status === "success") {
+      console.log("Verification Status",data);
+      if (data.status == "success") {
         swal(
           "Success",
           "Private Auction Contract was deployed successfully",
@@ -718,10 +723,10 @@ export default function NFTDetails() {
             });
           }
         });
-      } else if (data.status === "failure") {
+      } else if (data.status == "failure") {
         swal(
           "Verification Failed",
-          "Auction Deploy Failed => " + data.Failure.error_message,
+          "Auction Deploy Status : => " + data.status,
           "error"
         );
         deleteAuction(auctionData.id).then((data) => {
@@ -1781,12 +1786,13 @@ export default function NFTDetails() {
                                   Auction not Verified
                                 </h4>
                               ) : null}
-                              {auctionStatus === "open" && (
+                              {auctionData.packageHash != null && auctionStatus === "open" && (
                                 <h4 className="text-success">
                                   Auction is Open For Bidding{" "}
                                   <em className="ni ni-check"></em>
                                 </h4>
                               )}
+                              
                               {auctionStatus !== "open" && (
                                 <>
                                   <p className="d-flex">
@@ -1859,7 +1865,7 @@ export default function NFTDetails() {
                                   </a>
                                 )}
                                 {nft.inAuction &&
-                                  isOwner &&
+                                  isOwner && auctionData.packageHash &&
                                   auctionStatus === "initialize" &&
                                   !auctionEnded && (
                                     <a
