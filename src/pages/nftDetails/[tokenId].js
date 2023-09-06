@@ -2235,7 +2235,6 @@ export default function NFTDetails() {
                     type="datetime-local"
                     className="form-control form-control-s1"
                     onChange={handleStartTimeChange}
-                    timeZone="UTC"
                   />
 
                 </div>

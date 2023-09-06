@@ -26,7 +26,7 @@ const MintForm = ({keyprop,balance}) => {
   let newKey = keyprop;
   const formRef = useRef(null);
   const [publicKey, setPublicKey] = useState(null);
-
+  const [isloading,setIsloading] = useState(true);
   const [category, setCategory] = useState("");
   const [artworkFile, setArtworkFile] = useState(null);
   const [musicThumbnail, setMusicThumbnail] = useState(null);
@@ -107,6 +107,7 @@ const MintForm = ({keyprop,balance}) => {
           console.error("Error:", error);
         }
       }
+      setIsloading(false);
     };
   
     grantMinterAsync();
@@ -535,8 +536,8 @@ const MintForm = ({keyprop,balance}) => {
       }
       return false;
     } catch (err) {
-      let msg = (err.response.data)? err.response.data : "Upload was not successful."
-      swal("Error",JSON.stringify(err.message)+" : "+msg,"error");
+      let msg = (err?.response?.data)? err?.response?.data : "Upload was not successful."
+      swal("Error",JSON.stringify(err?.message)+" : "+msg,"error");
       console.log(err);
       return false;
     }
@@ -697,7 +698,7 @@ const MintForm = ({keyprop,balance}) => {
       <section>
         <div className="container mt-4">
           <div className="row mt-4">
-            {canMint ?(
+            {!isloading && canMint ?(
               <>
               <div className="col-lg-12 mx-auto">
                 <form ref={formRef} className="vstack gap-4" onSubmit={handleSubmit}>
