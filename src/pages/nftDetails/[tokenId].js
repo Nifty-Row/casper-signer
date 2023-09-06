@@ -1725,10 +1725,10 @@ export default function NFTDetails() {
                       </div>
                     </div>
                     <div className="col-xl-7">
-                      <div className="card-media card-media-s1">
+                      {nft.inAuction && auctionData.status !== "close" && (
+                    <><div className="card-media card-media-s1">
                         <div className="card-media-body">
-                          {nft.inAuction && auctionData.status !== "close" && (
-                            <>
+                          
                               <a href="#" className="badge fw-semibold">
                                 Auction Start :{" "}
                                 <span className="fw-bold text-primary mt-2">
@@ -1769,10 +1769,11 @@ export default function NFTDetails() {
                                   {highestBid} CSPR
                                 </span>
                               </a>
-                            </>
-                          )}
+                            
                         </div>
                       </div>
+                      </>
+                          )}
                     </div>
                     <div className="col-xl-12">
                       <div className="card-media card-media-s1">
@@ -1940,7 +1941,7 @@ export default function NFTDetails() {
                                   </div>
                                 </li>
                               )}
-                              {!nft.minted && isOwner && (
+                              {!nft.minted && (
                                 <li className="flex-grow-1">
                                   <div className="dropdown">
                                     <a
