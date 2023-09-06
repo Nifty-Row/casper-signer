@@ -5,13 +5,14 @@
 import { useEffect, useState } from "react";
 import {WalletService} from "../../utils/WalletServices";
 import {truncateKey, handleRefresh} from "../../utils/generalUtils";
+import { useRouter } from "next/router";
 import swal from "sweetalert";
 
 const Header = () => {
   const [publicKey, setPublicKey] = useState("");
   const [walletConnected, setWalletConnected] = useState("");
   const [error, setError] = useState("");
-
+  const router = useRouter();
   useEffect(() => {
     setTimeout(async () => {
       try {
@@ -59,6 +60,14 @@ const Header = () => {
       }
     });
   };
+
+  const handleSearchSubmit = (event) => {
+    event.preventDefault();
+    const formData = new FormData(event.target);
+    const searchQuery = formData.get("search");
+    router.push(`/search?search=${searchQuery}`);
+  };
+
 
 
   return (
@@ -118,12 +127,22 @@ const Header = () => {
                     <button className="menu-toggler"><em className="menu-on menu-icon ni ni-menu"></em><em className="menu-off menu-icon ni ni-cross"></em></button>
                 </div>
             </div>
-            <div className="header-search-form">
-              <input
-                type="search"
-                className="form-control form-control-s1"
-                placeholder="Search item here..."
-              />
+            <div className="header-search-form border-2 d-none d-lg-flex d-flex justify-content-end">
+              <form
+                  action="/search"
+                  onSubmit={handleSearchSubmit}
+                  className="d-flex"
+                >
+                  <input
+                    type="search"
+                    name="search"
+                    className="form-control border-0"
+                    placeholder="Search here"
+                  />
+                  <button type="submit" className="btn btn-sm text-light">
+                    <em className="ni ni-search"></em>
+                  </button>
+                </form>
             </div>
             <nav className="header-menu menu nav">
               <ul className="menu-list ms-lg-auto">
@@ -147,7 +166,7 @@ const Header = () => {
                 </li>
                 <li className="menu-item">
                   <a href="../../marketplace" className="menu-link text-light">
-                    Marketplace
+                    Auctions
                   </a>
                  
                 </li>

@@ -1,3 +1,5 @@
+/* eslint-disable @next/next/no-img-element */
+/* eslint-disable react-hooks/rules-of-hooks */
 import Head from "next/head";
 import Image from "next/image";
 import axios from "axios";
@@ -7,7 +9,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import NFTCard from "@/components/NFTCard";
 import { useRouter } from "next/router";
-import { truncateKey } from "@/utils/generalUtils";
+import { formatDate } from "@/utils/generalUtils";
 import Copier from "@/components/Copier";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -29,12 +31,17 @@ export default function Home() {
           const userData = response.data;
           setActiveKey(userData.publicKey); // Set the activeKey from user data
           setUserData(userData);
-          getUserNFTs(userData.publicKey);
+          setUserNfts(userData.nfts);
+          let res = userData.nfts.filter((nft) => nft.ownerKey === key && nft.ownerKey!== nft.deployerKey);
+          setUserOwnedNfts(res);
+          let res2 = userData.nfts.filter((nft) => nft.ownerKey === key && nft.inAuction);
+          setUserNftsInAuction(res2);
         } catch (error) {
           console.error("Error:", error);
         }
       }
     };
+    
 
     getUserDataByKey();
   }, [authorKey]);
@@ -45,7 +52,8 @@ export default function Home() {
           <div class="hero-wrap sub-header bg-image">
               <div class="container">
                   <div class="hero-content py-0 d-flex align-items-center">
-                  <div class="avatar avatar-3 flex-shrink-0"><Image src="/img_405324.png" width={100} height={100} alt="avatar" /></div>
+                  <div class="avatar avatar-3 flex-shrink-0">
+                    <img src="../../img_405324.png" width={100} height={100} alt="avatar" /></div>
                   <div class="author-hero-content-wrap d-flex flex-wrap justify-content-between ms-3 flex-grow-1">
                       <div class="author-hero-content me-3">
                           <h4 class="hero-author-title mb-1 text-white">{user.fullName}</h4>
@@ -75,9 +83,9 @@ export default function Home() {
                                   <p class="sidebar-text mb-3">
                                       {user.about}
                                   </p>
-                                  <p class="sidebar-text text-dark-gray">
+                                  {/* <p class="sidebar-text text-dark-gray">
                                       <span class="me-4"><strong class="text-black">0</strong> Following</span><span><strong class="text-black">0</strong> Followers</span>
-                                  </p>
+                                  </p> */}
 
                               </div>
                               <div class="col-md-6 col-lg-6 col-xl-12 sidebar-widget">
@@ -112,7 +120,7 @@ export default function Home() {
                               </div>
                               <div class="col-md-6 col-lg-6 col-xl-12 sidebar-widget">
                                   <h3 class="mb-2">Joined</h3>
-                                  <p class="sidebar-text"></p>
+                                  <p class="sidebar-text">{formatDate(user.createdAt)}</p>
                               </div>
                           </div>
                       </div>

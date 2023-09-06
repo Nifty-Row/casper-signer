@@ -1688,7 +1688,7 @@ export default function NFTDetails() {
                               <>
                                 <div>
                                   <a
-                                    href={`/author/${owner.username}`}
+                                    href={`/author/${owner.publicKey}`}
                                     className="fw-semibold mr-4"
                                   >
                                     @{owner.username}
