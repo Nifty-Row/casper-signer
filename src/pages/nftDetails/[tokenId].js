@@ -1776,7 +1776,7 @@ export default function NFTDetails() {
                                 {auctionStatus === "open" &&
                                   nft?.inAuction &&
                                   !isOwner &&
-                                  user??.purse !== null && (
+                                  user?.purse !== null && (
                                     <>
                                       {!user?.purse ||
                                         (!user?.purse.uref && (
