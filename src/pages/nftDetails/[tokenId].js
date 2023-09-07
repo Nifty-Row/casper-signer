@@ -10,6 +10,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Copier from "@/components/Copier";
 import { Some, None } from "ts-results";
+import { WalletService } from "@/utils/WalletServices";
 import moment from "moment";
 import Loading from "@/components/Loading";
 import useWalletConnection from "@/hooks/useWalletConnection";
