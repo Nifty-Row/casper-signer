@@ -80,6 +80,8 @@ export default function NFTDetails() {
   const [canPlaceBid, setCanPlaceBid] = useState(false);
   const [walletBalance, setWalletBalance] = useState("checking balance");
   const [auctionStatus, setAuctionStatus] = useState("");
+  const caskNFTPackageHash =
+      "6cde257852d7fcb0dd6b86dd3af612f5d3bf0f333ee16e69e2cde2954fb3bad2"; 
 
   useEffect(()=>{
     if(activePublicKey && !key){
@@ -219,7 +221,7 @@ export default function NFTDetails() {
             setCountdown("Auction is Closed");
             setAuctionEnded(true);
             clearInterval(interval);
-            await closeAuction(auctionData.id); // Call the closeAuction function with auctionData.id as a parameter
+            //await closeAuction(auctionData.id); // Call the closeAuction function with auctionData.id as a parameter
           }
         };
 
@@ -507,8 +509,7 @@ export default function NFTDetails() {
 
   const prepareAuctionDeploy = async (key) => {
     const Key = CLPublicKey.fromHex(key);
-    const caskNFTPackageHash =
-      "6cde257852d7fcb0dd6b86dd3af612f5d3bf0f333ee16e69e2cde2954fb3bad2"; // nft token hash //cvcv_contract_package_hash
+    // nft token hash //cvcv_contract_package_hash
 
     const bufferedHash = Uint8Array.from(
       Buffer.from(caskNFTPackageHash, "hex")
@@ -1885,7 +1886,7 @@ export default function NFTDetails() {
                                     </div>
                                   )}
                               </li>
-                              {nft?.inAuction && deployHash && isOwner && (
+                              {nft?.inAuction && deployHash && auctionData.status == "pending" && (
                                 <li className="flex-grow-1">
                                   <div className="dropdown">
                                     <a
@@ -1893,12 +1894,25 @@ export default function NFTDetails() {
                                       target="_blank"
                                       className="btn bg-dark-dim d-block"
                                     >
-                                      View on Explorer
+                                      View Auction on Explorer
                                     </a>
                                   </div>
                                 </li>
                               )}
-                              {!nft?.minted && (
+                              {nft?.inAuction && deployHash && auctionData.packageHash && auctionData.status != "pending" && (
+                                <li className="flex-grow-1">
+                                  <div className="dropdown">
+                                    <a
+                                      href={`https://testnet.cspr.live/contract-package/${auctionData.packageHash.replace("hash-","")}`}
+                                      target="_blank"
+                                      className="btn bg-dark-dim d-block"
+                                    >
+                                      View Auction on Explorer
+                                    </a>
+                                  </div>
+                                </li>
+                              )}
+                              {!nft?.minted ?(
                                 <li className="flex-grow-1">
                                   <div className="dropdown">
                                     <a
@@ -1910,6 +1924,20 @@ export default function NFTDetails() {
                                     </a>
                                   </div>
                                 </li>
+                              ):(
+                                <>
+                                <li className="flex-grow-1">
+                                  <div className="dropdown">
+                                    <a
+                                      href={`https://testnet.cspr.live/contracts/${caskNFTPackageHash}/nfts/${nft?.tokenHash}`}
+                                      target="_blank"
+                                      className="btn bg-dark-dim d-block"
+                                    >
+                                      View NFT on Explorer
+                                    </a>
+                                  </div>
+                                </li>
+                                </>
                               )}
                             </ul>
                           </div>
