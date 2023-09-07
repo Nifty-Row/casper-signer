@@ -2272,7 +2272,7 @@ export default function NFTDetails() {
                       <td>{bid.bid} CSPR</td>
                       <td>{formatDate(bid.createdAt)}</td>
                       <td>
-                        {bid.user??.purse?.deployHash && (
+                        {bid.user?.purse?.deployHash && (
                           <a
                             className="btn btn-info btn-sm"
                             href={`https://testnet.cspr.live/deploy/${bid.user?.purse.deployHash}`}
