@@ -53,7 +53,7 @@ export default function NFTDetails() {
   const [loading, setLoading] = useState(true); // Add loading state
   const [tokenId, setTokenId] = useState("");
   const [nft, setNFT] = useState(null);
-  const [key, setKey] = useState("");
+  const [key, setKey] = useState(null);
   const [isOwner, setIsOwner] = useState("");
   const [owner, setOwner] = useState(false);
   const [bidAmount, setBidAmount] = useState("");
@@ -80,6 +80,12 @@ export default function NFTDetails() {
   const [canPlaceBid, setCanPlaceBid] = useState(false);
   const [walletBalance, setWalletBalance] = useState("checking balance");
   const [auctionStatus, setAuctionStatus] = useState("");
+
+  useEffect(()=>{
+    if(activePublicKey && !key){
+      setKey(activePublicKey);
+    }
+  },[activePublicKey,key]);
   //load page data
   useEffect(() => {
     const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
@@ -106,7 +112,7 @@ export default function NFTDetails() {
               setNFT(data);
               if (data.user) setOwner(data.user);
               if (data.auction) setAuctionData(data.auction);
-              let isOwner = data.ownerKey === key;
+              let isOwner = data.ownerKey === activePublicKey;
               setIsOwner(isOwner);
               if (data.auction) {
                 setAuctionStatus(data.auction.status);
@@ -1770,7 +1776,7 @@ export default function NFTDetails() {
                                 {auctionStatus === "open" &&
                                   nft?.inAuction &&
                                   !isOwner &&
-                                  user.purse !== null && (
+                                  user?.purse !== null && (
                                     <>
                                       {!user.purse ||
                                         (!user.purse.uref && (
