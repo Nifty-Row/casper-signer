@@ -91,16 +91,16 @@ export default function Home() {
     return (
       <>
       <Header />
-      <div class="hero-wrap sub-header">
-        <div class="container">
-          <div class="hero-content text-center py-0">
-            <h1 class="hero-title">Nifty Marketplace</h1>
+      <div className="hero-wrap sub-header">
+        <div className="container">
+          <div className="hero-content text-center py-0">
+            <h1 className="hero-title">Nifty Marketplace</h1>
             <nav aria-label="breadcrumb">
-              <ol class="breadcrumb breadcrumb-s1 justify-content-center mt-3 mb-0">
-                <li class="breadcrumb-item">
+              <ol className="breadcrumb breadcrumb-s1 justify-content-center mt-3 mb-0">
+                <li className="breadcrumb-item">
                   <a href="../../">Home</a>
                 </li>
-                <li class="breadcrumb-item active" aria-current="page">
+                <li className="breadcrumb-item active" aria-current="page">
                   Profile
                 </li>
               </ol>
@@ -115,7 +115,7 @@ export default function Home() {
           <div className="filter-container row g-gs">
             <div className="col-md-12 mb-4" >
               <h4 className="text-danger text-center">Please ensure your wallet is connected to view profile</h4>
-              <center><a  href="../../walletConnect" class="btn btn-primary btn-lg float-center mt-4">Connect Wallet</a></center>
+              <center><a  href="../../walletConnect" className="btn btn-primary btn-lg float-center mt-4">Connect Wallet</a></center>
 
             </div>
           </div>
@@ -130,23 +130,23 @@ export default function Home() {
   return (
     <>
       <Header />
-      <div class="hero-wrap sub-header bg-image" >
-        <div class="container">
-            <div class="hero-content py-0 d-flex align-items-center">
-                <div class="avatar avatar-3 flex-shrink-0">
+      <div className="hero-wrap sub-header bg-image" >
+        <div className="container">
+            <div className="hero-content py-0 d-flex align-items-center">
+                <div className="avatar avatar-3 flex-shrink-0">
                   <img src={image} width={100} height={100} alt={userData?.fullName} loading="lazy" /></div>
-                <div class="author-hero-content-wrap d-flex flex-wrap justify-content-between ms-3 flex-grow-1">
-                    <div class="author-hero-content me-3">
-                        <h4 class="hero-author-title mb-1 text-white">{userData?.fullName}</h4>
-                        <p class="hero-author-username mb-1 text-white">@{userData?.username}</p>
+                <div className="author-hero-content-wrap d-flex flex-wrap justify-content-between ms-3 flex-grow-1">
+                    <div className="author-hero-content me-3">
+                        <h4 className="hero-author-title mb-1 text-white">{userData?.fullName}</h4>
+                        <p className="hero-author-username mb-1 text-white">@{userData?.username}</p>
                         <Copier text={userData?.publicKey} />
                     </div>
-                    {/* <div class="hero-action-wrap d-flex align-items-center my-2">
-                        <button type="button" class="btn btn-light">Follow</button>
-                        <div class="dropdown ms-3">
-                            <a class="icon-btn icon-btn-s1" href="#" data-bs-toggle="dropdown" id="reportDropdown"><em class="ni ni-more-h"></em></a>
-                            <ul class="dropdown-menu card-generic p-2 dropdown-menu-end mt-2 card-generic-sm" aria-labelledby="reportDropdown">
-                                <li><a class="dropdown-item card-generic-item" href="#" data-bs-toggle="modal" data-bs-target="#reportModal">Report Page</a></li>
+                    {/* <div className="hero-action-wrap d-flex align-items-center my-2">
+                        <button type="button" className="btn btn-light">Follow</button>
+                        <div className="dropdown ms-3">
+                            <a className="icon-btn icon-btn-s1" href="#" data-bs-toggle="dropdown" id="reportDropdown"><em className="ni ni-more-h"></em></a>
+                            <ul className="dropdown-menu card-generic p-2 dropdown-menu-end mt-2 card-generic-sm" aria-labelledby="reportDropdown">
+                                <li><a className="dropdown-item card-generic-item" href="#" data-bs-toggle="modal" data-bs-target="#reportModal">Report Page</a></li>
                             </ul>
                         </div>
                     </div> */}
@@ -154,94 +154,94 @@ export default function Home() {
             </div>
         </div>
     </div>
-    <section class="profile-section section-space">
-                <div class="container">
-                    <div class="row">
-                        <div class="col-lg-3">
-                            <div class="sidebar-head d-flex flex-wrap align-items-center justify-content-between">
-                                <h3 class="sidebar-head-title">Account Settings</h3>
-                                <div class="sidebar-head-action d-flex align-items-center">
-                                    <div class="sidebar-drop">
-                                        <a class="icon-btn menu-toggler-user-open" href="#"><em class="ni ni-menu"></em></a>
+    <section className="profile-section section-space">
+                <div className="container">
+                    <div className="row">
+                        <div className="col-lg-3">
+                            <div className="sidebar-head d-flex flex-wrap align-items-center justify-content-between">
+                                <h3 className="sidebar-head-title">Account Settings</h3>
+                                <div className="sidebar-head-action d-flex align-items-center">
+                                    <div className="sidebar-drop">
+                                        <a className="icon-btn menu-toggler-user-open" href="#"><em className="ni ni-menu"></em></a>
                                     </div>
                                 </div>
                             </div>
-                            <div class="sidebar sidebar-user-mobile">
-                                <a href="#" class="icon-btn menu-toggler-user-close"><em class="ni ni-cross"></em></a>
-                                <div class="sidebar-widget">
-                                    <ul class="user-nav">
-                                        <li class="active">
-                                          <a href="../../user/dashboard" className="text-primary"><em class="ni ni-home-fill me-2"></em>DashBoard</a>
+                            <div className="sidebar sidebar-user-mobile">
+                                <a href="#" className="icon-btn menu-toggler-user-close"><em className="ni ni-cross"></em></a>
+                                <div className="sidebar-widget">
+                                    <ul className="user-nav">
+                                        <li className="active">
+                                          <a href="../../user/dashboard" className="text-primary"><em className="ni ni-home-fill me-2"></em>DashBoard</a>
                                         </li>
                                         <li>
-                                            <a href="../../user/profile"><em class="ni ni-edit me-2"></em>Edit Profile</a>
+                                            <a href="../../user/profile"><em className="ni ni-edit me-2"></em>Edit Profile</a>
                                         </li>
                                         <li>
-                                            <a href="../../user/assets"><em class="ni ni-money me-2"></em>My Assets</a>
+                                            <a href="../../user/assets"><em className="ni ni-money me-2"></em>My Assets</a>
                                         </li>
                                         
                                     </ul>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-lg-9 ps-xl-5">
-                          <div class="user-panel-title-box"><h3>Account Settings</h3></div>
-                            <div class="profile-setting-panel-wrap">
-                              <div class="container">
-                                <div class="row">
-                                    <div class="col-6 col-sm-4 col-lg-4 my-2">
-                                      <div class="card">
-                                        <button class="btn btn-link card-button" id="all-tab">
-                                          <img src="../../assets/images/thumb/icon-nfts.svg" class="icon icon-svg icon-lg p-3 icon-wbg mx-auto mb-4 text-info" alt="" />
+                        <div className="col-lg-9 ps-xl-5">
+                          <div className="user-panel-title-box"><h3>Account Settings</h3></div>
+                            <div className="profile-setting-panel-wrap">
+                              <div className="container">
+                                <div className="row">
+                                    <div className="col-6 col-sm-4 col-lg-4 my-2">
+                                      <div className="card">
+                                        <button className="btn btn-link card-button" id="all-tab">
+                                          <img src="../../assets/images/thumb/icon-nfts.svg" className="icon icon-svg icon-lg p-3 icon-wbg mx-auto mb-4 text-info" alt="" />
                                           <h5 className="title">{totalNFTs}</h5>
-                                          <span class="nav-link-title mt-3 d-block">Total Assets</span>
+                                          <span className="nav-link-title mt-3 d-block">Total Assets</span>
                                           
                                         </button>
                                       </div>
                                     </div>
-                                    <div class="col-6 col-sm-4 col-lg-4 my-2">
-                                      <div class="card">
-                                        <button class="btn btn-link card-button" id="art-tab">
-                                        <span class="icon ni ni-camera icon-lg icon-wbg mx-auto mb-4 text-primary"></span>
+                                    <div className="col-6 col-sm-4 col-lg-4 my-2">
+                                      <div className="card">
+                                        <button className="btn btn-link card-button" id="art-tab">
+                                        <span className="icon ni ni-camera icon-lg icon-wbg mx-auto mb-4 text-primary"></span>
                                         <h5 className="title">{artworkNFTs}</h5>
-                                        <span class="nav-link-title mt-3 d-block">Artworks</span>
+                                        <span className="nav-link-title mt-3 d-block">Artworks</span>
                                         </button>
                                       </div>
                                     </div>
-                                    <div class="col-6 col-sm-4 col-lg-4 my-2">
-                                      <div class="card">
-                                        <button class="btn btn-link card-button" id="virtual-worlds-tab">
-                                        <span class="icon ni ni-video icon-lg icon-wbg mx-auto mb-4 text-primary"></span>
+                                    <div className="col-6 col-sm-4 col-lg-4 my-2">
+                                      <div className="card">
+                                        <button className="btn btn-link card-button" id="virtual-worlds-tab">
+                                        <span className="icon ni ni-video icon-lg icon-wbg mx-auto mb-4 text-primary"></span>
                                         <h5 className="title">{movieNFTs}</h5>
-                                          <span class="nav-link-title mt-3 d-block">Movies</span>
+                                          <span className="nav-link-title mt-3 d-block">Movies</span>
                                         </button>
                                       </div>
                                     </div>
-                                    <div class="col-6 col-sm-4 col-lg-4 my-2">
-                                      <div class="card">
-                                        <button class="btn btn-link card-button">
-                                        <span class="icon ni ni-music icon-lg icon-wbg mx-auto mb-4 text-primary"></span>
+                                    <div className="col-6 col-sm-4 col-lg-4 my-2">
+                                      <div className="card">
+                                        <button className="btn btn-link card-button">
+                                        <span className="icon ni ni-music icon-lg icon-wbg mx-auto mb-4 text-primary"></span>
                                         <h5 className="title">{musicNFTs}</h5>
-                                          <span class="nav-link-title mt-3 d-block">Music</span>
+                                          <span className="nav-link-title mt-3 d-block">Music</span>
                                         </button>
                                       </div>
                                     </div>
-                                    <div class="col-6 col-sm-4 col-lg-4 my-2">
-                                      <div class="card">
-                                        <button class="btn btn-link card-button" id="all-tab">
-                                          <img src="../../assets/images/thumb/icon-nfts.svg" class="icon icon-svg icon-lg p-3 icon-wbg mx-auto mb-4 text-info" alt="" />
+                                    <div className="col-6 col-sm-4 col-lg-4 my-2">
+                                      <div className="card">
+                                        <button className="btn btn-link card-button" id="all-tab">
+                                          <img src="../../assets/images/thumb/icon-nfts.svg" className="icon icon-svg icon-lg p-3 icon-wbg mx-auto mb-4 text-info" alt="" />
                                           <h5 className="title">{ownedNFTs}</h5>
-                                          <span class="nav-link-title mt-3 d-block">Owned</span>
+                                          <span className="nav-link-title mt-3 d-block">Owned</span>
                                           
                                         </button>
                                       </div>
                                     </div>
-                                    <div class="col-6 col-sm-4 col-lg-4 my-2">
-                                      <div class="card">
-                                        <button class="btn btn-link card-button" id="all-tab">
-                                          <img src="../../assets/images/thumb/icon-nfts.svg" class="icon icon-svg icon-lg p-3 icon-wbg mx-auto mb-4 text-info" alt="" />
+                                    <div className="col-6 col-sm-4 col-lg-4 my-2">
+                                      <div className="card">
+                                        <button className="btn btn-link card-button" id="all-tab">
+                                          <img src="../../assets/images/thumb/icon-nfts.svg" className="icon icon-svg icon-lg p-3 icon-wbg mx-auto mb-4 text-info" alt="" />
                                           <h5 className="title">{auctionNFTs}</h5>
-                                          <span class="nav-link-title mt-3 d-block">In Auction</span>
+                                          <span className="nav-link-title mt-3 d-block">In Auction</span>
                                           
                                         </button>
                                       </div>

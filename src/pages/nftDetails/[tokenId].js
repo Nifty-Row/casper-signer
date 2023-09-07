@@ -6,13 +6,13 @@ import Image from "next/image";
 import { useState, useEffect, useLayoutEffect } from "react";
 import axios from "axios";
 import { useRouter } from "next/router";
-import Header from "../components/Header";
-import Footer from "../components/Footer";
-import Copier from "../components/Copier";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
+import Copier from "@/components/Copier";
 import { Some, None } from "ts-results";
 import moment from "moment";
-
-import { WalletService } from "@/utils/WalletServices";
+import Loading from "@/components/Loading";
+import useWalletConnection from "@/hooks/useWalletConnection";
 import {
   formatDate,
   decodeSpecialCharacters,
@@ -43,9 +43,16 @@ import swal from "sweetalert";
 
 export default function NFTDetails() {
   const router = useRouter();
-
+  const {
+    walletConnected,
+    activePublicKey,
+    connectWallet,
+    disconnectWallet,
+    checkWalletConnection,
+  } = useWalletConnection();
+  const [loading, setLoading] = useState(true); // Add loading state
   const [tokenId, setTokenId] = useState("");
-  const [nft, setNFT] = useState("");
+  const [nft, setNFT] = useState(null);
   const [key, setKey] = useState("");
   const [isOwner, setIsOwner] = useState("");
   const [owner, setOwner] = useState(false);
@@ -79,72 +86,64 @@ export default function NFTDetails() {
     setTimeZone(userTimezone);
     const url = window.location.href;
     const id = url.split("/").pop();
-    WalletService.getActivePublicKey()
-      .then(async (data) => {
-        if (!data) window.location = "/walletConnect";
-        setKey(data);
-        try {
-          if (id) {
-            setTokenId(id);
-            fetch(`https://shark-app-9kl9z.ondigitalocean.app/api/nft/${id}`)
-              .then((response) => response.json())
-              .then(async (data) => {
-                // alert("Fetched NFT DATA");
-                console.log(data);
-                setNFT(data);
-                if (data.user) setOwner(data.user);
-                if (data.auction) setAuctionData(data.auction);
-                let isOwner = data.ownerKey === key;
-                setIsOwner(isOwner);
-                if (data.auction) {
-                  setAuctionStatus(data.auction.status);
-                  setMinPrice(data.auction.minimumPrice);
-                  if (data.auction.deployHash !== null)
-                    setDeployHash(data.auction.deployHash);
-                  if (data.auction.bids) setBids(data.auction.bids);
-                  let bidValues = data.auction.bids.map((bid) => bid.bid);
-                  let highest = Math.max(...bidValues);
-                  if (highest > 0) setHighestBid(highest);
-                }
-              })
-              .catch((error) => {
-                console.log("Error :", error);
-                setNFT(error);
-              });
-          }
-        } catch (error) {
-          swal("Notice", error.message, "warning");
-          console.error(error);
+
+    checkWalletConnection(); // Check wallet connection status
+
+    if (!walletConnected && !activePublicKey) {
+      // Redirect to walletConnect if not connected
+      checkWalletConnection(); // Check wallet connection status
+      setLoading(false);
+    } else {
+      setKey(activePublicKey);
+
+      try {
+        if (id) {
+          setTokenId(id);
+          fetch(`https://shark-app-9kl9z.ondigitalocean.app/api/nft/${id}`)
+            .then((response) => response.json())
+            .then(async (data) => {
+              // ... Rest of your code ...
+              setNFT(data);
+              if (data.user) setOwner(data.user);
+              if (data.auction) setAuctionData(data.auction);
+              let isOwner = data.ownerKey === key;
+              setIsOwner(isOwner);
+              if (data.auction) {
+                setAuctionStatus(data.auction.status);
+                setMinPrice(data.auction.minimumPrice);
+                if (data.auction.deployHash !== null)
+                  setDeployHash(data.auction.deployHash);
+                if (data.auction.bids) setBids(data.auction.bids);
+                let bidValues = data.auction.bids.map((bid) => bid.bid);
+                let highest = Math.max(...bidValues);
+                if (highest > 0) setHighestBid(highest);
+              }
+              setLoading(false);
+            })
+            .catch((error) => {
+              console.log("Error :", error);
+              // setNFT(error);
+              setLoading(false);
+            });
         }
-        let userData = await getUser(data);
-        setUser(userData);
-      })
-      .catch((error) => {
+      } catch (error) {
+        swal("Notice", error.message, "warning");
         console.error(error);
-        swal({
-          title: "Notice",
-          text: error.message,
-          icon: "warning",
-          buttons: {
-            confirm: {
-              text: "OK",
-              value: true,
-              visible: true,
-              className: "",
-              closeModal: true,
-            },
-          },
-        }).then((value) => {
-          if (value) {
-            window.location.href = "/walletConnect"; // Replace with the desired URL
-          }
-        });
-      });
-  }, [key]);
+      }
+
+      // Get user data using the activePublicKey
+      async function fetchUserData() {
+        let userData = await getUser(activePublicKey);
+        setUser(userData);
+      }
+
+      fetchUserData();
+    }
+  }, [walletConnected,activePublicKey]);
 
   // set auction countdown if auction has not started
   useLayoutEffect(() => {
-    if (nft.inAuction && auctionData.startDate) {
+    if (nft?.inAuction && auctionData.startDate) {
       const utcStartDateString = auctionData.startDate;
       const utcStartDate = new Date(utcStartDateString);
       const localStartDate = new Date(
@@ -177,7 +176,7 @@ export default function NFTDetails() {
 
           setFundAmount(auctionData.minimumPrice);
           setAuctionStarted(true);
-        } else if (distancee <= 0 && nft.inAuction) {
+        } else if (distancee <= 0 && nft?.inAuction) {
           setAuctionStarted(false);
           setCountdown("Auction has Ended for this Asset");
           setAuctionEnded(true);
@@ -185,7 +184,7 @@ export default function NFTDetails() {
         } else if (
           distancee <= 0 &&
           auctionData.status === "close" &&
-          !nft.inAuction
+          !nft?.inAuction
         ) {
           setAuctionStarted(false);
           setCountdown("NFT not in Auction");
@@ -206,7 +205,7 @@ export default function NFTDetails() {
         const closeTheAuction = async () => {
           //check if auction start date is exhausted and if there are no bids
           if (
-            nft.inAuction &&
+            nft?.inAuction &&
             distancee < 0 &&
             auctionData.status === "open" &&
             auctionData.bids.length >= 0
@@ -224,10 +223,10 @@ export default function NFTDetails() {
       return () => {
         clearInterval(interval);
       };
-    } else if (nft.inAuction === false) {
+    } else if (nft?.inAuction === false) {
       setCountdown("This asset is not yet in auction.");
       setAuctionStarted(false);
-      const updatedTime = moment(nft.createdAt).toDate();
+      const updatedTime = moment(nft?.createdAt).toDate();
       const updatedTimeLocal = moment(updatedTime).local();
       // const fiveMinutesLater = moment(updatedTime).add(5, "minutes");
       const fiveMinutesLater = moment(updatedTimeLocal).add(5, "minutes");
@@ -249,7 +248,7 @@ export default function NFTDetails() {
   }, [user]);
 
   useEffect(() => {
-    if (!nft.inAuction || verifiable) return;
+    if (!nft?.inAuction || verifiable) return;
   
     // Create a function to check the time and setVerifiable
     const checkTimeAndUpdate = () => {
@@ -283,21 +282,21 @@ export default function NFTDetails() {
 
   useEffect(() => {
     const verifyMint = async () => {
-      if (!nft.tokenHash) return;
+      if (!nft?.tokenHash) return;
 
-      const createdAtDate = new Date(nft.createdAt);
+      const createdAtDate = new Date(nft?.createdAt);
       const currentTime = new Date();
 
-      if (!nft.minted && currentTime - createdAtDate >= 5 * 60 * 1000) {
+      if (!nft?.minted && currentTime - createdAtDate >= 5 * 60 * 1000) {
         try {
-          const verificationResult = await verifyNFT(nft.tokenHash);
+          const verificationResult = await verifyNFT(nft?.tokenHash);
 
           if (verificationResult === "success") {
             // Call updateStatus endpoint
             try {
               const response = await axios.put(
                 "https://shark-app-9kl9z.ondigitalocean.app/api/nft/updateStatus",
-                { tokenId: nft.tokenId }
+                { tokenId: nft?.tokenId }
               );
               console.log("Update Status Response:", response.data);
             } catch (updateError) {
@@ -428,8 +427,8 @@ export default function NFTDetails() {
 
         const backendData = {
           signedDeployJSON: signedDeployJSON,
-          nftId: nft.id,
-          tokenId: nft.tokenId,
+          nftId: nft?.id,
+          tokenId: nft?.tokenId,
           startDate: startTime,
           endDate: endTime,
           minimumPrice: minPrice,
@@ -511,7 +510,7 @@ export default function NFTDetails() {
 
     const token_contract_hash = new CLKey(new CLByteArray(bufferedHash));
     //public key of recipient
-    const ownerKey = nft.ownerKey; //jdk2 //public_key_of_account1
+    const ownerKey = nft?.ownerKey; //jdk2 //public_key_of_account1
 
     const hashedOwnerKey = new CLAccountHash(
       CLPublicKey.fromHex(ownerKey).toAccountHash()
@@ -1131,9 +1130,6 @@ export default function NFTDetails() {
     }
   }
 
-  if (!nft) {
-    return <div>Loading...</div>;
-  }
 
   const startAuction = async (e) => {
     e.preventDefault();
@@ -1228,7 +1224,7 @@ export default function NFTDetails() {
     const msg =
       bids.length > 0
         ? "NFT (" +
-          nft.mediaName +
+          nft?.mediaName +
           ") has been successfully transferred to its new owner."
         : "Unfortunately, there was no bid for this auction.";
     handleFinalize().then(async (data) => {
@@ -1501,45 +1497,45 @@ export default function NFTDetails() {
   const renderMediaImage = () => {
     const defaultImg = "../../default.gif";
 
-    if (nft.mediaType === "artwork") {
+    if (nft?.mediaType === "artwork") {
       return (
         <img
-          src={nft.artworkUrl || defaultImg}
-          style={nft.minted ? {} : { filter: "grayscale(100%)" }}
+          src={nft?.artworkUrl || defaultImg}
+          style={nft?.minted ? {} : { filter: "grayscale(100%)" }}
           className="w-100 rounded-3"
           alt="art image"
           title={
-            nft.minted
+            nft?.minted
               ? ""
               : "nft mint status not yet verified on the blockchain"
           }
         />
       );
     }
-    if (nft.mediaType === "movie") {
+    if (nft?.mediaType === "movie") {
       return (
         <img
-          src={nft.movieThumbnailUrl || defaultImg}
-          style={nft.minted ? {} : { filter: "grayscale(100%)" }}
+          src={nft?.movieThumbnailUrl || defaultImg}
+          style={nft?.minted ? {} : { filter: "grayscale(100%)" }}
           className="w-100 rounded-3"
           alt="Movie Thumbnail"
           title={
-            nft.minted
+            nft?.minted
               ? ""
               : "nft mint status not yet verified on the blockchain"
           }
         />
       );
     }
-    if (nft.mediaType === "music") {
+    if (nft?.mediaType === "music") {
       return (
         <img
-          src={nft.musicThumbnailUrl || defaultImg}
-          style={nft.minted ? {} : { filter: "grayscale(100%)" }}
+          src={nft?.musicThumbnailUrl || defaultImg}
+          style={nft?.minted ? {} : { filter: "grayscale(100%)" }}
           className="w-100 rounded-3"
           alt="Music Thumbnail"
           title={
-            nft.minted
+            nft?.minted
               ? ""
               : "nft mint status not yet verified on the blockchain"
           }
@@ -1549,54 +1545,9 @@ export default function NFTDetails() {
     return null;
   };
 
-  if (typeof nft !== "object" || Object.keys(nft).length === 0) {
+  if(loading ){
     return (
-      <>
-        <Header />
-        <div className="hero-wrap sub-header">
-          <div className="container">
-            <div className="hero-content text-center py-0">
-              <h1 className="hero-title"> NFT</h1>
-              <nav aria-label="breadcrumb">
-                <ol className="breadcrumb breadcrumb-s1 justify-content-center mt-3 mb-0">
-                  <li className="breadcrumb-item">
-                    <a href="../../">Home</a>
-                  </li>
-                  <li className="breadcrumb-item active" aria-current="page">
-                    Asset Details
-                  </li>
-                </ol>
-              </nav>
-            </div>
-          </div>
-        </div>
-        <div className="container mb-4 section-space">
-          <div className="row mb-4 mt-2">
-            <div className="col-xl-10 mx-auto">
-              <div className="alert alert-danger d-flex mb-4" role="alert">
-                <svg
-                  className="flex-shrink-0 me-3"
-                  width="30"
-                  height="30"
-                  viewBox="0 0 24 24"
-                  fill="#ff6a8e"
-                >
-                  <path d="M11,9H13V7H11M12,20C7.59,20 4,16.41 4,12C4,7.59 7.59,4 12,4C16.41,4 20,7.59 20, 12C20,16.41 16.41,20 12,20M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10, 10 0 0,0 12,2M11,17H13V11H11V17Z"></path>
-                </svg>
-                <p className="fs-14">
-                  No Nft Was Found with details {tokenId}
-                  <Link href="/marketplace" className="btn-link">
-                    {" "}
-                    Go to Marketplace.
-                  </Link>
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <Footer />
-      </>
+      <Loading />
     );
   }
 
@@ -1645,19 +1596,19 @@ export default function NFTDetails() {
           <div className="row">
             <div className="col-lg-6">
               <div className="item-detail-content mb-5 mb-lg-0">
-                <h1 className="item-detail-title mb-2">{nft.mediaName}</h1>
+                <h1 className="item-detail-title mb-2">{nft?.mediaName}</h1>
                 <div className="item-detail-meta d-flex flex-wrap align-items-center mb-3">
                   <span className="item-detail-text-meta">
                     Media Type :{" "}
                     <span className="text-primary fw-semibold">
-                      {nft.mediaType}
+                      {nft?.mediaType}
                     </span>
                   </span>
                   <span className="dot-separeted"></span>
                   <span className="item-detail-text-meta">
                     Asset Type :
                     <span className="text-primary fw-semibold">
-                      {nft.assetType}
+                      {nft?.assetType}
                     </span>
                   </span>
                   <span className="dot-separeted"></span>
@@ -1665,12 +1616,12 @@ export default function NFTDetails() {
                     Asset Symbol:
                     <span className="text-primary fw-semibold">
                       {" "}
-                      {nft.assetSymbol}
+                      {nft?.assetSymbol}
                     </span>
                   </span>
                 </div>
                 <p className="item-detail-text mb-4">
-                  {decodeSpecialCharacters(nft.description)}
+                  {decodeSpecialCharacters(nft?.description)}
                 </p>
                 <div className="item-credits mb-4">
                   <div className="row g-4">
@@ -1682,7 +1633,7 @@ export default function NFTDetails() {
                               href="#"
                               className="card-media-img flex-shrink-0 d-block"
                             >
-                              <img src="../../img_405324.png" alt={nft.mediaName} />
+                              <img src="../../img_405324.png" alt={nft?.mediaName} />
                             </a>
                             {owner && (
                               <>
@@ -1725,7 +1676,7 @@ export default function NFTDetails() {
                       </div>
                     </div>
                     <div className="col-xl-7">
-                      {nft.inAuction && auctionData.status !== "close" && (
+                      {nft?.inAuction && auctionData.status !== "close" && (
                     <><div className="card-media card-media-s1">
                         <div className="card-media-body">
                           
@@ -1779,7 +1730,7 @@ export default function NFTDetails() {
                       <div className="card-media card-media-s1">
                         <div className="card-media-body">
                           {/* if nft is in auction */}
-                          {nft.inAuction && auctionData ? (
+                          {nft?.inAuction && auctionData ? (
                             <div>
                               {/* if auction not verified and is owner */}
                               {!auctionData.contractHash && isOwner ? (
@@ -1817,7 +1768,7 @@ export default function NFTDetails() {
                             <ul className="btns-group d-flex">
                               <li className="flex-grow-1">
                                 {auctionStatus === "open" &&
-                                  nft.inAuction &&
+                                  nft?.inAuction &&
                                   !isOwner &&
                                   user.purse !== null && (
                                     <>
@@ -1843,7 +1794,7 @@ export default function NFTDetails() {
                                   )}
 
                                 {auctionStatus == "open" &&
-                                  nft.inAuction &&
+                                  nft?.inAuction &&
                                   !isOwner &&
                                   user.purse === null && (
                                     <a
@@ -1855,7 +1806,7 @@ export default function NFTDetails() {
                                       Create Bid Purse
                                     </a>
                                   )}
-                                {nft.minted && !nft.inAuction && isOwner && (
+                                {nft?.minted && !nft?.inAuction && isOwner && (
                                   <a
                                     href="#"
                                     data-bs-toggle="modal"
@@ -1865,7 +1816,7 @@ export default function NFTDetails() {
                                     Create Auction
                                   </a>
                                 )}
-                                {nft.inAuction &&
+                                {nft?.inAuction &&
                                   isOwner && auctionData.packageHash &&
                                   auctionStatus === "initialize" &&
                                   !auctionEnded && (
@@ -1886,7 +1837,7 @@ export default function NFTDetails() {
                                     Finalize Auction
                                   </a>
                                 )}
-                                {nft.inAuction &&
+                                {nft?.inAuction &&
                                   isOwner &&
                                   !auctionData.contractHash &&
                                   !auctionData.approve && (
@@ -1928,7 +1879,7 @@ export default function NFTDetails() {
                                     </div>
                                   )}
                               </li>
-                              {nft.inAuction && deployHash && isOwner && (
+                              {nft?.inAuction && deployHash && isOwner && (
                                 <li className="flex-grow-1">
                                   <div className="dropdown">
                                     <a
@@ -1941,11 +1892,11 @@ export default function NFTDetails() {
                                   </div>
                                 </li>
                               )}
-                              {!nft.minted && (
+                              {!nft?.minted && (
                                 <li className="flex-grow-1">
                                   <div className="dropdown">
                                     <a
-                                      href={`https://testnet.cspr.live/deploy/${nft.tokenHash}`}
+                                      href={`https://testnet.cspr.live/deploy/${nft?.tokenHash}`}
                                       target="_blank"
                                       className="btn bg-dark-dim d-block"
                                     >
@@ -2119,8 +2070,8 @@ export default function NFTDetails() {
               <form onSubmit={handleBidPurse}>
                 <p className="mb-3">
                   You are about to place a bid for
-                  <strong> {nft.mediaName}</strong>
-                  {/* <strong>{nft.artistName}</strong> */}
+                  <strong> {nft?.mediaName}</strong>
+                  {/* <strong>{nft?.artistName}</strong> */}
                 </p>
                 <div className="mb-3">
                   <label className="form-label">Enter Amount</label>
@@ -2174,8 +2125,8 @@ export default function NFTDetails() {
               <form onSubmit={placeBid}>
                 <p className="mb-3">
                   You are about to place a bid for
-                  <strong> {nft.mediaName}</strong>
-                  {/* <strong>{nft.artistName}</strong> */}
+                  <strong> {nft?.mediaName}</strong>
+                  {/* <strong>{nft?.artistName}</strong> */}
                 </p>
                 <div className="mb-3">
                   <label className="form-label">Your bid (CSPR)</label>
@@ -2218,15 +2169,15 @@ export default function NFTDetails() {
               <form onSubmit={handleDeployAuctionContract}>
                 <p className="mb-3">
                   You are about to deploy an Auction contract for
-                  <strong> {nft.mediaName}</strong>
-                  <strong> ({nft.assetSymbol})</strong>
+                  <strong> {nft?.mediaName}</strong>
+                  <strong> ({nft?.assetSymbol})</strong>
                 </p>
                 <div className="mb-3">
                   <label className="form-label">Token Id</label>
                   <input
                     type="text"
                     className="form-control form-control-s1"
-                    value={nft.tokenId}
+                    value={nft?.tokenId}
                     disabled
                   />
                 </div>
@@ -2271,7 +2222,7 @@ export default function NFTDetails() {
         </div>
       </div>
 
-      {nft.inAuction && bids.length > 0 && (
+      {nft?.inAuction && bids.length > 0 && (
         <div className="row mb-4">
           <div className="col-10 mx-auto">
             <div className="item-detail-tab">
@@ -2336,4 +2287,56 @@ export default function NFTDetails() {
       <Footer />
     </>
   );
+
+  if (!loading && !nft) {
+    return (
+      <>
+        <Header />
+        <div className="hero-wrap sub-header">
+          <div className="container">
+            <div className="hero-content text-center py-0">
+              <h1 className="hero-title"> NFT</h1>
+              <nav aria-label="breadcrumb">
+                <ol className="breadcrumb breadcrumb-s1 justify-content-center mt-3 mb-0">
+                  <li className="breadcrumb-item">
+                    <a href="../../">Home</a>
+                  </li>
+                  <li className="breadcrumb-item active" aria-current="page">
+                    Asset Details
+                  </li>
+                </ol>
+              </nav>
+            </div>
+          </div>
+        </div>
+        <div className="container mb-4 section-space">
+          <div className="row mb-4 mt-2">
+            <div className="col-xl-10 mx-auto">
+              <div className="alert alert-danger d-flex mb-4" role="alert">
+                <svg
+                  className="flex-shrink-0 me-3"
+                  width="30"
+                  height="30"
+                  viewBox="0 0 24 24"
+                  fill="#ff6a8e"
+                >
+                  <path d="M11,9H13V7H11M12,20C7.59,20 4,16.41 4,12C4,7.59 7.59,4 12,4C16.41,4 20,7.59 20, 12C20,16.41 16.41,20 12,20M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10, 10 0 0,0 12,2M11,17H13V11H11V17Z"></path>
+                </svg>
+                <p className="fs-14">
+                  No Nft Was Found with details {tokenId}
+                  <Link href="/marketplace" className="btn-link">
+                    {" "}
+                    Go to Marketplace.
+                  </Link>
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <Footer />
+      </>
+    );
+  }
+
 }

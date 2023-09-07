@@ -67,17 +67,17 @@ export default function Artworks() {
   return (
     <>
       <Header />
-      <div class="hero-wrap sub-header bg-image1">
-        <div class="container">
-          <div class="hero-content text-center py-0">
-            <h1 class="hero-title text-primary">Nifty Assets</h1>
+      <div className="hero-wrap sub-header bg-image1">
+        <div className="container">
+          <div className="hero-content text-center py-0">
+            <h1 className="hero-title text-primary">Nifty Assets</h1>
             <nav aria-label="breadcrumb">
-              <ol class="breadcrumb breadcrumb-s1 justify-content-center mt-3 mb-0">
-                <li class="breadcrumb-item">
+              <ol className="breadcrumb breadcrumb-s1 justify-content-center mt-3 mb-0">
+                <li className="breadcrumb-item">
                   <a href="../../">Home</a>
                 </li>
                 <li
-                  class="breadcrumb-item active text-info"
+                  className="breadcrumb-item active text-info"
                   aria-current="page"
                 >
                   Music

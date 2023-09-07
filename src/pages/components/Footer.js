@@ -94,7 +94,7 @@ const Footer = () => {
           </div>
           <hr className="bg-white-slim my-0" />
           <div className="copyright-wrap d-flex flex-wrap py-3 align-items-center justify-content-between">
-          <p class="footer-copy-text py-2">Copyright &copy; {new Date().getFullYear()} <a href="https://niftyrow.io" target="_blank">NiftyRow.io</a></p>
+          <p className="footer-copy-text py-2">Copyright &copy; {new Date().getFullYear()} <a href="https://niftyrow.io" target="_blank">NiftyRow.io</a></p>
 
             <ul className="list-item list-item-s1 list-item-inline">
               <li>

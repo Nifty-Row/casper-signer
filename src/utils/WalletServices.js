@@ -10,8 +10,9 @@ const getCasperWalletInstance = () => {
     return casperWalletInstance;
   } catch (err) {
     // Catch any errors related to the Casper Wallet Extension
+    console.error(err.message);
   }
-  throw Error('Please install the Casper Wallet Extension.');
+  return;
 };
 
 const WALLET_STORAGE_KEY = 'cspr-redux-wallet-sync';
@@ -54,7 +55,10 @@ export class WalletService {
   }
 
   static async isSiteConnected() {
-    return getCasperWalletInstance().isConnected();
+    if (getCasperWalletInstance() && typeof getCasperWalletInstance().isConnected === 'function') {
+      return getCasperWalletInstance().isConnected();
+    }
+    return false;
   }
 
   static async getActivePublicKey() {

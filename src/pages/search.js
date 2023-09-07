@@ -9,6 +9,7 @@ import Footer from "@/components/Footer";
 import NFTCard from "@/components/NFTCard";
 import debounce from 'lodash/debounce';
 import { useRouter } from 'next/router';
+import Loading from "@/components/Loading";
 
 
 const inter = Inter({ subsets: ["latin"] });
@@ -30,7 +31,7 @@ export default function Search() {
 
     useEffect(()=>{
         if(searchQuery != ""){
-            setText("Showing results for :"+searchQuery);
+            setText("Showing results for : "+searchQuery);
         }else{
             setText("");
         }
@@ -61,7 +62,7 @@ export default function Search() {
             setAllNfts(data);
             // setNFTs(data.slice(startIndex, endIndex));
             // setTotalNFTs(data.length); // Set the total number of NFTs
-            // setLoading(false); // Set loading to false when data is fetched
+            setLoading(false); // Set loading to false when data is fetched
             // scrollToTop(); // Scroll to the top when new data is loaded
           })
           .catch((error) => {
@@ -125,7 +126,11 @@ export default function Search() {
         setCurrentPage(newPage);
     };
 
-
+    if(loading ){
+      return (
+        <Loading />
+      );
+    }
   return (
     <>
       <Header />
@@ -166,7 +171,7 @@ export default function Search() {
                         <input type="text" placeholder="Search" title="Search by tokenID, Nft Name, Nft Symbol, username and Full Name of owners" value={searchQuery} className="form-control form-control-s1 quicksearch" onChange={(e) => handleChange(e.target.value)} />
                     </div>
                     {/* end filter-box-filter-item */}
-                    <p className="title">{text}</p>
+                    <h4 className="title">{text}</h4>
                     <div className="filter-box-filter-item ms-lg-auto filter-btn-wrap">
                         {/* <div className="filter-btn-group"><a href="#" className="btn filter-btn">Digital Assets</a><a href="#" className="btn filter-btn">Physical Assets</a></div> */}
                     </div>

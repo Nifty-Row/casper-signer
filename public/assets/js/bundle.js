@@ -2220,7 +2220,7 @@
             yt = { AUTO: "auto", TOP: "top", RIGHT: $() ? "left" : "right", BOTTOM: "bottom", LEFT: $() ? "right" : "left" },
             bt = {
                 animation: !0,
-                template: '<div class="tooltip" role="tooltip"><div class="tooltip-arrow"></div><div class="tooltip-inner"></div></div>',
+                template: '<div className="tooltip" role="tooltip"><div className="tooltip-arrow"></div><div className="tooltip-inner"></div></div>',
                 trigger: "hover focus",
                 title: "",
                 delay: 0,
@@ -2555,7 +2555,7 @@
                 offset: [0, 8],
                 trigger: "click",
                 content: "",
-                template: '<div class="popover" role="tooltip"><div class="popover-arrow"></div><h3 class="popover-header"></h3><div class="popover-body"></div></div>',
+                template: '<div className="popover" role="tooltip"><div className="popover-arrow"></div><h3 className="popover-header"></h3><div className="popover-body"></div></div>',
             },
             Lt = { ...It.DefaultType, content: "(string|element|function)" },
             At = {
@@ -5063,7 +5063,7 @@
             const n = "swiper-slide-shadow" + (i ? "-" + i : ""),
                 s = e.transformEl ? t.find(e.transformEl) : t;
             let r = s.children("." + n);
-            return r.length || ((r = l(`<div class="swiper-slide-shadow${i ? "-" + i : ""}"></div>`)), s.append(r)), r;
+            return r.length || ((r = l(`<div className="swiper-slide-shadow${i ? "-" + i : ""}"></div>`)), s.append(r)), r;
         }
         Object.keys(z).forEach((e) => {
             Object.keys(z[e]).forEach((t) => {
@@ -5138,7 +5138,7 @@
                 function s(t, i) {
                     const n = e.params.virtual;
                     if (n.cache && e.virtual.cache[i]) return e.virtual.cache[i];
-                    const s = n.renderSlide ? l(n.renderSlide.call(e, t, i)) : l(`<div class="${e.params.slideClass}" data-swiper-slide-index="${i}">${t}</div>`);
+                    const s = n.renderSlide ? l(n.renderSlide.call(e, t, i)) : l(`<div className="${e.params.slideClass}" data-swiper-slide-index="${i}">${t}</div>`);
                     return s.attr("data-swiper-slide-index") || s.attr("data-swiper-slide-index", i), n.cache && (e.virtual.cache[i] = s), s;
                 }
                 function r(t) {
@@ -5644,11 +5644,11 @@
                     if ("bullets" === t.type) {
                         let n = e.params.loop ? Math.ceil((i - 2 * e.loopedSlides) / e.params.slidesPerGroup) : e.snapGrid.length;
                         e.params.freeMode && e.params.freeMode.enabled && !e.params.loop && n > i && (n = i);
-                        for (let i = 0; i < n; i += 1) t.renderBullet ? (r += t.renderBullet.call(e, i, t.bulletClass)) : (r += `<${t.bulletElement} class="${t.bulletClass}"></${t.bulletElement}>`);
+                        for (let i = 0; i < n; i += 1) t.renderBullet ? (r += t.renderBullet.call(e, i, t.bulletClass)) : (r += `<${t.bulletElement} className="${t.bulletClass}"></${t.bulletElement}>`);
                         s.html(r), (e.pagination.bullets = s.find(H(t.bulletClass)));
                     }
-                    "fraction" === t.type && ((r = t.renderFraction ? t.renderFraction.call(e, t.currentClass, t.totalClass) : `<span class="${t.currentClass}"></span> / <span class="${t.totalClass}"></span>`), s.html(r)),
-                        "progressbar" === t.type && ((r = t.renderProgressbar ? t.renderProgressbar.call(e, t.progressbarFillClass) : `<span class="${t.progressbarFillClass}"></span>`), s.html(r)),
+                    "fraction" === t.type && ((r = t.renderFraction ? t.renderFraction.call(e, t.currentClass, t.totalClass) : `<span className="${t.currentClass}"></span> / <span className="${t.totalClass}"></span>`), s.html(r)),
+                        "progressbar" === t.type && ((r = t.renderProgressbar ? t.renderProgressbar.call(e, t.progressbarFillClass) : `<span className="${t.progressbarFillClass}"></span>`), s.html(r)),
                         "custom" !== t.type && n("paginationRender", e.pagination.$el[0]);
                 }
                 function h() {
@@ -5822,7 +5822,7 @@
                     let s = l(n.el);
                     e.params.uniqueNavElements && "string" == typeof n.el && s.length > 1 && 1 === i.find(n.el).length && (s = i.find(n.el));
                     let r = s.find("." + e.params.scrollbar.dragClass);
-                    0 === r.length && ((r = l(`<div class="${e.params.scrollbar.dragClass}"></div>`)), s.append(r)),
+                    0 === r.length && ((r = l(`<div className="${e.params.scrollbar.dragClass}"></div>`)), s.append(r)),
                         Object.assign(t, { $el: s, el: s[0], $dragEl: r, dragEl: r[0] }),
                         n.draggable && e.params.scrollbar.el && w("on"),
                         s && s[e.enabled ? "removeClass" : "addClass"](e.params.scrollbar.lockClass);
@@ -6569,7 +6569,7 @@
                         })(e, t);
                 };
                 i("beforeInit", () => {
-                    n = l(`<span class="${e.params.a11y.notificationClass}" aria-live="assertive" aria-atomic="true"></span>`);
+                    n = l(`<span className="${e.params.a11y.notificationClass}" aria-live="assertive" aria-atomic="true"></span>`);
                 }),
                     i("afterInit", () => {
                         e.params.a11y.enabled &&
@@ -7124,8 +7124,8 @@
                                 f = 0;
                             c.shadow &&
                                 (u
-                                    ? ((p = i.find(".swiper-cube-shadow")), 0 === p.length && ((p = l('<div class="swiper-cube-shadow"></div>')), i.append(p)), p.css({ height: s + "px" }))
-                                    : ((p = t.find(".swiper-cube-shadow")), 0 === p.length && ((p = l('<div class="swiper-cube-shadow"></div>')), t.append(p))));
+                                    ? ((p = i.find(".swiper-cube-shadow")), 0 === p.length && ((p = l('<div className="swiper-cube-shadow"></div>')), i.append(p)), p.css({ height: s + "px" }))
+                                    : ((p = t.find(".swiper-cube-shadow")), 0 === p.length && ((p = l('<div className="swiper-cube-shadow"></div>')), t.append(p))));
                             for (let e = 0; e < n.length; e += 1) {
                                 const t = n.eq(e);
                                 let i = e;
@@ -7144,8 +7144,8 @@
                                 if ((d <= 1 && d > -1 && ((f = 90 * i + 90 * d), o && (f = 90 * -i - 90 * d)), t.transform($), c.slideShadows)) {
                                     let e = u ? t.find(".swiper-slide-shadow-left") : t.find(".swiper-slide-shadow-top"),
                                         i = u ? t.find(".swiper-slide-shadow-right") : t.find(".swiper-slide-shadow-bottom");
-                                    0 === e.length && ((e = l(`<div class="swiper-slide-shadow-${u ? "left" : "top"}"></div>`)), t.append(e)),
-                                        0 === i.length && ((i = l(`<div class="swiper-slide-shadow-${u ? "right" : "bottom"}"></div>`)), t.append(i)),
+                                    0 === e.length && ((e = l(`<div className="swiper-slide-shadow-${u ? "left" : "top"}"></div>`)), t.append(e)),
+                                        0 === i.length && ((i = l(`<div className="swiper-slide-shadow-${u ? "right" : "bottom"}"></div>`)), t.append(i)),
                                         e.length && (e[0].style.opacity = Math.max(-d, 0)),
                                         i.length && (i[0].style.opacity = Math.max(d, 0));
                                 }
@@ -8393,16 +8393,16 @@
                                     for (var n = "", s = 0; s < e.length; s++) {
                                         var r = e[s],
                                             o = i ? "-preferred" : "";
-                                        (n += "<li class='iti__country "
+                                        (n += "<li className'iti__country "
                                             .concat(t, "' tabIndex='-1' id='iti-")
                                             .concat(this.id, "__item-")
                                             .concat(r.iso2)
                                             .concat(o, "' role='option' data-dial-code='")
                                             .concat(r.dialCode, "' data-country-code='")
                                             .concat(r.iso2, "' aria-selected='false'>")),
-                                            (n += "<div class='iti__flag-box'><div class='iti__flag iti__".concat(r.iso2, "'></div></div>")),
-                                            (n += "<span class='iti__country-name'>".concat(r.name, "</span>")),
-                                            (n += "<span class='iti__dial-code'>+".concat(r.dialCode, "</span>")),
+                                            (n += "<div className'iti__flag-box'><div className'iti__flag iti__".concat(r.iso2, "'></div></div>")),
+                                            (n += "<span className'iti__country-name'>".concat(r.name, "</span>")),
+                                            (n += "<span className'iti__dial-code'>+".concat(r.dialCode, "</span>")),
                                             (n += "</li>");
                                     }
                                     this.m.insertAdjacentHTML("beforeend", n);

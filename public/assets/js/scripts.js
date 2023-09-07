@@ -114,8 +114,8 @@ function countDownTimer(e) {
           c = Math.floor((n % 6e4) / 1e3);
         document.getElementById(t).innerHTML =
           a >= e
-            ? `<div class="countdown-item"><span class="countdown-amount">${l}</span><span class="countdown-text"> Hours</span></div>\n            <div class="countdown-item"><span class="countdown-amount">${i}</span><span class="countdown-text"> Minutes</span></div>\n            <div class="countdown-item"><span class="countdown-amount">${c}</span><span class="countdown-text"> Seconds</span></div>`
-            : `<div class="countdown-note">${o}</div>`;
+            ? `<div className="countdown-item"><span className="countdown-amount">${l}</span><span className="countdown-text"> Hours</span></div>\n            <div className="countdown-item"><span className="countdown-amount">${i}</span><span className="countdown-text"> Minutes</span></div>\n            <div className="countdown-item"><span className="countdown-amount">${c}</span><span className="countdown-text"> Seconds</span></div>`
+            : `<div className="countdown-note">${o}</div>`;
       }, 1e3);
     });
 }

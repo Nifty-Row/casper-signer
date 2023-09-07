@@ -21,6 +21,7 @@ import {
 
 import { getWalletBalance,totesToCSPR } from "@/utils/generalUtils";
 import { WalletService } from "@/utils/WalletServices";
+import Loading from "@/components/Loading";
 
 const MintForm = ({keyprop,balance}) => {
   let newKey = keyprop;
@@ -691,6 +692,10 @@ const MintForm = ({keyprop,balance}) => {
       form.reset();
     }
   };
+
+  if(isloading){
+    return (<Loading />)
+  }
 
   return (
     <>

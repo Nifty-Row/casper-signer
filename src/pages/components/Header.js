@@ -2,41 +2,42 @@
 /* eslint-disable @next/next/no-img-element */
 /* eslint-disable @next/next/no-html-link-for-pages */
 
-import { useEffect, useState } from "react";
-import {WalletService} from "../../utils/WalletServices";
-import {truncateKey, handleRefresh} from "../../utils/generalUtils";
+import { useEffect, useState,useLayoutEffect } from "react";
 import { useRouter } from "next/router";
 import swal from "sweetalert";
+import { truncateKey, handleRefresh } from "@/utils/generalUtils";
+import useWalletConnection from "@/hooks/useWalletConnection";
+import axios from "axios";
 
-const Header = () => {
-  const [publicKey, setPublicKey] = useState("");
-  const [walletConnected, setWalletConnected] = useState("");
+const Header = ({ publicKey, isConnected }) => {
   const [error, setError] = useState("");
+  const [activeKey,setActivekey] = useState("");
   const router = useRouter();
-  useEffect(() => {
-    setTimeout(async () => {
-      try {
-        const connected = await WalletService.isSiteConnected();
-        setWalletConnected(connected);
-      } catch (err) {
-        swal("Attention",err.message,"warning");
-        console.log(err);
-      }
-    }, 100);
+  const {
+    walletConnected,
+    activePublicKey,
+    connectWallet,
+    disconnectWallet,
+    checkWalletConnection,
+  } = useWalletConnection();
 
-    const checkWalletConnection = async () => {
-      try {
-        if (walletConnected) setActiveKey(await WalletService.getActivePublicKey());
-        const publicKeyHex = await WalletService.getActivePublicKey();
-        setPublicKey(publicKeyHex);
-      } catch (error) {
-        setError(
-          "There was an error connecting to the Casper Wallet. Please make sure you have the Casper Wallet installed and refresh the page before trying again."
-        );
-      }
-    };
-    checkWalletConnection();
-  }, [walletConnected]);
+
+  useLayoutEffect(() => { 
+    if(!walletConnected){
+      setActivekey(null);
+      checkWalletConnection();
+    }
+    if(walletConnected && !publicKey && activePublicKey) {
+      setActivekey(activePublicKey);
+    }else if(walletConnected && publicKey && activePublicKey){
+      setActivekey(activePublicKey);
+    }
+    
+  }, [walletConnected,publicKey,activePublicKey]);
+
+  useEffect(()=>{
+    if(publicKey) alert(publicKey);
+  },[publicKey])
 
   const handleDisconnect = async () => {
     swal({
@@ -51,11 +52,11 @@ const Header = () => {
     }).then((confirmed) => {
       // If the user clicks the "Yes" button (confirmed is true), proceed with disconnection
       if (confirmed) {
-        WalletService.disconnect().then(() => {
+        disconnectWallet().then(() => {
           swal("Disconnected!", "Wallet Disconnected", "success");
-          // const router = require("next/router").default;
-          // router.push("/walletConnect");
-          handleRefresh();
+          const router = require("next/router").default;
+          router.push("/");
+          // handleRefresh();
         });
       }
     });
@@ -67,6 +68,46 @@ const Header = () => {
     const searchQuery = formData.get("search");
     router.push(`/search?search=${searchQuery}`);
   };
+
+
+  const connectCasperWallet = async () => {
+    connectWallet().then(async(data) =>{
+      try{
+        console.log("connect wallet",data);
+        const response = await walletToUser(data);
+        if (response == "Success") {
+          // const router = require("next/router").default;
+          // router.push("/");
+          handleRefresh();
+        } 
+      } catch (error) {
+        console.error("Error making API call:", error);
+        // Handle the error, e.g., show an error message to the user.
+      }
+    });
+      
+    
+  };
+
+  async function  walletToUser(key) {
+    if(!key) return;
+    try {
+      const response = await axios.put("https://shark-app-9kl9z.ondigitalocean.app/api/user/addNewWallet", {
+        publicKey: key,
+      });
+      if (response.status === 200) {
+        return response.data; // Return a success message or data if needed
+      } else {
+        swal("Error","Failed to add new wallet.","error");
+        return false;
+      }
+    } catch (error) {
+      swal("Error","Failed to add new wallet.","error");
+      console.error("Error adding new wallet:", error.message);
+      return false;
+    }
+    return false;
+  }
 
 
 
@@ -177,21 +218,24 @@ const Header = () => {
                 </li>
               </ul>
               <ul className="menu-btns">
-                {publicKey === "" && (
+                {!activeKey && (
                   <li>
-                    <a href="../../walletConnect" className="btn btn-info">
+                    <a href="#" 
+                      onClick={connectCasperWallet}
+                      className="btn btn-info"
+                    >
                       Connect Wallet
                     </a>
                   </li>
                 )}
-                {publicKey !== "" && (
+                {activeKey && (
                   <li>
                     <a href="../../user/assets" className="btn btn-primary">
-                     Assets {truncateKey(publicKey)}
+                     Assets {truncateKey(activeKey)}
                     </a>
                   </li>
                 )}
-                {publicKey !== "" && (
+                {activeKey && (
                   <li>
                     <a href="../../create" className="btn btn-success">
                       Mint NFT
@@ -217,7 +261,7 @@ const Header = () => {
                   </a>
                 </li> */}
               </ul>
-              {publicKey !== "" && (
+              {activeKey && (
               <ul className="menu-btns menu-btns-2">
                 
                 <li className="d-none d-lg-inline-block dropdown">

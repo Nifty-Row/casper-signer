@@ -5,12 +5,13 @@ import Head from "next/head";
 import Image from "next/image";
 
 import { Inter } from "next/font/google";
-import Header from "./components/Header";
-import Footer from "./components/Footer";
-import MintForm from "./components/MintForm";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
+import MintForm from "@/components/MintForm";
 import { useEffect, useState } from "react";
-import { WalletService } from "../utils/WalletServices";
-import { getWalletBalance,totesToCSPR} from "../utils/generalUtils";
+import useWalletConnection from "@/hooks/useWalletConnection"; // Replace with the correct path
+import { getWalletBalance,totesToCSPR} from "@/utils/generalUtils";
+import Loading from "@/components/Loading";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -18,19 +19,29 @@ export default function WalletConnect() {
   // const router = useRouter();
   const [key, setKey] = useState("");
   const [isloading,setIsloading] = useState(true);
+  const {
+    walletConnected,
+    activePublicKey,
+    connectWallet,
+    disconnectWallet,
+    checkWalletConnection,
+  } = useWalletConnection();
 
   useEffect(() => {
-    WalletService.isSiteConnected().then(async (data) => {
-      let activeKey = await WalletService.getActivePublicKey();
+    if(walletConnected) {
       
-      if (!activeKey) {
-        const router = require("next/router").default;
-        router.push("/walletConnect"); // Redirect to the wallet connect page if wallet is not connected
-      }else{
-        if(!key) setKey(activeKey);
-      }
-    });
-  }, [key]);
+      setKey(activePublicKey)
+      // if (!activeKey) {
+      //   const router = require("next/router").default;
+      //   router.push("/walletConnect"); // Redirect to the wallet connect page if wallet is not connected
+      // }else{
+      //   if(!key) setKey(activeKey);
+      // }
+    }else{
+      console.log("is conected",checkWalletConnection());
+      setIsloading(false);
+    }
+  }, [key,activePublicKey]);
 
   const [walletBalance, setWalletBalance]= useState("checking balance"); 
   
@@ -41,9 +52,11 @@ export default function WalletConnect() {
         const balance = await getWalletBalance(key);
         console.log("wallet Balance", totesToCSPR(balance));
         setWalletBalance(totesToCSPR(balance || 0)); // Set to 0 if balance is undefined
+        setIsloading(false);
       } catch (error) {
         console.error("Error fetching wallet balance:", error);
         setWalletBalance(0); // Set to 0 in case of error
+        setIsloading(false);
       }
     };
     
@@ -52,10 +65,18 @@ export default function WalletConnect() {
     }
   }, [key, walletBalance]);
   
-  if(key=="" && isloading ){
+  if(isloading ){
+    return (
+      <Loading />
+    );
+  }
+  if(key=="" && !isloading ){
     return (
       <>
-      <Header />
+      <Header 
+        publicKey={activePublicKey}
+        walletConnected={walletConnected}
+      />
       <div className="hero-wrap sub-header">
         <div className="container">
           <div className="hero-content text-center py-0">
@@ -80,7 +101,7 @@ export default function WalletConnect() {
           <div className="filter-container row g-gs">
             <div className="col-md-12" >
               <h4 className="text-danger text-center">Please ensure your wallet is connected to mint an NFT</h4>
-              <center><a  href="../../walletConnect" className="btn btn-primary btn-lg float-center mt-4">Connect Wallet</a></center>
+              <center><p className=" float-center mt-4">click the button above to connect</p></center>
 
             </div>
           </div>
@@ -94,7 +115,10 @@ export default function WalletConnect() {
 
   return (
     <>
-      <Header />
+      <Header 
+        publicKey={publicKey}
+        walletConnected={walletConnected}
+      />
       <div className="hero-wrap sub-header">
         <div className="container">
           <div className="hero-content text-center py-0">

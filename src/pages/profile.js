@@ -78,23 +78,23 @@ export default function Home() {
   return (
     <><><>
           <Header />
-          <div class="hero-wrap sub-header bg-image">
-              <div class="container">
-                  <div class="hero-content py-0 d-flex align-items-center">
-                  <div class="avatar avatar-3 flex-shrink-0">
+          <div className="hero-wrap sub-header bg-image">
+              <div className="container">
+                  <div className="hero-content py-0 d-flex align-items-center">
+                  <div className="avatar avatar-3 flex-shrink-0">
                     <img src="../../img_405324.png" width={100} height={100} alt="avatar" /></div>
-                  <div class="author-hero-content-wrap d-flex flex-wrap justify-content-between ms-3 flex-grow-1">
-                      <div class="author-hero-content me-3">
-                          <h4 class="hero-author-title mb-1 text-white">{user.fullName}</h4>
-                          <p class="hero-author-username mb-1 text-white">@{user.username}</p>
+                  <div className="author-hero-content-wrap d-flex flex-wrap justify-content-between ms-3 flex-grow-1">
+                      <div className="author-hero-content me-3">
+                          <h4 className="hero-author-title mb-1 text-white">{user.fullName}</h4>
+                          <p className="hero-author-username mb-1 text-white">@{user.username}</p>
                           <Copier text={activeKey} />
                       </div>
-                      <div class="hero-action-wrap d-flex align-items-center my-2">
-                          {/* <button type="button" class="btn btn-light">Follow</button>
-                          <div class="dropdown ms-3">
-                              <a class="icon-btn icon-btn-s1" href="#" data-bs-toggle="dropdown" id="reportDropdown"><em class="ni ni-more-h"></em></a>
-                              <ul class="dropdown-menu card-generic p-2 dropdown-menu-end mt-2 card-generic-sm" aria-labelledby="reportDropdown">
-                                  <li><a class="dropdown-item card-generic-item" href="#" data-bs-toggle="modal" data-bs-target="#reportModal">Report Page</a></li>
+                      <div className="hero-action-wrap d-flex align-items-center my-2">
+                          {/* <button type="button" className="btn btn-light">Follow</button>
+                          <div className="dropdown ms-3">
+                              <a className="icon-btn icon-btn-s1" href="#" data-bs-toggle="dropdown" id="reportDropdown"><em className="ni ni-more-h"></em></a>
+                              <ul className="dropdown-menu card-generic p-2 dropdown-menu-end mt-2 card-generic-sm" aria-labelledby="reportDropdown">
+                                  <li><a className="dropdown-item card-generic-item" href="#" data-bs-toggle="modal" data-bs-target="#reportModal">Report Page</a></li>
                               </ul>
                           </div> */}
                       </div>
@@ -102,26 +102,26 @@ export default function Home() {
               </div>
           </div>
         </div>
-          <section class="author-section section-space">
-              <div class="container">
-                  <div class="row">
-                      <div class="col-xl-3">
-                          <div class="sidebar mb-5 mb-xl-0 row">
-                              <div class="col-md-6 col-lg-6 col-xl-12 sidebar-widget">
-                                  <h3 class="mb-3">About Me</h3>
-                                  <p class="sidebar-text mb-3">
+          <section className="author-section section-space">
+              <div className="container">
+                  <div className="row">
+                      <div className="col-xl-3">
+                          <div className="sidebar mb-5 mb-xl-0 row">
+                              <div className="col-md-6 col-lg-6 col-xl-12 sidebar-widget">
+                                  <h3 className="mb-3">About Me</h3>
+                                  <p className="sidebar-text mb-3">
                                       {user.about}
                                   </p>
-                                  {/* <p class="sidebar-text text-dark-gray">
-                                      <span class="me-4"><strong class="text-black">0</strong> Following</span><span><strong class="text-black">0</strong> Followers</span>
+                                  {/* <p className="sidebar-text text-dark-gray">
+                                      <span className="me-4"><strong className="text-black">0</strong> Following</span><span><strong className="text-black">0</strong> Followers</span>
                                   </p> */}
 
                               </div>
-                              <div class="col-md-6 col-lg-6 col-xl-12 sidebar-widget">
-                                  <h3 class="mb-3">Links</h3>
-                                  <ul class="social-links">
+                              <div className="col-md-6 col-lg-6 col-xl-12 sidebar-widget">
+                                  <h3 className="mb-3">Links</h3>
+                                  <ul className="social-links">
                                       {/* <li>
-                                        <a href="#"><span class="ni ni-globe icon"></span>frenchmontana.com</a>
+                                        <a href="#"><span className="ni ni-globe icon"></span>frenchmontana.com</a>
                                         </li> */}
                                       <li>
                                         {user.facebook && (
@@ -147,43 +147,43 @@ export default function Home() {
 
                                   </ul>
                               </div>
-                              <div class="col-md-6 col-lg-6 col-xl-12 sidebar-widget">
-                                  <h3 class="mb-2">Joined</h3>
-                                  <p class="sidebar-text">{formatDate(user.createdAt)}</p>
+                              <div className="col-md-6 col-lg-6 col-xl-12 sidebar-widget">
+                                  <h3 className="mb-2">Joined</h3>
+                                  <p className="sidebar-text">{formatDate(user.createdAt)}</p>
                               </div>
                           </div>
                       </div>
-                      <div class="col-xl-9 ps-xl-4">
-                          <div class="author-items-wrap">
-                              <ul class="nav nav-tabs nav-tabs-s1" id="myTab" role="tablist">
-                                  <li class="nav-item" role="presentation">
-                                      <button class="nav-link active" id="on-sale-tab" data-bs-toggle="tab" data-bs-target="#on-sale" type="button" role="tab" aria-controls="on-sale" aria-selected="true">Assets in Auction</button>
+                      <div className="col-xl-9 ps-xl-4">
+                          <div className="author-items-wrap">
+                              <ul className="nav nav-tabs nav-tabs-s1" id="myTab" role="tablist">
+                                  <li className="nav-item" role="presentation">
+                                      <button className="nav-link active" id="on-sale-tab" data-bs-toggle="tab" data-bs-target="#on-sale" type="button" role="tab" aria-controls="on-sale" aria-selected="true">Assets in Auction</button>
                                   </li>
-                                  <li class="nav-item" role="presentation">
-                                      <button class="nav-link" id="owned-tab" data-bs-toggle="tab" data-bs-target="#owned" type="button" role="tab" aria-controls="owned" aria-selected="false">Assets Won in Auction</button>
+                                  <li className="nav-item" role="presentation">
+                                      <button className="nav-link" id="owned-tab" data-bs-toggle="tab" data-bs-target="#owned" type="button" role="tab" aria-controls="owned" aria-selected="false">Assets Won in Auction</button>
                                   </li>
-                                  <li class="nav-item" role="presentation">
-                                      <button class="nav-link" id="created-tab" data-bs-toggle="tab" data-bs-target="#created" type="button" role="tab" aria-controls="created" aria-selected="false">All Assets</button>
+                                  <li className="nav-item" role="presentation">
+                                      <button className="nav-link" id="created-tab" data-bs-toggle="tab" data-bs-target="#created" type="button" role="tab" aria-controls="created" aria-selected="false">All Assets</button>
                                   </li>
                               </ul>
-                              <div class="gap-2x"></div>
-                              <div class="tab-content" id="myTabContent">
-                                <div class="tab-pane fade show active" id="on-sale" role="tabpanel" aria-labelledby="on-sale-tab">
-                                    <div class="row g-gs">
+                              <div className="gap-2x"></div>
+                              <div className="tab-content" id="myTabContent">
+                                <div className="tab-pane fade show active" id="on-sale" role="tabpanel" aria-labelledby="on-sale-tab">
+                                    <div className="row g-gs">
                                     {userNftsInAuction.map((nft) => (
                                         <NFTCard key={nft.id} nftData={nft} />
                                         ))}
                                     </div>
                                 </div>
-                                <div class="tab-pane fade" id="owned" role="tabpanel" aria-labelledby="owned-tab">
-                                    <div class="row g-gs">
+                                <div className="tab-pane fade" id="owned" role="tabpanel" aria-labelledby="owned-tab">
+                                    <div className="row g-gs">
                                     {userOwnedNfts.map((nft) => (
                                         <NFTCard key={nft.id} nftData={nft} />
                                         ))}
                                     </div>
                                 </div>
-                                <div class="tab-pane fade" id="created" role="tabpanel" aria-labelledby="created-tab">
-                                    <div class="row g-gs">
+                                <div className="tab-pane fade" id="created" role="tabpanel" aria-labelledby="created-tab">
+                                    <div className="row g-gs">
                                     {userNfts.map((nft) => (
                                         <NFTCard key={nft.id} nftData={nft} />
                                         ))}
