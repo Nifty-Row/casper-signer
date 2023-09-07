@@ -890,11 +890,11 @@ export default function NFTDetails() {
       closeOnClickOutside: true,
       closeOnEsc: false,
     });
-    verifyBidPurse(user.purse.deployHash)
+    verifyBidPurse(user?.purse.deployHash)
       .then((purse) => {
         if (purse.uref) {
           let bid = purse.amount.toString().slice(0, -9);
-          updatePurseUref(user.purse.id, purse.uref).then((data) => {
+          updatePurseUref(user?.purse.id, purse.uref).then((data) => {
             addBid(bid).then((data) => {
               swal(
                 "Success",
@@ -909,7 +909,7 @@ export default function NFTDetails() {
       })
       .catch((error) => {
         swal("Error", error.response.data, "error");
-        if (error.response.status === 400) deleteBidPurse(user.purse.id);
+        if (error.response.status === 400) deleteBidPurse(user?.purse.id);
         console.error(error);
         // Handle the error here
       });
@@ -971,7 +971,7 @@ export default function NFTDetails() {
 
     const bid = new CLU512(bidAmount);
 
-    const uRef = user.purse.uref;
+    const uRef = user?.purse.uref;
     const bid_purse = CLURef.fromFormattedStr(uRef);
 
     const deploy = contract.callEntrypoint(
@@ -1776,10 +1776,10 @@ export default function NFTDetails() {
                                 {auctionStatus === "open" &&
                                   nft?.inAuction &&
                                   !isOwner &&
-                                  user?.purse !== null && (
+                                  user??.purse !== null && (
                                     <>
-                                      {!user.purse ||
-                                        (!user.purse.uref && (
+                                      {!user?.purse ||
+                                        (!user?.purse.uref && (
                                           <a
                                             href="#"
                                             onClick={confirmBidPurse}
@@ -1802,7 +1802,7 @@ export default function NFTDetails() {
                                 {auctionStatus == "open" &&
                                   nft?.inAuction &&
                                   !isOwner &&
-                                  user.purse === null && (
+                                  user?.purse === null && (
                                     <a
                                       href="#"
                                       data-bs-toggle="modal"
@@ -1940,7 +1940,7 @@ export default function NFTDetails() {
                               <li className="flex-grow-1">
                                 {shouldShowConfirmBid && (
                                   <>
-                                    {!user.purse || !user.purse.uref && (
+                                    {!user?.purse || !user?.purse.uref && (
                                       <a
                                         href="#"
                                         onClick={confirmBidPurse}
@@ -2272,10 +2272,10 @@ export default function NFTDetails() {
                       <td>{bid.bid} CSPR</td>
                       <td>{formatDate(bid.createdAt)}</td>
                       <td>
-                        {bid.user?.purse?.deployHash && (
+                        {bid.user??.purse?.deployHash && (
                           <a
                             className="btn btn-info btn-sm"
-                            href={`https://testnet.cspr.live/deploy/${bid.user.purse.deployHash}`}
+                            href={`https://testnet.cspr.live/deploy/${bid.user?.purse.deployHash}`}
                             target="_blank"
                           >
                             Verify
