@@ -116,7 +116,7 @@ export default function WalletConnect() {
   return (
     <>
       <Header 
-        publicKey={publicKey}
+        publicKey={activePublicKey}
         walletConnected={walletConnected}
       />
       <div className="hero-wrap sub-header">

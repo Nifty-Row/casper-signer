@@ -1930,7 +1930,7 @@ export default function NFTDetails() {
                                 <li className="flex-grow-1">
                                   <div className="dropdown">
                                     <a
-                                      href={`https://testnet.cspr.live/contracts/${caskNFTPackageHash}/nfts/${nft?.tokenHash}`}
+                                      href={`https://testnet.cspr.live/contracts/${caskNFTPackageHash}/nfts/${nft?.tokenId}`}
                                       target="_blank"
                                       className="btn bg-dark-dim d-block"
                                     >
