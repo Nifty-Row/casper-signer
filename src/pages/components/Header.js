@@ -140,30 +140,46 @@ const Header = ({ publicKey, isConnected }) => {
                     <a className="icon-btn" href="#" data-bs-toggle="dropdown"><em className="ni ni-search"></em></a>
                     <div className="dropdown-menu dropdown-menu-end card-generic">
                         <div className="input-group">
-                            <input type="search" className="form-control form-control-s1" placeholder="Search item here..." /><a href="#" className="btn btn-sm btn-outline-secondary"><em className="ni ni-search"></em></a>
+                          <form
+                            action="/search"
+                            onSubmit={handleSearchSubmit}
+                            className="d-flex"
+                          >
+                            <input 
+                              type="search" 
+                              name="search" 
+                              className="form-control form-control-s1" 
+                              placeholder="Search item here..." 
+                            />
+                           <button type="submit" className="btn btn-sm btn-outline-secondary">
+                              <em className="ni ni-search"></em>
+                            </button>
+                            </form>
                         </div>
                     </div>
                 </div>
+                {activeKey && (
                 <div className="header-mobile-user-menu dropdown me-2">
-                    <button type="button" className="icon-btn" data-bs-toggle="dropdown" aria-expanded="false"><em className="ni ni-user"></em></button>
+                    <button type="button" className="icon-btn" data-bs-toggle="dropdown" aria-expanded="false">
+                      <em className="ni ni-user"></em>
+                      </button>
                     <ul className="dropdown-menu card-generic card-generic-s3 dropdown-menu-end mt-2">
                         <li><h6 className="dropdown-header">Hello !</h6></li>
                         <li>
-                            <a className="dropdown-item card-generic-item" href="user/profile"><em className="ni ni-user me-2"></em> Profile</a>
+                            <a className="dropdown-item card-generic-item" href="../../user/profile"><em className="ni ni-user me-2"></em> Profile</a>
                         </li>
                         <li>
-                            <a className="dropdown-item card-generic-item" href="user/dashboard"><em className="ni ni-dashboard me-2"></em> Dashboard</a>
-                        </li>
-                        
-                        <li>
-                            <a href="#" className="dropdown-item card-generic-item theme-toggler" title="Toggle Dark/Light mode"><em className="ni ni-moon me-2"></em> Dark Mode</a>
+                            <a className="dropdown-item card-generic-item" href="../../user/dashboard"><em className="ni ni-dashboard me-2"></em> Dashboard</a>
                         </li>
                         <li><hr className="dropdown-divider" /></li>
                         <li>
-                            <a className="dropdown-item card-generic-item" href="#"><em className="ni ni-power me-2"></em> Logout</a>
+                            <a className="dropdown-item card-generic-item" href="#"  onClick={handleDisconnect}>
+                              <em className="ni ni-power me-2"></em> Disconnect
+                            </a>
                         </li>
                     </ul>
                 </div>
+                )}
                 <div className="header-toggle">
                     <button className="menu-toggler"><em className="menu-on menu-icon ni ni-menu"></em><em className="menu-off menu-icon ni ni-cross"></em></button>
                 </div>
@@ -242,24 +258,7 @@ const Header = ({ publicKey, isConnected }) => {
                     </a>
                   </li>
                 )}
-                {/* <li>
-                  <a href="../../walletConnect" className="btn btn-light">
-                    Connect Wallet
-                  </a>
-                </li> */}
-                {/* <li>
-                  <a
-                    href="#"
-                    className="theme-toggler"
-                    title="Toggle Dark/Light mode"
-                  >
-                    <span>
-                      <em className="ni ni-moon icon theme-toggler-show"></em>
-                      <em className="ni ni-sun icon theme-toggler-hide"></em>
-                    </span>
-                    <span className="theme-toggler-text">Dark Mode</span>
-                  </a>
-                </li> */}
+                
               </ul>
               {activeKey && (
               <ul className="menu-btns menu-btns-2">
@@ -274,10 +273,6 @@ const Header = ({ publicKey, isConnected }) => {
                         <li>
                             <a className="dropdown-item card-generic-item" href="../../user/dashboard"><em className="ni ni-dashboard me-2"></em> Dashboard</a>
                         </li>
-                       
-                        {/* <li>
-                            <a href="#" className="dropdown-item card-generic-item theme-toggler" title="Toggle Dark/Light mode"><em className="ni ni-moon me-2"></em> Dark Mode</a>
-                        </li> */}
                         <li><hr className="dropdown-divider" /></li>
                         <li>
                           <a className="dropdown-item card-generic-item" onClick={handleDisconnect}>

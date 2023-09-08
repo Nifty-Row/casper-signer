@@ -154,7 +154,7 @@ export default function Search() {
           </div>
         </div>
       </div>
-      <section className="explore-section pt-lg-4 mb-4">
+      <section className="explore-section pt-lg-4 mb-4 mt-2">
         <div className="container">
             <div className="filter-box pb-5">
                 <div className="filter-box-filter justify-content-between align-items-center">
@@ -171,22 +171,25 @@ export default function Search() {
                         <input type="text" placeholder="Search" title="Search by tokenID, Nft Name, Nft Symbol, username and Full Name of owners" value={searchQuery} className="form-control form-control-s1 quicksearch" onChange={(e) => handleChange(e.target.value)} />
                     </div>
                     {/* end filter-box-filter-item */}
-                    <h4 className="title">{text}</h4>
+                    <h4 className="title d-none d-lg-block">{text} </h4>
                     <div className="filter-box-filter-item ms-lg-auto filter-btn-wrap">
                         {/* <div className="filter-btn-group"><a href="#" className="btn filter-btn">Digital Assets</a><a href="#" className="btn filter-btn">Physical Assets</a></div> */}
                     </div>
                     {/* end filter-box-filter-item */}
-                    <div className="filter-box-filter-item filter-mobile-action ms-lg-auto">
+                    <div className="filter-box-filter-item filter-mobile-action ms-lg-auto mt-2">
                         <div className="filter-box-search-mobile dropdown me-2">
-                            <a className="icon-btn" href="#" data-bs-toggle="dropdown"><em className="ni ni-search"></em></a>
-                            <div className="dropdown-menu dropdown-menu-end card-generic card-generic-s2 mt-2 p-3"><input type="text" placeholder="Search By Name" className="form-control form-control-s1 quicksearch" /></div>
+                            <a className="icon-btn" href="#" data-bs-toggle="dropdown">
+                              <em className="ni ni-search"></em></a>
+                            <div className="dropdown-menu dropdown-menu-end card-generic card-generic-s2 mt-2 p-3">
+                              <input type="text" placeholder="Search" title="Search by tokenID, Nft Name, Nft Symbol, username and Full Name of owners" value={searchQuery} className="form-control form-control-s1 quicksearch" onChange={(e) => handleChange(e.target.value)} />
+                            </div>
                         </div>
-                        <div className="filter-box-btn-group-mobile dropdown">
+                        {/* <div className="filter-box-btn-group-mobile dropdown">
                             <a className="icon-btn" href="#" data-bs-toggle="dropdown"><em className="ni ni-filter"></em></a>
                             <div className="dropdown-menu dropdown-menu-end card-generic mt-2 p-3">
                                 <div className="filter-btn-group filter-btn-group-s1"><a href="#" className="btn filter-btn">Type: Digital</a><a href="#" className="btn filter-btn">Type: Physical</a></div>
                             </div>
-                        </div>
+                        </div> */}
                         {/* end filter-box-btn-group-mobile */}
                     </div>
                     {/* end filter-box-filter-item */}
