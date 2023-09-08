@@ -36,7 +36,7 @@ const Header = ({ publicKey, isConnected }) => {
   }, [walletConnected,publicKey,activePublicKey]);
 
   useEffect(()=>{
-    if(publicKey) alert(publicKey);
+    // if(publicKey) alert(publicKey);
   },[publicKey])
 
   const handleDisconnect = async () => {

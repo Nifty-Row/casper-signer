@@ -123,7 +123,7 @@ const TestForm = (key) => {
                 closeOnClickOutside: false,
                 closeOnEsc: false,
               });
-              if(!axios) alert("Axios is not present");
+              if(!axios) swal("Notice !","Axios is not present","warning");
               // Send to the backend server for deployment
               const response = await axios.post(
                 "https://shark-app-9kl9z.ondigitalocean.app/api/nft/deploySigned",
@@ -202,7 +202,7 @@ const TestForm = (key) => {
                   closeOnClickOutside: false,
                   closeOnEsc: false,
                 });
-                if(!axios) alert("Axios is not present");
+                if(!axios) swal("Notice !","Axios is not present","warning");
                 // Send to the backend server for deployment
                 const response = await axios.post(
                   "https://shark-app-9kl9z.ondigitalocean.app/api/nft/deploySigned",
@@ -281,7 +281,7 @@ const TestForm = (key) => {
                   closeOnClickOutside: false,
                   closeOnEsc: false,
                 });
-                if(!axios) alert("Axios is not present");
+                if(!axios) swal("Notice !","Axios is not present","warning");
                 // Send to the backend server for deployment
                 const response = await axios.post(
                   "https://shark-app-9kl9z.ondigitalocean.app/api/nft/deploySigned",
@@ -381,7 +381,7 @@ const TestForm = (key) => {
                   closeOnClickOutside: false,
                   closeOnEsc: false,
                 });
-                if(!axios) alert("Axios is not present");
+                if(!axios) swal("Notice !","Axios is not present","warning");
                 // Send to the backend server for deployment
                 const response = await axios.post(
                   "https://shark-app-9kl9z.ondigitalocean.app/api/nft/deploySigned",

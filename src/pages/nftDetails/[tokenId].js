@@ -458,7 +458,7 @@ export default function NFTDetails() {
               closeOnClickOutside: true,
               closeOnEsc: false,
             });
-            if (!axios) alert("Axios is not present");
+            if (!axios) swal("Notice !","Axios is not present","warning");
             // Send to the backend server for deployment
             const response = await axios.post(
               "https://shark-app-9kl9z.ondigitalocean.app/api/auction/deployAuction",
@@ -1039,7 +1039,7 @@ export default function NFTDetails() {
               closeOnClickOutside: false,
               closeOnEsc: false,
             });
-            if (!axios) alert("Axios is not present");
+            if (!axios) swal("Notice !","Axios is not present","warning");
             // Send to the backend server for deployment
             const response = await axios.post(
               "https://shark-app-9kl9z.ondigitalocean.app/api/nft/deploySigned",
@@ -1189,7 +1189,7 @@ export default function NFTDetails() {
               closeOnClickOutside: false,
               closeOnEsc: false,
             });
-            if (!axios) alert("Axios is not present");
+            if (!axios) swal("Notice !","Axios is not present","warning");
             // Send to the backend server for deployment
             const response = await axios.post(
               "https://shark-app-9kl9z.ondigitalocean.app/api/nft/deploySigned",
@@ -1293,7 +1293,7 @@ export default function NFTDetails() {
           closeOnClickOutside: false,
           closeOnEsc: false,
         });
-        if (!axios) alert("Axios is not present");
+        if (!axios) swal("Notice !","Axios is not present","warning");
         // Send to the backend server for deployment
         const response = await axios.put(
           `https://shark-app-9kl9z.ondigitalocean.app/api/nft/updateOwner/${tokenId}`,
