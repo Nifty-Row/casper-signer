@@ -1746,11 +1746,18 @@ export default function NFTDetails() {
                                   Auction not Verified
                                 </h4>
                               ) : null}
-                              {auctionData.packageHash != null && auctionStatus === "open" && !auctionEnded && (
+                              {auctionData.packageHash != null && auctionStatus === "open" && !auctionEnded ? (
                                 <h4 className="text-success">
                                   Auction is Open For Bidding{" "}
                                   <em className="ni ni-check"></em>
                                 </h4>
+                              ):(
+                                <>
+                                <h4 className="text-danger">
+                                  Auction is Closed For Bidding{" "}
+                                  <em className="ni ni-times"></em>
+                                </h4>
+                                </>
                               )}
                               
                               {auctionStatus !== "open" && (
@@ -1790,28 +1797,28 @@ export default function NFTDetails() {
                                             Confirm Bid
                                           </a>
                                         ))}
-                                      <a
+                                      {/* <a
                                         href="#"
                                         data-bs-toggle="modal"
                                         data-bs-target="#bidPurseModal"
                                         className="btn btn-dark d-block mb-0"
                                       >
                                         Place Bid
-                                      </a>
+                                      </a> */}
                                     </>
                                   )}
 
                                 {auctionStatus == "open" &&
                                   nft?.inAuction &&
                                   !isOwner &&
-                                  user?.purse === null && !auctionEnded &&(
+                                  !auctionEnded && (
                                     <a
                                       href="#"
                                       data-bs-toggle="modal"
                                       data-bs-target="#bidPurseModal"
                                       className="btn btn-dark d-block "
                                     >
-                                      Create Bid Purse
+                                      Place Bid
                                     </a>
                                   )}
                                 {nft?.minted && !nft?.inAuction && isOwner && (
