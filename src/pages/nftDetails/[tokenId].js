@@ -1746,7 +1746,7 @@ export default function NFTDetails() {
                                   Auction not Verified
                                 </h4>
                               ) : null}
-                              {auctionData.packageHash != null && auctionStatus === "open" && (
+                              {auctionData.packageHash != null && auctionStatus === "open" && !auctionEnded && (
                                 <h4 className="text-success">
                                   Auction is Open For Bidding{" "}
                                   <em className="ni ni-check"></em>
@@ -1804,7 +1804,7 @@ export default function NFTDetails() {
                                 {auctionStatus == "open" &&
                                   nft?.inAuction &&
                                   !isOwner &&
-                                  user?.purse === null && (
+                                  user?.purse === null && !auctionEnded &&(
                                     <a
                                       href="#"
                                       data-bs-toggle="modal"
