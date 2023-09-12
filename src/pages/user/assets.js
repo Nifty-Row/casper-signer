@@ -107,7 +107,7 @@ export default function Home() {
               <div className="container">
                   <div className="row">
                       
-                      <div className="col-xl-9 ps-xl-4 mx-auto">
+                      <div className="col-xl-12 ps-xl-4 mx-auto">
                           <div className="author-items-wrap">
                               <ul className="nav nav-tabs nav-tabs-s1" id="myTab" role="tablist">
                                   <li className="nav-item" role="presentation">
